@@ -1,0 +1,19 @@
+title: $:/plugins/Gk0Wk/echarts/readme
+
+<$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
+<$list filter="[<lang>search[zh]]">
+
+用于 TiddlyWiki5 的 EChart 库。[[EChart|https://echarts.apache.org/zh/index.html]] 是一个基于 JavaScript 的开源可视化图表库。
+
+本插件主要作为其他插件的基础库来使用。
+
+</$list>
+
+<$list filter="[<lang>!search[zh]]">
+
+EChart library for TiddlyWiki5. [[EChart|https://echarts.apache.org/en/index.html]] is an open source javascript visualization library.
+
+This plugin is mainly used as a base library for other plugins.
+
+</$list>
+</$list>

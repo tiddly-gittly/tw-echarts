@@ -1,0 +1,12 @@
+author: JD
+core-version: >=5.1.14
+created: 20171030163446089
+creator: JD
+description: JD Mobile Layout
+list: readme config
+modified: 20211015005124923
+modifier: JD
+plugin-type: plugin
+title: $:/plugins/jd/mob
+type: application/json
+version: 1.0.4

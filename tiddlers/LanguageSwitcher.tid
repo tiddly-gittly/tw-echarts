@@ -1,0 +1,17 @@
+created: 20211209040935294
+list-after: $:/plugins/Gk0Wk/TiddlySeq/gadgets/SiteTitleInTopbar
+list-before: $:/core/ui/ViewTemplate/body
+modified: 20211209041816497
+tags: ExcludeFromEmpty $:/tags/ViewTemplate
+title: LanguageSwitcher
+tmap.id: 1015d0d0-d37b-4831-acd4-a83668a41fe7
+type: text/vnd.tiddlywiki
+
+<$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
+<$list filter="[<lang>search[zh]]">
+<$button set="$:/language" setTo="$:/languages/en-GB" style="">🇬🇧 Switch to English</$button>
+</$list>
+<$list filter="[<lang>!search[zh]]">
+<$button set="$:/language" setTo="$:/languages/zh-Hans" style="">🇨🇳 切换至中文</$button>
+</$list>
+</$list>

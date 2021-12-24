@@ -1,0 +1,58 @@
+title: $:/plugins/Gk0Wk/echarts/addons/PluginsSize
+type: text/vnd.tiddlywiki
+
+`{
+  "tooltip": {
+    "trigger": "item"
+  },
+  "series": [
+    {
+      "type": "treemap",
+      "visibleMin": 300,
+      "name": "Plugin Size",
+      "leafDepth": 1,
+      "data": [
+`
+<$list filter="[!plugin-type[]!title[$:/core]!title[$:/temp/info-plugin]]" variable="pluginName" counter="counter1">
+`  {
+        "name": "`<$text text={{{ [<pluginName>get[name]] }}}/>`",
+        "value": `<$text text={{{ [<pluginName>get[text]length[]else[0]] }}}/>`,
+        "children": [
+`
+<$list filter="[<pluginName>plugintiddlers[]]" variable="pluginShadow" counter="counter2">
+`      {
+            "name": "`<$text text={{{ [<pluginShadow>removeprefix<pluginName>removeprefix[/]] }}}/>`",
+            "value": `<$text text={{{ [<pluginShadow>get[text]length[]else[0]] }}}/>`
+          }`<$list filter="[<counter2-last>match[no]]">`,`</$list>`
+`
+</$list>
+`       ]
+    }`<$list filter="[<counter1-last>match[no]]">`,`</$list>`
+`
+</$list>
+`
+      ],
+      "levels": [
+        {
+          "itemStyle": {
+            "borderColor": "#555",
+            "borderWidth": 4,
+            "gapWidth": 4
+          }
+        },
+        {
+          "colorSaturation": [0.3, 0.6],
+          "itemStyle": {
+            "borderColorSaturation": 0.7,
+            "gapWidth": 2,
+            "borderWidth": 2
+          }
+        }
+      ],
+      "upperLabel": {
+        "show": true,
+        "height": 30
+      }
+    }
+  ]
+}`

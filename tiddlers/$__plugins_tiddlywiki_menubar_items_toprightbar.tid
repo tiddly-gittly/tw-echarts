@@ -1,0 +1,16 @@
+caption: Legacy Top Right Bar
+created: 20211013064716062
+custom-menu-content: <$transclude tiddler="$:/plugins/tiddlywiki/menubar/items/toprightbar" mode="inline"/>
+custom-menu-styles-narrow: display: none !important;
+custom-menu-styles-wide: float: right;
+description: Items from $:/tags/TopRightBar
+modified: 20211015005125481
+tags: $:/tags/MenuBar
+title: $:/plugins/tiddlywiki/menubar/items/toprightbar
+type: text/vnd.tiddlywiki
+
+<$list filter="[all[shadows+tiddlers]tag[$:/tags/TopRightBar]!has[draft.of]reverse[]]" variable="listItem" storyview="pop">
+
+<$transclude tiddler=<<listItem>> mode="inline"/>
+
+</$list>

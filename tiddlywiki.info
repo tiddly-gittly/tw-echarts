@@ -1,0 +1,31 @@
+{
+  "description": "EChart For TiddlyWiki5",
+  "plugins": [
+    "tiddlywiki/filesystem",
+    "tiddlywiki/tiddlyweb",
+    "tiddlywiki/highlight",
+    "tiddlywiki/pluginlibrary",
+    "tiddlywiki/codemirror",
+    "tiddlywiki/codemirror-autocomplete",
+    "tiddlywiki/codemirror-closebrackets",
+    "tiddlywiki/codemirror-closetag",
+    "tiddlywiki/codemirror-fullscreen-editing",
+    "tiddlywiki/codemirror-keymap-sublime-text",
+    "tiddlywiki/codemirror-mode-css",
+    "tiddlywiki/codemirror-mode-htmlmixed",
+    "tiddlywiki/codemirror-mode-javascript",
+    "tiddlywiki/codemirror-mode-markdown",
+    "tiddlywiki/codemirror-mode-xml",
+    "tiddlywiki/codemirror-search-replace",
+    "tiddlywiki/sax",
+    "tiddlywiki/menubar",
+    "tiddlywiki/mobiledragdrop",
+    "Gk0Wk/echarts"
+  ],
+  "themes": [
+    "tiddlywiki/vanilla"
+  ],
+  "languages": [
+    "zh-Hans"
+  ]
+}

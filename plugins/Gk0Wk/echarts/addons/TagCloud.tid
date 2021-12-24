@@ -1,0 +1,47 @@
+title: $:/plugins/Gk0Wk/echarts/addons/TagCloud.js
+type: application/javascript
+module-type: library
+
+// See https://github.com/ecomfe/echarts-wordcloud
+exports.onUpdate = function (echart) {
+  var data = [];
+  $tw.utils.each($tw.wiki.filterTiddlers('[tags[]!is[system]sort[title]]'), function (tag) {
+    data.push({
+      name: tag,
+      value: Math.sqrt($tw.wiki.getTiddlersWithTag(tag).length)
+    });
+  });
+  var isDarkMode = echart.getOption();
+  isDarkMode = isDarkMode ? isDarkMode.darkMode !== false : false;
+  echart.setOption({
+    series: [{
+      type: 'wordCloud',
+      gridSize: 4,
+      shape: 'pentagon',
+      data: data.sort(function (a, b) {
+        return b.value - a.value;
+      }),
+      layoutAnimation: true,
+      textStyle: {
+        fontFamily: 'sans-serif',
+        fontWeight: 'bold',
+        // Color can be a callback function or a color string
+        color: function () {
+          // Random color
+          return 'rgb(' + [
+            isDarkMode ? (255 - Math.round(Math.random() * 160)) : Math.round(Math.random() * 160),
+            isDarkMode ? (255 - Math.round(Math.random() * 160)) : Math.round(Math.random() * 160),
+            isDarkMode ? (255 - Math.round(Math.random() * 160)) : Math.round(Math.random() * 160),
+          ].join(',') + ')';
+        }
+      },
+      emphasis: {
+        focus: 'self',
+        textStyle: {
+          textShadowBlur: 10,
+          textShadowColor: '#333'
+        }
+      }
+    }]
+  });
+};

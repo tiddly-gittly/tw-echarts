@@ -1,0 +1,23 @@
+caption: Page controls
+created: 20211013065006123
+custom-menu-content: <$transclude tiddler="$:/plugins/tiddlywiki/menubar/items/pagecontrols" mode="inline"/>
+custom-menu-styles-narrow: display: none !important;
+description: Page controls from the sidebar
+modified: 20211015005125465
+tags: $:/tags/MenuBar
+title: $:/plugins/tiddlywiki/menubar/items/pagecontrols
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+\define config-title()
+$:/config/PageControlButtons/Visibility/$(listItem)$
+\end
+<$list filter="[all[shadows+tiddlers]tag[$:/tags/PageControls]!has[draft.of]]" variable="listItem">
+<$set name="hidden" value=<<config-title>>>
+<$list filter="[<hidden>!text[hide]]" storyview="pop" variable="ignore">
+<$set name="tv-config-toolbar-class" filter="[<tv-config-toolbar-class>] [<listItem>encodeuricomponent[]addprefix[tc-btn-]]">
+<$transclude tiddler=<<listItem>> mode="inline"/>
+</$set>
+</$list>
+</$set>
+</$list>

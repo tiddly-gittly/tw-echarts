@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1-alpha1",
+  "type": "application/json",
+  "title": "$:/plugins/Gk0Wk/echarts",
+  "plugin-type": "plugin",
+  "name": "ECharts",
+  "list": "readme LICENSE",
+  "description": "ECharts library for TiddlyWiki5",
+  "author": "Gk0Wk",
+  "source": "https://github.com/Gk0Wk/TiddlySeq/tree/master/plugins/Gk0Wk/echarts",
+  "tiddlers": {
+  }
+}

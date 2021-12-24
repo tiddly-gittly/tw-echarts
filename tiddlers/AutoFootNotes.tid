@@ -1,0 +1,10 @@
+created: 20210916054832274
+modified: 20211015005857228
+tags: $:/tags/ViewTemplate MyTiddlyWiki
+title: AutoFootNotes
+tmap.id: dd2729c9-d512-4b5a-8a5a-982d4a61afb5
+type: text/vnd.tiddlywiki
+
+<$list filter="[all[current]!is[shadow]!is[system]type[]] +[all[current]!is[shadow]!is[system]type[text/vnd.tiddlywiki]]">
+<<showfnotes title:参考引用>>
+</$list>
