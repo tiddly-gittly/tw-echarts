@@ -15,7 +15,7 @@ type: text/vnd.tiddlywiki
 `
 <$list filter="[!plugin-type[]!title[$:/core]!title[$:/temp/info-plugin]]" variable="pluginName" counter="counter1">
 `  {
-        "name": "`<$text text={{{ [<pluginName>get[name]] }}}/>`",
+        "name": "`<$text text={{{ [<pluginName>get[name]else<pluginName>split[/]nth[4]] }}}/>`",
         "value": `<$text text={{{ [<pluginName>get[text]length[]else[0]] }}}/>`,
         "children": [
 `
