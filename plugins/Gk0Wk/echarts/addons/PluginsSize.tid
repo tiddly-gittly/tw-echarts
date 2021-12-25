@@ -14,20 +14,20 @@ type: text/vnd.tiddlywiki
       "data": [
 `
 <$list filter="[!plugin-type[]!title[$:/core]!title[$:/temp/info-plugin]]" variable="pluginName" counter="counter1">
-`  {
-        "name": "`<$text text={{{ [<pluginName>get[name]else<pluginName>split[/]nth[4]] }}}/>`",
-        "value": `<$text text={{{ [<pluginName>get[text]length[]else[0]] }}}/>`,
-        "children": [
+`        {
+          "name": "`<$list filter="[<pluginName>has[name]]"><$text text={{{ [<pluginName>get[name]] }}}/></$list><$list filter="[<pluginName>!has[name]]"><$text text={{{ [<pluginName>has[name]else<pluginName>split[/]nth[4]] }}}/></$list>`",
+          "value": `<$text text={{{ [<pluginName>get[text]length[]else[0]] }}}/>`,
+          "children": [
 `
 <$list filter="[<pluginName>plugintiddlers[]]" variable="pluginShadow" counter="counter2">
-`      {
-            "name": "`<$text text={{{ [<pluginShadow>removeprefix<pluginName>removeprefix[/]] }}}/>`",
+`          {
+            "name": "`<$text text={{{ [<pluginShadow>removeprefix<pluginName>removeprefix[/]else<pluginShadow>] }}}/>`",
             "value": `<$text text={{{ [<pluginShadow>get[text]length[]else[0]] }}}/>`
           }`<$list filter="[<counter2-last>match[no]]">`,`</$list>`
 `
 </$list>
-`       ]
-    }`<$list filter="[<counter1-last>match[no]]">`,`</$list>`
+`          ]
+        }`<$list filter="[<counter1-last>match[no]]">`,`</$list>`
 `
 </$list>
 `
