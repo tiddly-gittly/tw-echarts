@@ -19,7 +19,7 @@
           var addon = require(title);
           var onUnmount = addon.onUnmount;
           if (typeof onUnmount === 'function') {
-            return onUnmount(state);
+            onUnmount(state);
           }
         }
       }
