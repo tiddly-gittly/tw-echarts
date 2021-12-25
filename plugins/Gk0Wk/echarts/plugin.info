@@ -5,9 +5,7 @@
   "plugin-type": "plugin",
   "name": "ECharts",
   "list": "readme LICENSE",
-  "description": "ECharts library for TiddlyWiki5",
+  "description": "ECharts for TiddlyWiki5",
   "author": "Gk0Wk",
-  "source": "https://github.com/Gk0Wk/TiddlySeq/tree/master/plugins/Gk0Wk/echarts",
-  "tiddlers": {
-  }
+  "source": "https://github.com/tiddly-gittly/tw-echarts"
 }
