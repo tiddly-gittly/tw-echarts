@@ -1,6 +1,6 @@
 created: 20211225111332641
 icon: 🎉
-modified: 20211226052400975
+modified: 20211226160923158
 page-cover: https://tc9011.com/assets/images/Echarts%E6%94%B9%E9%80%A0%E4%B9%8B%E5%8A%A8%E6%80%81%E6%98%BE%E7%A4%BA/banner.png
 tags: ECharts Readme
 title: Index
@@ -105,7 +105,7 @@ EChart 的可视化方式非常丰富，从最简单的柱状图，到拓扑图�
  * @param addonAttributes <$echarts> 控件传入的的所有参数，是object
  * @return Object 初始化的组件状态，用于状态管理(可选)
  */
-exports.onInit = function (echartsInstance, addonAttributes) {
+exports.onMount = function (echartsInstance, addonAttributes) {
   return {};
 };
 /**
@@ -115,7 +115,7 @@ exports.onInit = function (echartsInstance, addonAttributes) {
  * @return boolean 如果需要刷新就返回true，反之
  */
 /* shouldRefresh 也可以是一个字符串，那就和 echarts-refresh-trigger 字段一样 */
-exports.shouldRefresh = function (state, changedTiddlers) {
+exports.shouldUpdate = function (state, changedTiddlers) {
   return true;
 }
 /**

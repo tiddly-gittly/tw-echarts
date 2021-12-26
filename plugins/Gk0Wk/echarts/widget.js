@@ -83,14 +83,15 @@
         return this._state !== this.state;
       } else if (tiddler.type === 'application/javascript') {
         var addon = require(this.tiddlerTitle);
-        var shouldRefresh = addon.shouldRefresh;
-        if (shouldRefresh === undefined) return true;
-        if (typeof shouldRefresh === 'string') {
+        var shouldUpdate = addon.shouldUpdate;
+        if (shouldUpdate === undefined) shouldUpdate = addon.shouldRefresh;
+        if (shouldUpdate === undefined) return true;
+        if (typeof shouldUpdate === 'string') {
           this._state = JSON.stringify($tw.wiki.filterTiddlers(tiddler['echarts-refresh-trigger']));
           return this._state !== this.state;
         }
-        if (typeof shouldRefresh === 'function') {
-          return shouldRefresh(this.state, changedTiddlers);
+        if (typeof shouldUpdate === 'function') {
+          return shouldUpdate(this.state, changedTiddlers);
         }
         return true;
       } else {
@@ -115,9 +116,10 @@
         }
       } else if (tiddler.type === 'application/javascript') {
         var addon = require(this.tiddlerTitle);
-        var onInit = addon.onInit;
-        if (typeof onInit === 'function') {
-          this.state = onInit(this.echartsInstance, this.addonAttributes);
+        var onMount = addon.onMount;
+        if (onMount === undefined) onMount = addon.onInit;
+        if (typeof onMount === 'function') {
+          this.state = onMount(this.echartsInstance, this.addonAttributes);
         }
       }
     } catch (e) {
@@ -168,17 +170,24 @@
   // 异步更新
   EChartsWidget.prototype.generateOption = function () {
     var that = this;
+    this.echartsInstance.showLoading();
     new Promise(function (resolve) {
-      if (!that.tiddlerTitle || !$tw.wiki.getTiddler(that.tiddlerTitle)) resolve();
-      var tiddler = $tw.wiki.getTiddler(that.tiddlerTitle).fields;
-      if (!tiddler.type || tiddler.type === '' || tiddler.type === 'text/vnd.tiddlywiki') {
-        that.echartsInstance.setOption(JSON.parse($tw.wiki.renderTiddler('text/plain', that.tiddlerTitle, {})));
-      } else if (tiddler.type === 'application/json') {
-        that.echartsInstance.setOption(JSON.parse($tw.wiki.getTiddlerText(that.tiddlerTitle)));
-      } else if (tiddler.type === 'application/javascript') {
-        require(that.tiddlerTitle).onUpdate(that.echartsInstance, that.state, that.addonAttributes);
+      try {
+        if (!that.tiddlerTitle || !$tw.wiki.getTiddler(that.tiddlerTitle)) resolve();
+        var tiddler = $tw.wiki.getTiddler(that.tiddlerTitle).fields;
+        if (!tiddler.type || tiddler.type === '' || tiddler.type === 'text/vnd.tiddlywiki') {
+          that.echartsInstance.setOption(JSON.parse($tw.wiki.renderTiddler('text/plain', that.tiddlerTitle, {})));
+        } else if (tiddler.type === 'application/json') {
+          that.echartsInstance.setOption(JSON.parse($tw.wiki.getTiddlerText(that.tiddlerTitle)));
+        } else if (tiddler.type === 'application/javascript') {
+          require(that.tiddlerTitle).onUpdate(that.echartsInstance, that.state, that.addonAttributes);
+        }
+      } catch (e) {
+        console.error(e);
       }
       resolve();
+    }).then(function () {
+      that.echartsInstance.hideLoading();
     });
   };
   EChartsWidget.prototype.makeRefresh = function (changedTiddlers) {

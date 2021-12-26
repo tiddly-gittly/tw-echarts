@@ -26,13 +26,13 @@ var Categories = [
   },
 ];
 
-exports.onInit = function () {
+exports.onMount = function () {
   return {
     historyTiddlers: [],
   };
 };
 
-exports.shouldRefresh = function (_, changedTiddlers) {
+exports.shouldUpdate = function (_, changedTiddlers) {
   return $tw.utils.count(changedTiddlers) > 0;
 };
 
@@ -60,6 +60,7 @@ exports.onUpdate = function (echart, state) {
       var tiddlerTitle = state.historyTiddlers[i];
       if (historyMap[tiddlerTitle]) continue;
       if (tiddlerTitle === nextTiddler) continue;
+      if (tiddlerTitle.startsWith('$:/')) continue;
       edges.push({
         source: tiddlerTitle,
         target: nextTiddler,
@@ -173,6 +174,8 @@ exports.onUpdate = function (echart, state) {
       });
     }
   }
+  var index_ = state.historyTiddlers.indexOf(focussedTiddler);
+  if (index_ > -1) state.historyTiddlers.splice(index_, 1);
   state.historyTiddlers.push(focussedTiddler);
   state.historyTiddlers.slice(-10);
   echart.setOption({

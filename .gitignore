@@ -102,3 +102,17 @@ dist
 
 # TernJS port file
 .tern-port
+
+.DS_Store
+output
+$__StoryList.tid
+$__StoryList_*.tid
+settings/settings.json
+tiddlers/subwiki/
+
+# ignore some change from plugin that will only change "modified" field
+$__keepstate_*
+$__Import.tid
+$__view.tid
+$__config_Navigation_openLinkFromInsideRiver.tid
+$__config_Navigation_openLinkFromOutsideRiver.tid
