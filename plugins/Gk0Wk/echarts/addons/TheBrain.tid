@@ -26,10 +26,17 @@ var Categories = [
   },
 ];
 
-exports.onMount = function () {
-  return {
+exports.onMount = function (echart) {
+  var state = {
     historyTiddlers: [],
   };
+  echart.on('click', function (event) {
+    if (event.dataType === 'node') {
+      new $tw.Story().navigateTiddler(event.data.name);
+    } else if (event.dataType === 'edge') {
+    }
+  });
+  return state;
 };
 
 exports.shouldUpdate = function (_, changedTiddlers) {
@@ -201,6 +208,7 @@ exports.onUpdate = function (echart, state) {
         edges: edges,
         categories: Categories,
         roam: true,
+        draggable: true,
         zoom: 4.0,
         label: {
           position: 'right',
