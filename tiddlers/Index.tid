@@ -6,6 +6,8 @@ tags: ECharts Readme
 title: Index
 type: text/vnd.tiddlywiki
 
+''Note: The English document is on the way...''
+
 很久以前，在我刚刚开始使用 ~TiddlyWiki 的时候，我就希望 ~TiddlyWiki 能够进行数据的可视化工作，我希望用条目中的数据直接生成图表，我希望描绘条目间的逻辑关系，我希望能够统计词云，希望能用直观的方式描述数据...
 
 可惜的是，尽管官方推出了 [[d3.js|https://d3js.org/]] 的插件，但这款插件尚未在普通用户可以使用的范围内：插件只是包装了 JS 库，并只给了两个简单的使用示例。 d3.js 是一个高度自由但是也因此具有高额学习成本的可视化库，想要利用其做各种可视化工具，就需要使用 ~JavaScript 来编写独立的控件，这对普通与用户来说太极客了。
