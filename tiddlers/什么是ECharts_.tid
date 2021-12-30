@@ -1,0 +1,11 @@
+created: 20211230150012377
+modified: 20211230151839684
+tags: 
+title: 什么是ECharts?
+type: text/vnd.tiddlywiki
+
+ECharts 是一款基于 ~JavaScript 的数据可视化图表库，提供直观，生动，可交互，可个性化定制的数据可视化图表。ECharts最初由百度团队开源，并于2018年初捐赠给Apache基金会，成为ASF孵化级项目。
+
+[[ECharts|https://echarts.apache.org/zh/index.html]] 相较 [[d3.js|https://d3js.org/]] ，效率更高(如有不妥请指正)、使用更简单，同时支持 canvas 和 svg 两种渲染方式，整个文件虽然不小(1M 左右)，但是考虑到是一个非常全能的可视化库，所以已经是很不错的了。
+
+EChart 的可视化方式非常丰富，从最简单的柱状图，到拓扑图，到树形结构图，到可视化地图，以及词云、三维可视化等都可以搞定。可以点击[[这里|https://echarts.apache.org/examples/zh/index.html]]了解一下，这里就不赘述了。而这些可视化方式，本框架也都可以兼容(如果出现兼容问题，请提Issue)。

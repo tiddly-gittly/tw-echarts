@@ -1,0 +1,8 @@
+created: 20211230152053149
+modified: 20211230152157502
+title: How do I install this plugin?
+type: text/vnd.tiddlywiki
+
+Although you can install ~TiddlyWiki plugins by dragging the plugin tiddler directly into your Wiki as any other ~TiddlyWiki plugin, allow me a little advertisement here: Please use the CPL plugin source to install and update!
+
+: Go to the [[TiddlyWiki Chinese plugin source website|https://tw-cpl.netlify.app/]] to install the plugin source, then open your Wiki's [Control Panel] - [Plugins] - [Get More Plugins] to install this plugin and you can easily update the plugin. More interesting plug-ins for you to explore!

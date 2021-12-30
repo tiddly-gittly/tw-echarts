@@ -1,0 +1,8 @@
+created: 20211230152348124
+modified: 20211230152541882
+title: Please share your work with everyone!
+type: text/vnd.tiddlywiki
+
+There's an old chinese saying, //More hands produce a stronger flame.//
+
+If you have written a component that you are happy with, please post it to the [[GitHub Discussions|https://github.com/tiddly-gittly/tw-echarts/ discussions]], I will filter the useful visual components and add them to this plugin, also welcome to be a collaborator of this project, let's benefit more people and make ~TiddlyWiki more powerful!

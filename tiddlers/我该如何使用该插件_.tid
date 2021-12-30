@@ -1,0 +1,112 @@
+created: 20211230150144652
+modified: 20211230154608084
+tags: 
+title: 我该如何使用该插件?
+type: text/vnd.tiddlywiki
+
+> 注意：阅读本节时，已默认你会使用ECharts。所以如果在阅读中感觉有一些不理解，请去[补补课](https://echarts.apache.org/zh/index.html)。也欢迎贡献此教程，我知道我写的不算太好。
+
+这个插件的使用方式很简单，也可以很复杂，先从最简单的方式说起：
+
+定义一个`echarts`控件：
+
+```
+<$echarts />
+```
+
+和其他控件一样，`echarts`控件有很多的参数：
+
+|!参数 |!解释 |
+|$tiddler |包含配置信息的条目(的标题)，可以是JSON类型、JS类型或者TW5类型 |
+|$width |画布的宽，默认为`100%` |
+|$height |画布的高，默认为`300px` |
+|$class |画布外层`div`容器的类名，默认为`gk0wk-echarts-body` |
+|$fillSidebar |当控件位于侧边栏时，是否自动调整高度以填满侧边栏，默认为`true` |
+|$theme |ECharts的主题，`light`为亮色主题，`dark`为暗色主题，`auto`(默认)为自动判断 |
+|$renderer |渲染方式，`canvas`(默认)或者`svg` |
+|其他参数 |如果`$tiddler`指向JS类型的条目，将会作为其`onUpdate`函数的参数 |
+
+!! JSON 类型的条目
+
+这里比较难理解的就是`$tiddler`指向的是什么？这里给一个小例子，来看一下 [[$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json]] 这个条目，可以发现它是一个JSON文件，用过ECharts的同学应该有一眼能看出来它是什么，没错，就是 `echarts.setOption` 的第一个参数。
+
+我们按照如下方式将这个柱状图导入，就可以显示了：
+
+```
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json"/>
+```
+
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json"/>
+
+就这么简单？没错真的就这么简单，剩下的事情，包括画布尺寸的自动调整、刷新机制、资源管理等等都不需要你来操心。
+
+!! TW5 类型的条目
+
+不过，一个静态的JSON文件，除了用来演示静态的信息之外就没有别的用处了。相信大家更需要的是能够动态更新的条目。为了满足这样的需要，如果`$tiddler`指向一个普通的条目(类型为空或者`text/vnd.tiddlywiki`，下面称其为TW5条目)，那么会对其进行渲染得到纯文本内容，再将纯文本作为JSON进行解析。这样就可以利用`<$list>`、`<$reveal>`等控件进行条件渲染和数据遍历了。
+
+这里有一个非常好的例子(甚至值得作为一个优秀的插件)，是动态统计已安装的所有插件的大小，并用矩阵树图的方式来呈现。每个块都是可以展开和缩放的。
+
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/PluginsSize" $height="500px"/>
+
+对应的条目是[[$:/plugins/Gk0Wk/echarts/addons/PluginsSize]]，会生成一个非常长的条目，因此在打开的时候会有卡顿，请做好心理准备。
+
+不过说到这里，你可能会有疑问，控件会在什么时候进行刷新呢？在默认情况下，对于JSON条目和TW5条目，只有在变更控件参数或者`$tiddler$`指向的条目发生变化时才会更新。
+
+那么我可不可以自行决定刷新的时机？当然可以，在 `$tiddler` 指向的那个条目中添加 `echarts-refresh-trigger` 字段即可。该字段内填写你自定义的过滤器表达式，每当表达式的结果发生变化时，就会触发更新。例如 `[[Examples]get[modified]]` ，就会在 ''Examples'' 这个字段被修改后更新(因为时间戳会变化)。
+
+!! JS 类型的条目
+
+使用TW5语法生成数据，肯定还是要有局限性的。如果想发挥最大限度的灵活性，推荐使用 ~JavaScript 来写(当然，肯定是有技术门槛的)。
+
+不管 JSON、 TW5 还是 JS ，最核心的肯定是生成一个 `setOption` 能够支持的对象。不过对于 JS 类型的条目，优势在于拥有生命周期，拥有状态，自定义更新时机以及对 `echarts` 实例的完全掌控——当然，麻烦的事情我已经帮你搞定了，你只需要把精力放在可视化本身上。
+
+我参考了 Vue 和 React 的组件写法，一个JS类型条目的模板是这样的：
+
+```javascript
+/**
+ * 当组件第一次初始化时调用的函数(可选)
+ * @param echartsInstance echarts实例，详见echarts的API文档
+ * @param addonAttributes <$echarts> 控件传入的的所有参数，是object
+ * @return Object 初始化的组件状态，用于状态管理(可选)
+ */
+exports.onMount = function (echartsInstance, addonAttributes) {
+  return {};
+};
+/**
+ * 判断是否需要刷新组建(可选)
+ * @param state 组件的状态，就是onMount返回的那个
+ * @param changedTiddlers 刷新是由TW系统监听到有条目发生变化才会触发的，这是一个包含所有变更条目标题的字符串数组
+ * @return boolean 如果需要刷新就返回true，反之
+ */
+/* shouldRefresh 也可以是一个字符串，那就和 echarts-refresh-trigger 字段一样 */
+exports.shouldUpdate = function (state, changedTiddlers) {
+  return true;
+}
+/**
+ * 当组件被更新时调用的函数
+ * @param echartsInstance echarts实例，详见echarts的API文档
+ * @param state 组件的状态，就是onMount返回的那个
+ * @param addonAttributes <$echarts> 控件传入的所有参数
+ */
+exports.onUpdate = function (echartsInstance, state, addonAttributes) {
+  // 注意：函数不返回任何值，你需要手动调用setOption函数
+  // 需要的参数都有了，想做什么随意
+  echartsInstance.setOption({});
+}
+/**
+ * 当组件被卸载时调用的函数(可选)
+ * 注意：如果浏览器页面被直接关闭，可能就没法调用这个函数了
+ * @param state 组件的状态，就是onMount返回的那个
+ */
+exports.onUnmount = function (state) {
+
+}
+```
+
+@@color:red;注意：这个条目的类型应当为 `application/javascript` ，且应当包含字段 `module-type` ，值为 `library` 。@@
+
+这里也有一个简单的例子，用于生成所有非系统条目的标签词云([[$:/plugins/Gk0Wk/echarts/addons/TagCloud.js]]):
+
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/TagCloud.js"/>
+
+这里想简单说明一下，为什么会有`addonAttributes`以及应该如何使用。如果你有能力编写JS类型的可视化组件，希望你能够不仅仅为自己开发组件，也为其他人开发组件，我预留了足够的位置，让你能够对`<$echarts>`组件进行拓展，因此当用户输入类似`<$echarts foo="bar"/>`这样的自定义参数时，你也能够获取到，这就有了更大的灵活度。希望利用这一点，帮助你写出更加灵活通用的组件！

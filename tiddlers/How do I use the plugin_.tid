@@ -1,0 +1,111 @@
+created: 20211230152650120
+modified: 20211230155340801
+title: How do I use the plugin?
+type: text/vnd.tiddlywiki
+
+> Note: I have assumed that you will already be using ECharts when reading this section. so if there is something you feel you don't understand in reading it, please go [[catch up|https://echarts.apache.org/en/index.html]]. Feel free to contribute to this tutorial as well, I know I didn't write it too well.
+
+This plugin can be used in a very simple or complex way, let's start with the simplest way.
+
+Define an "echarts" widget.
+
+```
+<$echarts />
+```
+
+Like other widgets, the `echarts` widget has a number of attributes.
+
+|!Attribute |!Description |
+|$tiddler |Tiddler containing configuration information (the title), either JSON type, JS type or TW5 type |
+|$width |The width of the canvas, default is `100%` |
+|$height |Height of the canvas, default is `300px` |
+|$class |Class name of the outer `div` container of the canvas, default is `gk0wk-echarts-body` |
+|$fillSidebar |Whether to automatically adjust the height to fill the sidebar when the wdiget is in the sidebar, default is `true` |
+|$theme |ECharts theme, `light` for bright theme, `dark` for dark theme, `auto` (default) for automatic judgment |
+|$renderer |Rendering method, `canvas` (default) or `svg` |
+|Others |If `$tiddler` points to an tiddler of type JS, it will be used as an argument to its `onUpdate` function |
+
+!! JSON type tiddlers
+
+The difficult thing to understand here is what does `$tiddler` point to? Here is a small example, take a look at [[$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json]], you can find it is a JSON file, guys who have used ECharts should be able to see what it is at a glance, yes, it is the first attribute of `echarts.setOption` function.
+
+We import this bar chart as follows, and it will be displayed.
+
+```
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json"/>
+```
+
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json"/>
+
+Is it that simple? Yes, it's really that simple. You don't have to worry about the rest, including automatic canvas resizing, refresh mechanism, resource management, etc.
+
+!! TW5 type tiddlers
+
+However, a static JSON file is not useful for anything other than demonstrating static information. I believe what you need more is an tiddler that can be dynamically updated. To meet such a need, if `$tiddler` points to a normal tiddler (of type empty or `text/vnd.tiddlywiki`, called TW5 tiddler below), then it will be rendered to get the plain text content, which will then be parsed as JSON. This allows conditional rendering and data traversal using widgets such as `<$list>` and `<$reveal>`.
+
+A very good example here (even worthy of an excellent plugin) is the dynamic count of the size of all installed plugins, presented as a matrix tree diagram. Each block is expandable and scalable.
+
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/PluginsSize" $height="500px"/>
+
+The corresponding tiddler is [[$:/plugins/Gk0Wk/echarts/addons/PluginsSize]], which will generate a very long tiddler, so be prepared for a lag when opening it.
+
+But having said that, you may wonder at what point the widget will be refreshed? By default, for JSON tiddlers and TW5 tiddlers, they are updated only when the widget attributes are changed or when the tiddler pointed to by `$tiddler$` changes.
+
+So can I decide the timing of the refresh myself? Sure, just add the `echarts-refresh-trigger` field to the tiddler pointed to by `$tiddler`. This field should be filled with your custom filter expression and will trigger an update whenever the result of the expression changes. For example, `[[Examples]get[modified]]` will make the updating when the ''Examples'' field is modified (because the timestamp will change).
+
+!! JS type tiddlers
+
+Using TW5 syntax to generate data should definitely still have limitations. If you want the maximize flexibility, it is recommended to write in ~JavaScript (of course, there is definitely a technical threshold).
+
+Regardless of JSON, TW5 or JS, the core thing is definitely to generate an object that `setOption` can support. But for JS type tiddlers, the advantage is having a lifecycle, having state, custom update timing and full control over the `echarts` instance - of course, I've taken care of the hassle for you, you just need to focus on the visualization itself.
+
+I took a page from Vue and React to write the component, and the template for a JS type tiddler looks like this:
+
+```javascript
+/**
+ * Function to be called when the component is first initialized (optional)
+ * @param echartsInstance echarts instance, see the echarts API documentation for details
+ * @param addonAttributes An object contains all attribute passed in by the <$echarts> widget
+ * @return Object Initialized component state for state management (optional)
+ */
+exports.onMount = function (echartsInstance, addonAttributes) {
+  return {};
+};
+/**
+ * Determine if the formation needs to be refreshed (optional)
+ * @param state The state of the component, which is the one returned by onMount
+ * @param changedTiddlers The refresh is triggered by the TW system listening for a change in the tiddler, which is an array of strings containing the titles of all changed tiddlers
+ * @return boolean Returns true if a refresh is required, and vice versa
+ */
+/* shouldRefresh It can also be a string, which would be the same as the echarts-refresh-trigger field */
+exports.shouldUpdate = function (state, changedTiddlers) {
+  return true;
+}
+/**
+ * Functions to be called when a component is updated
+ * @param echartsInstance echarts instance, see the echarts API documentation for details
+ * @param state An object contains all attribute passed in by the <$echarts> widget
+ * @param addonAttributes <$echarts> An object contains all attribute passed in by the <$echarts> widget
+ */
+exports.onUpdate = function (echartsInstance, state, addonAttributes) {
+  // Note: The function does not return any value, you need to call the setOption function manually
+  // The required attribute are available, feel free to do whatever you want
+  echartsInstance.setOption({});
+}
+/**
+ * Function to be called when the component is unloaded (optional)
+ * Note: If the browser page is closed directly, it may not be possible to call this function
+ * @param state An object contains all attribute passed in by the <$echarts> widget
+ */
+exports.onUnmount = function (state) {
+
+}
+```
+
+@@color:red;Note: This entry should be of type `application/javascript` and should contain the field `module-type` with the value `library`. @@
+
+Here is also a simple example for generating a tag word cloud of all non-system entries ([[$:/plugins/Gk0Wk/echarts/addons/TagCloud.js]]):
+
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/TagCloud.js"/>
+
+Here I want to briefly explain why there are `addonAttributes` and how they should be used. If you have the ability to write JS type visual components, hopefully you will be able to develop components not just for yourself but for others as well, and I've set aside enough places for you to be able to expand on the `<$echarts>` component so that when the user enters custom parameters like `<$echarts foo="bar"/>`, you will be able to get them as well, which has more flexibility. I hope this helps you write more flexible and versatile components!

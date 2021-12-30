@@ -1,16 +1,17 @@
 created: 20211225111332641
 icon: 🎉
-modified: 20211226172429325
+modified: 20211230151806122
 page-cover: https://tc9011.com/assets/images/Echarts%E6%94%B9%E9%80%A0%E4%B9%8B%E5%8A%A8%E6%80%81%E6%98%BE%E7%A4%BA/banner.png
 tags: ECharts Readme
 title: Index
 type: text/vnd.tiddlywiki
 
-''Note: The English document is on the way...''
+<$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
+<$list filter="[<lang>search[zh]]">
 
 很久以前，在我刚刚开始使用 ~TiddlyWiki 的时候，我就希望 ~TiddlyWiki 能够进行数据的可视化工作，我希望用条目中的数据直接生成图表，我希望描绘条目间的逻辑关系，我希望能够统计词云，希望能用直观的方式描述数据...
 
-可惜的是，尽管官方推出了 [[d3.js|https://d3js.org/]] 的插件，但这款插件尚未在普通用户可以使用的范围内：插件只是包装了 JS 库，并只给了两个简单的使用示例。 d3.js 是一个高度自由但是也因此具有高额学习成本的可视化库，想要利用其做各种可视化工具，就需要使用 ~JavaScript 来编写独立的控件，这对普通与用户来说太极客了。
+可惜的是，尽管官方推出了 [[d3.js|https://d3js.org/]] 的插件，但这款插件尚未在普通用户可以使用的范围内：插件只是包装了 JS 库，并只给了两个简单的使用示例。 d3.js 是一个高度自由但是也因此具有高额学习成本的可视化库，想要利用其做各种可视化工具，就需要使用 ~JavaScript 来编写独立的控件，这对普通用户来说太极客了。
 
 于是我引入了另一个著名的可视化库 [[ECharts|https://echarts.apache.org/zh/index.html]] ，借助 ECharts (相对来讲)便于配置与使用以及可视化方式丰富的特点，来为普通用户提供一个不那么复杂又保留了可拓展性的可视化框架。这就是这个项目的始末了。
 
@@ -26,139 +27,41 @@ type: text/vnd.tiddlywiki
 * ~TiddlyWIki爱好者QQ群：946052860
 <<<
 
-!! 什么是 ECharts ? ECharts 能做什么?
+如需使用此插件，或者在使用中遇到任何问题，请阅读以下四部分内容：
 
-ECharts 是一款基于 ~JavaScript 的数据可视化图表库，提供直观，生动，可交互，可个性化定制的数据可视化图表。ECharts最初由百度团队开源，并于2018年初捐赠给Apache基金会，成为ASF孵化级项目。
-
-[[ECharts|https://echarts.apache.org/zh/index.html]] 相较 [[d3.js|https://d3js.org/]] ，效率更高(如有不妥请指正)、使用更简单，同时支持 canvas 和 svg 两种渲染方式，整个文件虽然不小(1M 左右)，但是考虑到是一个非常全能的可视化库，所以已经是很不错的了。
-
-EChart 的可视化方式非常丰富，从最简单的柱状图，到拓扑图，到树形结构图，到可视化地图，以及词云、三维可视化等都可以搞定。可以点击[[这里|https://echarts.apache.org/examples/zh/index.html]]了解一下，这里就不赘述了。而这些可视化方式，本框架也都可以兼容(如果出现兼容问题，请提Issue)。
-
-!! 我该如何安装这个插件？
-
-虽然你可以像安装其他 ~TiddlyWiki 插件一样，将插件条目直接拖到你的 Wiki 里进行安装，但是这里容我打一个小广告：请使用CPL插件源进行安装和更新！
-
-: 前往[[太微中文插件源网站|https://tw-cpl.netlify.app/]]安装插件源，然后打开你的Wiki的【控制面板】-【插件】-【获取更多插件】来安装本插件，并可以方便地对插件进行更新。更多有趣插件等你探索！
-
-!! 我该如何使用这个插件？
-
-> 注意：阅读本节时，已默认你会使用ECharts。所以如果在阅读中感觉有一些不理解，请去补补课。也欢迎贡献此教程，我知道我写的不算太好。
-
-这个插件的使用方式很简单，也可以很复杂，先从最简单的方式说起：
-
-定义一个`echarts`控件：
-
-```
-<$echarts />
-```
-
-和其他控件一样，`echarts`控件有很多的参数：
-
-|!参数 |!解释 |
-|$tiddler |包含配置信息的条目(的标题)，可以是JSON类型、JS类型或者TW5类型 |
-|$width |画布的宽，默认为`100%` |
-|$height |画布的高，默认为`300px` |
-|$class |画布外层`div`容器的类名，默认为`gk0wk-echarts-body` |
-|$fillSidebar |当控件位于侧边栏时，是否自动调整高度以填满侧边栏，默认为`true` |
-|$theme |ECharts的主题，`light`为亮色主题，`dark`为暗色主题，`auto`(默认)为自动判断 |
-|$renderer |渲染方式，`canvas`(默认)或者`svg` |
-|其他参数 |如果`$tiddler`指向JS类型的条目，将会作为其`onUpdate`函数的参数 |
-
-!!! JSON 类型的条目
-
-这里比较难理解的就是`$tiddler`指向的是什么？这里给一个小例子，来看一下 [[$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json]] 这个条目，可以发现它是一个JSON文件，用过ECharts的同学应该有一眼能看出来它是什么，没错，就是 `echarts.setOption` 的第一个参数。
-
-我们按照如下方式将这个柱状图导入，就可以显示了：
-
-```
-<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json"/>
-```
-
-<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json"/>
-
-就这么简单？没错真的就这么简单，剩下的事情，包括画布尺寸的自动调整、刷新机制、资源管理等等都不需要你来操心。
-
-!!! TW5 类型的条目
-
-不过，一个静态的JSON文件，除了用来演示静态的信息之外就没有别的用处了。相信大家更需要的是能够动态更新的条目。为了满足这样的需要，如果`$tiddler`指向一个普通的条目(类型为空或者`text/vnd.tiddlywiki`，下面称其为TW5条目)，那么会对其进行渲染得到纯文本内容，再将纯文本作为JSON进行解析。这样就可以利用`<$list>`、`<$reveal>`等控件进行条件渲染和数据遍历了。
-
-这里有一个非常好的例子(甚至值得作为一个优秀的插件)，是动态统计已安装的所有插件的大小，并用矩阵树图的方式来呈现。每个块都是可以展开和缩放的。
-
-<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/PluginsSize" $height="500px"/>
-
-对应的条目是[[$:/plugins/Gk0Wk/echarts/addons/PluginsSize]]，会生成一个非常长的条目，因此在打开的时候会有卡顿，请做好心理准备。
-
-不过说到这里，你可能会有疑问，控件会在什么时候进行刷新呢？在默认情况下，对于JSON条目和TW5条目，只有在非变更控件参数或者`$tiddler$`指向的条目时才会更新。
-
-那么我可不可以自行决定刷新的时机？当然可以，在 `$tiddler` 指向的那个条目中添加 `echarts-refresh-trigger` 字段即可。该字段内填写你自定义的过滤器表达式，每当表达式的结果发生变化时，就会触发更新。例如 `[[Examples]get[modified]]` ，就会在 ''Examples'' 这个字段被修改后更新(因为时间戳会变化)。
-
-!!! JS 类型的条目
-
-使用TW5语法生成数据，肯定还是要有局限性的。如果想发挥最大限度的灵活性，推荐使用 ~JavaScript 来写(当然，肯定是有技术门槛的)。
-
-不管 JSON、 TW5 还是 JS ，最核心的肯定是生成一个 `setOption` 能够支持的对象。不过对于 JS 类型的条目，优势在于拥有生命周期，拥有状态，自定义更新时机以及对 `echarts` 实例的完全掌控——当然，麻烦的事情我已经帮你搞定了，你只需要把精力放在可视化本身上。
-
-我参考了 Vue 和 React 的组件写法，一个JS类型条目的模板是这样的：
-
-```javascript
-/**
- * 当组件第一次初始化时调用的函数(可选)
- * @param echartsInstance echarts实例，详见echarts的API文档
- * @param addonAttributes <$echarts> 控件传入的的所有参数，是object
- * @return Object 初始化的组件状态，用于状态管理(可选)
- */
-exports.onMount = function (echartsInstance, addonAttributes) {
-  return {};
-};
-/**
- * 判断是否需要刷新组建(可选)
- * @param state 组件的状态，就是onInit返回的那个
- * @param changedTiddlers 刷新是由TW系统监听到有条目发生变化才会触发的，这是一个包含所有变更条目标题的字符串数组
- * @return boolean 如果需要刷新就返回true，反之
- */
-/* shouldRefresh 也可以是一个字符串，那就和 echarts-refresh-trigger 字段一样 */
-exports.shouldUpdate = function (state, changedTiddlers) {
-  return true;
-}
-/**
- * 当组件被更新时调用的函数
- * @param echartsInstance echarts实例，详见echarts的API文档
- * @param state 组件的状态，就是onInit返回的那个
- * @param addonAttributes <$echarts> 控件传入的所有参数
- */
-exports.onUpdate = function (echartsInstance, state, addonAttributes) {
-  // 注意：函数不返回任何值，你需要手动调用setOption函数
-  // 需要的参数都有了，想做什么随意
-  echartsInstance.setOption({});
-}
-/**
- * 当组件被卸载时调用的函数(可选)
- * 注意：如果浏览器页面被直接关闭，可能就没法调用这个函数了
- * @param state 组件的状态，就是onInit返回的那个
- */
-exports.onUnmount = function (state) {
-
-}
-```
-
-@@color:red;注意：这个条目的类型应当为 `application/javascript` ，且应当包含字段 `module-type` ，值为 `library` 。@@
-
-这里也有一个简单的例子，用于生成所有非系统条目的标签词云([[$:/plugins/Gk0Wk/echarts/addons/TagCloud.js]]):
-
-<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/TagCloud.js"/>
-
-这里想简单说明一下，为什么会有`addonAttributes`以及应该如何使用。如果你有能力编写JS类型的可视化组件，希望你能够不仅仅为自己开发组件，也为其他人开发组件，我预留了足够的位置，让你能够对`<$echarts>`组件进行拓展，因此当用户输入类似`<$echarts foo="bar"/>`这样的自定义参数时，你也能够获取到，这就有了更大的灵活度。希望利用这一点，帮助你写出更加灵活通用的组件！
-
-!! 分享你写的组件
-
-“众人拾柴火焰高”，如果你写出了让自己满意的组件，也恳请你能够将它发布到 [[GitHub Discussions|https://github.com/tiddly-gittly/tw-echarts/discussions]] 中，我会筛选有用的可视化组件并添加到这个插件中来，也欢迎成为这个项目的协作者，让我们造福更多的人，让 ~TiddlyWiki 变得更强大！
-
-<$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
-<$list filter="[<lang>search[zh]]">
-
+* [[什么是ECharts?]]
+* [[如何安装这款插件?]]
+* [[我该如何使用该插件?]]
+* [[请与大家分享你的工作!]]
 
 </$list>
+
 <$list filter="[<lang>!search[zh]]">
+
+When I first started using ~TiddlyWiki a long time ago, I wanted ~TiddlyWiki to be able to visualize data. I wanted to generate charts directly from the data in the tiddlers, I wanted to depict the logical relationships between tiddlers, I wanted to be able to count word clouds, I wanted to be able to describe the data in an intuitive way...
+
+Unfortunately, despite the official [[d3.js|https://d3js.org/]] plugin, it is not yet within the reach of the average user: the plugin only wraps the JS library and gives only two simple examples of its use. d3.js is a highly free but therefore expensive to learn visualization library, and to use it for various visualization tools, you need to write standalone controls using ~JavaScript, which is too geeky for the average user.
+
+So I import another well-known visualization library [[ECharts|https://echarts.apache.org/en/index.html]] to provide a less complex and more extensible visualization framework for the average user by leveraging ECharts' (relatively) ease of configuration and use and the richness of its visualization. That's how this project started.
+
+The first author of this project is [[Gk0Wk|https://github.com/Gk0Wk]], and this is also an open source project using the MIT open source license , the project uri is https://github.com/tiddly-gittly/tw-echarts. I just built a framework that makes it easy to use ECharts, but it's up to everyone who uses it to decide exactly how to visualize it and what data they can visualize. So ''feel free to share your visualization components (explained below) in [[GitHub Discussions|https://github.com/tiddly-gittly/tw-echarts/discussions]], or make suggestions in [[GitHub Issues|https://github.com/tiddly-gittly/tw-echarts/issues]]''. Looking forward to your creative new ideas!
+
+<<<
+This project is part of the TW China community ecosystem, we have been developing plugins and writing tutorials for ~TiddlyWiki, and are dedicated to promoting and exploring this powerful but niche software, welcome to join us at:
+
+* Community open source projects collection: https://github.com/tiddly-gittly
+* TW Community Plugin Library (collection of interesting plugins): https://tw-cpl.netlify.app/
+* ~TidGi (knowledge management desktop application based on ~TiddlyWiki): https://github.com/tiddly-gittly/TidGi-Desktop
+* TW Chinese Tutorial: https://tw-cn.netlify.app/
+* ~TiddlyWIki Lovers QQ Group: 946052860
+<<<
+
+To use this plugin, or if you have any problems using it, please read the following four sections：
+
+* [[What is ECharts?]]
+* [[How do I install this plugin?]]
+* [[How do I use the plugin?]]
+* [[Please share your work with everyone!]]
 
 </$list>
 </$list>

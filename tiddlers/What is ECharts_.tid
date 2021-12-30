@@ -1,0 +1,10 @@
+created: 20211230151845145
+modified: 20211230152019370
+title: What is ECharts?
+type: text/vnd.tiddlywiki
+
+ECharts is a ~JavaScript-based data visualization chart library that provides intuitive, vivid, interactive, and customizable data visualization charts. ECharts was originally open sourced by the Baidu team and donated to the Apache Foundation as an ASF incubation level project in early 2018.
+
+Compared with [[d3.js|https://d3js.org/]], [[ECharts|https://echarts.apache.org/en/index.html]] is more efficient (please correct me if I'm wrong), simpler to use, and supports both canvas and svg rendering, although the whole file is The whole file is not small (about 1M), but it is already very good considering that it is a very versatile visualization library.
+
+EChart's visualization methods are very rich, from the simplest bar chart, to topology diagram, to tree structure diagram, to visual map, and word cloud, 3D visualization, etc You can click [[this|https://echarts.apache.org/examples/en/index.html]] to learn more about it, so I won't go into details here. And all these visualization methods, this framework is also compatible (if there are compatibility problems, please mention Issue).
