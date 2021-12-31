@@ -1,0 +1,23 @@
+title: $:/plugins/Gk0Wk/echarts-gl/readme
+
+<$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
+<$list filter="[<lang>search[zh]]">
+
+[[ECharts-GL|https://github.com/ecomfe/echarts-gl]] 是Apache ECharts的一个扩展包，它提供3D绘图、地球仪可视化和WebGL加速。
+
+* 文档: https://echarts.apache.org/zh/option-gl.html
+* 示例: https://www.makeapie.com/explore.html#tags=echarts-gl
+
+</$list>
+
+<$list filter="[<lang>!search[zh]]">
+
+[[ECharts-GL|https://github.com/ecomfe/echarts-gl]] is an extension pack of Apache ECharts, which providing 3D plots, globe visualization and WebGL acceleration.
+
+* Doc: https://echarts.apache.org/en/option-gl.html
+* Examples: https://www.makeapie.com/explore.html#tags=echarts-gl
+
+</$list>
+</$list>
+
+[img[https://deyihu.github.io/images/maptalks-echarts-gl.png]]

@@ -1,0 +1,12 @@
+{
+  "version": "2.0.8",
+  "type": "application/json",
+  "title": "$:/plugins/Gk0Wk/echarts-gl",
+  "plugin-type": "plugin",
+  "name": "ECharts GL",
+  "list": "readme",
+  "description": "ECharts-GL provides 3D plots, globe visualization and WebGL acceleration",
+  "source": "https://github.com/tiddly-gittly/tw-echarts/tree/master/plugins/Gk0Wk/echarts-gl",
+  "parent-plugin": "$:/plugins/Gk0Wk/echarts",
+  "dependents": ["$:/plugins/Gk0Wk/echarts"]
+}

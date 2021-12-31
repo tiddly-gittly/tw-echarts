@@ -20,7 +20,11 @@
     "tiddlywiki/sax",
     "tiddlywiki/menubar",
     "tiddlywiki/mobiledragdrop",
-    "Gk0Wk/echarts"
+    "Gk0Wk/echarts",
+    "Gk0Wk/echarts-gl",
+    "Gk0Wk/echarts-stat",
+    "Gk0Wk/echarts-liquidfill",
+    "Gk0Wk/echarts-graph-modularity"
   ],
   "themes": [
     "tiddlywiki/vanilla"

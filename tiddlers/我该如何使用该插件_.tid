@@ -1,5 +1,5 @@
 created: 20211230150144652
-modified: 20211230154608084
+modified: 20211231005127197
 tags: 
 title: 我该如何使用该插件?
 type: text/vnd.tiddlywiki
@@ -50,9 +50,9 @@ type: text/vnd.tiddlywiki
 
 对应的条目是[[$:/plugins/Gk0Wk/echarts/addons/PluginsSize]]，会生成一个非常长的条目，因此在打开的时候会有卡顿，请做好心理准备。
 
-不过说到这里，你可能会有疑问，控件会在什么时候进行刷新呢？在默认情况下，对于JSON条目和TW5条目，只有在变更控件参数或者`$tiddler$`指向的条目发生变化时才会更新。
+不过说到这里，你可能会有疑问，控件会在什么时候进行刷新呢？在默认情况下，对于JSON条目和TW5条目，只有在变更控件参数或者`$tiddler`指向的条目发生变化时才会更新。
 
-那么我可不可以自行决定刷新的时机？当然可以，在 `$tiddler` 指向的那个条目中添加 `echarts-refresh-trigger` 字段即可。该字段内填写你自定义的过滤器表达式，每当表达式的结果发生变化时，就会触发更新。例如 `[[Examples]get[modified]]` ，就会在 ''Examples'' 这个字段被修改后更新(因为时间戳会变化)。
+那么我可不可以自行决定刷新的时机？当然可以，在 `$tiddler` 指向的那个条目中添加 `echarts-refresh-trigger` 字段即可。该字段内填写你自定义的过滤器表达式，每当表达式的结果发生变化时，就会触发更新。例如 `[[Examples]get[modified]]` ，就会在 ''Examples'' 这个条目被修改后更新(因为时间戳会变化)。
 
 !! JS 类型的条目
 

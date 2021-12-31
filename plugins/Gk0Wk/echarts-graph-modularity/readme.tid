@@ -1,0 +1,21 @@
+title: $:/plugins/Gk0Wk/echarts-graph-modularity/readme
+
+<$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
+<$list filter="[<lang>search[zh]]">
+
+[[Graph modularity extension|https://github.com/ecomfe/echarts-graph-modularity]] 将进行社区检测，并将图的顶点划分为几个子集。每个子集都将被分配一个不同的颜色。
+
+* 文档: https://github.com/ecomfe/echarts-graph-modularity
+
+</$list>
+
+<$list filter="[<lang>!search[zh]]">
+
+[[Graph modularity extension|https://github.com/ecomfe/echarts-graph-modularity]] will do community detection and partition a graph's vertices in several subsets. Each subset will be assigned a different color.
+
+* Doc: https://github.com/ecomfe/echarts-graph-modularity
+
+</$list>
+</$list>
+
+[img[https://github.com/ecomfe/echarts-graph-modularity/raw/master/example/modularity.png]]

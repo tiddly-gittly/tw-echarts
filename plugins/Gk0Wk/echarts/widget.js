@@ -7,7 +7,15 @@
     // 两边不是一个概念
     window.echarts = EchartsJS;
     try {
-      require("$:/plugins/Gk0Wk/echarts/echarts-wordcloud.min.js");
+      // 注册各种扩展
+      $tw.modules.forEachModuleOfType('echarts-extension', function (title, exportModules) {
+        if (title === '$:/plugins/Gk0Wk/echarts-stat/ecStat.min.js') {
+          EchartsJS.registerTransform(exportModules.transform.histogram);
+          EchartsJS.registerTransform(exportModules.transform.clustering);
+          EchartsJS.registerTransform(exportModules.transform.regression);
+          window.EChartsStat = exportModules.statistics;
+        }
+       });
     } catch (e) {
       console.error(e);
     }

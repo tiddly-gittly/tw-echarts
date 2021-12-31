@@ -1,0 +1,12 @@
+{
+  "version": "1.2.0",
+  "type": "application/json",
+  "title": "$:/plugins/Gk0Wk/echarts-stat",
+  "plugin-type": "plugin",
+  "name": "ECharts Stat",
+  "list": "readme",
+  "description": "The statistical extension is a tool for data analysis.",
+  "source": "https://github.com/tiddly-gittly/tw-echarts/tree/master/plugins/Gk0Wk/echarts-stat",
+  "parent-plugin": "$:/plugins/Gk0Wk/echarts",
+  "dependents": ["$:/plugins/Gk0Wk/echarts"]
+}

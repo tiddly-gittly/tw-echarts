@@ -1,0 +1,12 @@
+{
+  "version": "3.1.0",
+  "type": "application/json",
+  "title": "$:/plugins/Gk0Wk/echarts-liquidfill",
+  "plugin-type": "plugin",
+  "name": "ECharts Liquid Fill Chart",
+  "list": "readme",
+  "description": "Liquid Fill Chart plugin for Apache ECharts, which is usually used to represent data in percentage.",
+  "source": "https://github.com/tiddly-gittly/tw-echarts/tree/master/plugins/Gk0Wk/echarts-liquidfill",
+  "parent-plugin": "$:/plugins/Gk0Wk/echarts",
+  "dependents": ["$:/plugins/Gk0Wk/echarts"]
+}

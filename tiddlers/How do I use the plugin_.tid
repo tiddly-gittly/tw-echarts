@@ -1,5 +1,5 @@
 created: 20211230152650120
-modified: 20211230155340801
+modified: 20211231005058398
 title: How do I use the plugin?
 type: text/vnd.tiddlywiki
 
@@ -49,9 +49,9 @@ A very good example here (even worthy of an excellent plugin) is the dynamic cou
 
 The corresponding tiddler is [[$:/plugins/Gk0Wk/echarts/addons/PluginsSize]], which will generate a very long tiddler, so be prepared for a lag when opening it.
 
-But having said that, you may wonder at what point the widget will be refreshed? By default, for JSON tiddlers and TW5 tiddlers, they are updated only when the widget attributes are changed or when the tiddler pointed to by `$tiddler$` changes.
+But having said that, you may wonder at what point the widget will be refreshed? By default, for JSON tiddlers and TW5 tiddlers, they are updated only when the widget attributes are changed or when the tiddler pointed to by `$tiddler` changes.
 
-So can I decide the timing of the refresh myself? Sure, just add the `echarts-refresh-trigger` field to the tiddler pointed to by `$tiddler`. This field should be filled with your custom filter expression and will trigger an update whenever the result of the expression changes. For example, `[[Examples]get[modified]]` will make the updating when the ''Examples'' field is modified (because the timestamp will change).
+So can I decide the timing of the refresh myself? Sure, just add the `echarts-refresh-trigger` field to the tiddler pointed to by `$tiddler`. This field should be filled with your custom filter expression and will trigger an update whenever the result of the expression changes. For example, `[[Examples]get[modified]]` will make the updating when the ''Examples'' tiddler is modified (because the timestamp will change).
 
 !! JS type tiddlers
 
@@ -102,9 +102,9 @@ exports.onUnmount = function (state) {
 }
 ```
 
-@@color:red;Note: This entry should be of type `application/javascript` and should contain the field `module-type` with the value `library`. @@
+@@color:red;Note: This tiddler should be of type `application/javascript` and should contain the field `module-type` with the value `library`. @@
 
-Here is also a simple example for generating a tag word cloud of all non-system entries ([[$:/plugins/Gk0Wk/echarts/addons/TagCloud.js]]):
+Here is also a simple example for generating a tag word cloud of all non-system tiddlers ([[$:/plugins/Gk0Wk/echarts/addons/TagCloud.js]]):
 
 <$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/TagCloud.js"/>
 

@@ -1,5 +1,5 @@
 {
-  "version": "0.0.1+0001",
+  "version": "0.0.2",
   "type": "application/json",
   "title": "$:/plugins/Gk0Wk/echarts",
   "plugin-type": "plugin",
@@ -7,5 +7,5 @@
   "list": "readme LICENSE",
   "description": "ECharts for TiddlyWiki5",
   "author": "Gk0Wk",
-  "source": "https://github.com/tiddly-gittly/tw-echarts"
+  "source": "https://github.com/tiddly-gittly/tw-echarts/tree/master/plugins/Gk0Wk/echarts"
 }

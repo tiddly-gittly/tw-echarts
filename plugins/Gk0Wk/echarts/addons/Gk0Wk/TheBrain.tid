@@ -1,6 +1,6 @@
 title: $:/plugins/Gk0Wk/echarts/addons/TheBrain.js
 type: application/javascript
-module-type: library
+module-type: echarts-component
 
 var Categories = [
   {

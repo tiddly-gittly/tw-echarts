@@ -1,0 +1,25 @@
+title: $:/plugins/Gk0Wk/echarts-stat/readme
+
+<$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
+<$list filter="[<lang>search[zh]]">
+
+[[Echarts Stat|https://github.com/ecomfe/echarts-stat]] 是Apache ECharts 的一个统计和数据挖掘工具。你可以用它来分析数据，然后用ECharts将结果可视化，或者只是用它来处理数据。
+
+EchartStat中，基本统计方法 `statistics` 的API导出至 `window.EChartsStat` 。
+
+* 文档: https://github.com/ecomfe/echarts-stat/blob/master/README.zh-CN.md
+
+</$list>
+
+<$list filter="[<lang>!search[zh]]">
+
+[[Echarts Stat|https://github.com/ecomfe/echarts-stat]] is a statistical and data mining tool for Apache ECharts. You can use it to analyze data and then visualize the results with ECharts, or just use it to process data.
+
+In EchartStat, the API for the basic statistics method `statistics` is exported to `window.EChartsStat`.
+
+* Doc: https://github.com/ecomfe/echarts-stat/blob/master/README.md
+
+</$list>
+</$list>
+
+[img[https://github.com/ecomfe/echarts-stat/raw/master/img/histogram.png]]

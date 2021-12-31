@@ -1,6 +1,6 @@
 title: $:/plugins/Gk0Wk/echarts/addons/TagCloud.js
 type: application/javascript
-module-type: library
+module-type: echarts-component
 
 // See https://github.com/ecomfe/echarts-wordcloud
 exports.onUpdate = function (echart) {
