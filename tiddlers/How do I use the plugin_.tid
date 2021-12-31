@@ -102,7 +102,7 @@ exports.onUnmount = function (state) {
 }
 ```
 
-@@color:red;Note: This tiddler should be of type `application/javascript` and should contain the field `module-type` with the value `library`. @@
+@@color:red;Note: This tiddler should be of type `application/javascript` and should contain the field `module-type` with the value `echarts-component`. @@
 
 Here is also a simple example for generating a tag word cloud of all non-system tiddlers ([[$:/plugins/Gk0Wk/echarts/addons/TagCloud.js]]):
 

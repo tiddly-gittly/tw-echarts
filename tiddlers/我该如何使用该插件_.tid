@@ -1,6 +1,6 @@
 created: 20211230150144652
 modified: 20211231005127197
-tags: 
+tags:
 title: 我该如何使用该插件?
 type: text/vnd.tiddlywiki
 
@@ -103,7 +103,7 @@ exports.onUnmount = function (state) {
 }
 ```
 
-@@color:red;注意：这个条目的类型应当为 `application/javascript` ，且应当包含字段 `module-type` ，值为 `library` 。@@
+@@color:red;注意：这个条目的类型应当为 `application/javascript` ，且应当包含字段 `module-type` ，值为 `echarts-component` 。@@
 
 这里也有一个简单的例子，用于生成所有非系统条目的标签词云([[$:/plugins/Gk0Wk/echarts/addons/TagCloud.js]]):
 
