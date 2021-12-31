@@ -3,7 +3,7 @@ title: $:/plugins/Gk0Wk/echarts/addons/oflg/Clock/Clock.js
 type: application/javascript
 module-type: library
 
-Calendar Heatmap for TiddlyWiki
+Clock for TiddlyWiki
 \*/
 exports.onUpdate = function (echart) {
 
