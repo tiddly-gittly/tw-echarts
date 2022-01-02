@@ -1,5 +1,5 @@
 /*\
-title: $:/plugins/Gk0Wk/echarts/addons/oflg/CalendarHeatmap.js
+title: $:/plugins/Gk0Wk/echarts/addons/oflg/CalendarHeatmap/CalendarHeatmap.js
 type: application/javascript
 module-type: library
 
@@ -23,9 +23,10 @@ exports.onUpdate = function (echart) {
     var end = echarts.number.parseDate((year + 1) + '-01-01');
     var data = [];
     for (var time = date; time < end; time += TIME_OF_DAY) {
+      var twtime = echarts.format.formatTime('yyyy-MM-dd', time).replace(/-/g, "");
       data.push([
         echarts.format.formatTime('yyyy-MM-dd', time),
-        $tw.wiki.filterTiddlers('[all[]!is[shadow]sameday:modified[' + echarts.format.formatTime('yyyy-MM-dd', time).replace(/-/g, "") + ']count[]]')
+        $tw.wiki.filterTiddlers('[all[]!is[shadow]sameday:created[' + twtime + ']][all[]!is[shadow]sameday:modified[' + twtime + ']]+[count[]]')
       ]);
     }
     return data;
