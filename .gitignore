@@ -103,6 +103,7 @@ dist
 # TernJS port file
 .tern-port
 
+._*
 .DS_Store
 output
 $__StoryList.tid

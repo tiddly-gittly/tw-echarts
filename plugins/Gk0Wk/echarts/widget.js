@@ -15,15 +15,16 @@
           EchartsJS.registerTransform(exportModules.transform.regression);
           window.EChartsStat = exportModules.statistics;
         }
-       });
+      });
     } catch (e) {
       console.error(e);
     }
   }
-  var unmountAddon = function (title, state) {
+  var unmountAddon = function (title, state, echartsInstance) {
     try {
       if (title && $tw.wiki.getTiddler(title)) {
         if ($tw.wiki.getTiddler(title).fields.type === 'application/javascript') {
+          echartsInstance.off('restore');
           var addon = require(title);
           var onUnmount = addon.onUnmount;
           if (typeof onUnmount === 'function') {
@@ -43,27 +44,71 @@
     this.parentDomNode = parent;
     this.computeAttributes();
     this.execute();
+    var currentTiddler = this.getVariable("currentTiddler");
+    this.uuid = 'echarts-' + (currentTiddler ? $tw.utils.hashString(this.getVariable('currentTiddler')) + '-' : '') + new Date().getTime();
     this.containerDom = document.createElement('div');
+    this.containerDom.id = this.uuid;
     this.containerDom.className = this.class;
     this.containerDom.style.width = this.width;
     this.containerDom.style.height = this.height;
     parent.insertBefore(this.containerDom, nextSibling);
     this.domNodes.push(this.containerDom);
-    if (!$tw.browser) {
-      this.containerDom.innerText = 'Echarts Widget Placeholder';
+    if ($tw.browser) {
+      this.rebuildInstance();
+      this.initState();
+      this.generateOption();
+      var that = this;
+      var timer = setInterval(function () {
+        if (!document.contains(that.containerDom)) {
+          unmountAddon(that.tiddlerTitle, that.state);
+          clearInterval(timer);
+          that.clearInstance();
+        }
+      }, 1000);
+    } else if (this.tiddlerTitle !== undefined && this.tiddlerTitle !== '' && $tw.wiki.getTiddler(this.tiddlerTitle)) {
+      // 如果是非浏览器环境，就直接导出渲染脚本
+      try {
+        var scriptDom = this.document.createElement('script');
+        var scriptText = 'var containerDom = document.querySelector(\'#' + this.uuid + '\');\nif (containerDom && typeof window !== \'undefiend\' && window.echarts) {\n' +
+          '  var instance = window.echarts.init(containerDom, ' + this.theme === 'dark' ? '\'dark\'' : 'undefined' + ', { renderer: \'' + this.renderer + '\' });\n' +
+          '  instance.setOption(' + JSON.stringfy({ darkMode: this.theme === 'dark', backgroundColor: 'transparent' }) + ');\n' +
+          '  instance.showLoading();\n' +
+          '  new Promise(function (resolve) {\n' +
+        '    try {\n';
+        var tiddler = $tw.wiki.getTiddler(that.tiddlerTitle).fields;
+        if (!tiddler.type || tiddler.type === '' || tiddler.type === 'text/vnd.tiddlywiki') {
+          scriptText += '      instance.setOption(' + JSON.stringfy(JSON.parse($tw.wiki.renderTiddler('text/plain', this.tiddlerTitle, {}))) + ');\n';
+        } else if (tiddler.type === 'application/json') {
+          scriptText += '      instance.setOption(' + JSON.stringfy(JSON.parse($tw.wiki.getTiddlerText(this.tiddlerTitle))) + ');\n';
+        } else if (tiddler.type === 'application/javascript') {
+          scriptText += '      var exports = {};\n' + $tw.wiki.getTiddlerText(this.tiddlerTitle) + '\n' +
+            '      var state = exports.onMount ? exports.onMount(instance, ' + JSON.stringfy(this.addonAttributes) + ') : {};\n' +
+            '      var attrs = ' + JSON.stringfy(this.addonAttributes) + ';\n' +
+            '      if (exports.onUpdate) exports.onUpdate(instance, state, attrs);\n' +
+            '      if (exports.onUpdate) instance.on(\'restore\', function () { exports.onUpdate(instance, state, attrs); });\n';
+        }
+        scriptText += '    catch (e) { console.error(e); }\n' +
+          '    finally { resolve(); }\n' +
+          '  }).then(function () { instance.hideLoading(); });\n' +
+          '  var resizeObserver = new ResizeObserver(function (entries) {\n' +
+          '    var sidebar = document.querySelector(\'.tc-sidebar-scrollable\');\n' +
+          '    var height = entries[0].contentRect.height;\n' +
+          '    if (' + this.fillSidebar.toString() + ' && sidebar && sidebar.contains && sidebar.contains(containerDom)) {\n' +
+          '      height = window.innerHeight - containerDom.parentNode.getBoundingClientRect().top - parseInt(getComputedStyle(sidebar).paddingBottom.replace(\'px\', \'\'));\n' +
+          '    }\n' +
+          '    instance.resize({\n' +
+          '      width: entries[0].contentRect.width,\n' +
+          '      height: height\n' +
+          '    });\n' +
+          '  resizeObserver.observe(containerDom);\n' +
+          '}';
+        scriptDom.innerText = scriptText;
+        this.insertBefore(scriptDom, nextSibling);
+      } catch (e) {
+        this.containerDom.innerText = e.toString();
+      }
       return;
     }
-    this.rebuildInstance();
-    this.initState();
-    this.generateOption();
-    var that = this;
-    var timer = setInterval(function () {
-      if (!document.contains(that.containerDom)) {
-        unmountAddon(that.tiddlerTitle, that.state);
-        clearInterval(timer);
-        that.clearInstance();
-      }
-    }, 1000);
   };
   EChartsWidget.prototype.execute = function () {
     this.tiddlerTitle = this.getAttribute("$tiddler", "");
@@ -129,7 +174,13 @@
         if (typeof onMount === 'function') {
           this.state = onMount(this.echartsInstance, this.addonAttributes);
         }
+      } else {
+        return;
       }
+      var that = this;
+      this.echartsInstance.on('restore', function () {
+        that.generateOption();
+      });
     } catch (e) {
       console.error(e);
     }
@@ -181,7 +232,10 @@
     this.echartsInstance.showLoading();
     new Promise(function (resolve) {
       try {
-        if (!that.tiddlerTitle || !$tw.wiki.getTiddler(that.tiddlerTitle)) resolve();
+        if (!that.tiddlerTitle || !$tw.wiki.getTiddler(that.tiddlerTitle)) {
+          resolve();
+          return;
+        }
         var tiddler = $tw.wiki.getTiddler(that.tiddlerTitle).fields;
         if (!tiddler.type || tiddler.type === '' || tiddler.type === 'text/vnd.tiddlywiki') {
           that.echartsInstance.setOption(JSON.parse($tw.wiki.renderTiddler('text/plain', that.tiddlerTitle, {})));
@@ -192,8 +246,9 @@
         }
       } catch (e) {
         console.error(e);
+      } finally {
+        resolve();
       }
-      resolve();
     }).then(function () {
       that.echartsInstance.hideLoading();
     });
@@ -224,7 +279,7 @@
     if (refreshFlag & 2) {
       var oldOption = this.rebuildInstance();
       if (!oldOption || (refreshFlag & 1)) {
-        unmountAddon(oldAddon, this.state);
+        unmountAddon(oldAddon, this.state, this.echartsInstance);
         this.initState();
         this.generateOption();
       } else {
