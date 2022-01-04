@@ -69,7 +69,8 @@
       // 如果是非浏览器环境，就直接导出渲染脚本
       try {
         var scriptDom = this.document.createElement('script');
-        var scriptText = 'var containerDom = document.querySelector(\'#' + this.uuid + '\');\nif (containerDom && typeof window !== \'undefiend\' && window.echarts) {\n' +
+        var scriptText =
+          'var containerDom = document.querySelector(\'#' + this.uuid + '\');\nif (containerDom && typeof window !== \'undefiend\' && window.echarts) {\n' +
           '  var instance = window.echarts.init(containerDom, ' + this.theme === 'dark' ? '\'dark\'' : 'undefined' + ', { renderer: \'' + this.renderer + '\' });\n' +
           '  instance.setOption(' + JSON.stringfy({ darkMode: this.theme === 'dark', backgroundColor: 'transparent' }) + ');\n' +
           '  instance.showLoading();\n' +
@@ -77,29 +78,38 @@
         '    try {\n';
         var tiddler = $tw.wiki.getTiddler(that.tiddlerTitle).fields;
         if (!tiddler.type || tiddler.type === '' || tiddler.type === 'text/vnd.tiddlywiki') {
-          scriptText += '      instance.setOption(' + JSON.stringfy(JSON.parse($tw.wiki.renderTiddler('text/plain', this.tiddlerTitle, {}))) + ');\n';
+          scriptText +=
+            '      instance.setOption(' + JSON.stringfy(JSON.parse($tw.wiki.renderTiddler('text/plain', this.tiddlerTitle, {}))) + ');\n';
         } else if (tiddler.type === 'application/json') {
-          scriptText += '      instance.setOption(' + JSON.stringfy(JSON.parse($tw.wiki.getTiddlerText(this.tiddlerTitle))) + ');\n';
+          scriptText +=
+            '      instance.setOption(' + JSON.stringfy(JSON.parse($tw.wiki.getTiddlerText(this.tiddlerTitle))) + ');\n';
         } else if (tiddler.type === 'application/javascript') {
-          scriptText += '      var exports = {};\n' + $tw.wiki.getTiddlerText(this.tiddlerTitle) + '\n' +
+          scriptText +=
+            '      var exports = {};\n' + $tw.wiki.getTiddlerText(this.tiddlerTitle) + '\n' +
             '      var state = exports.onMount ? exports.onMount(instance, ' + JSON.stringfy(this.addonAttributes) + ') : {};\n' +
             '      var attrs = ' + JSON.stringfy(this.addonAttributes) + ';\n' +
             '      if (exports.onUpdate) exports.onUpdate(instance, state, attrs);\n' +
             '      if (exports.onUpdate) instance.on(\'restore\', function () { exports.onUpdate(instance, state, attrs); });\n';
         }
-        scriptText += '    catch (e) { console.error(e); }\n' +
+        scriptText +=
+          '    catch (e) { console.error(e); }\n' +
           '    finally { resolve(); }\n' +
           '  }).then(function () { instance.hideLoading(); });\n' +
+          '  var timer;' +
           '  var resizeObserver = new ResizeObserver(function (entries) {\n' +
-          '    var sidebar = document.querySelector(\'.tc-sidebar-scrollable\');\n' +
-          '    var height = entries[0].contentRect.height;\n' +
-          '    if (' + this.fillSidebar.toString() + ' && sidebar && sidebar.contains && sidebar.contains(containerDom)) {\n' +
-          '      height = window.innerHeight - containerDom.parentNode.getBoundingClientRect().top - parseInt(getComputedStyle(sidebar).paddingBottom.replace(\'px\', \'\'));\n' +
-          '    }\n' +
-          '    instance.resize({\n' +
-          '      width: entries[0].contentRect.width,\n' +
-          '      height: height\n' +
-          '    });\n' +
+          '    if (timer) clearTimeout(timer);' +
+          '    timer = setTimeout(function () {' +
+          '      var sidebar = document.querySelector(\'.tc-sidebar-scrollable\');\n' +
+          '      var height = entries[0].contentRect.height;\n' +
+          '      if (' + this.fillSidebar.toString() + ' && sidebar && sidebar.contains && sidebar.contains(containerDom)) {\n' +
+          '        height = window.innerHeight - containerDom.parentNode.getBoundingClientRect().top - parseInt(getComputedStyle(sidebar).paddingBottom.replace(\'px\', \'\'));\n' +
+          '      }\n' +
+          '      instance.resize({\n' +
+          '        width: entries[0].contentRect.width,\n' +
+          '        height: height\n' +
+          '      });\n' +
+          '    }, 25);' +
+          '  });\n' +
           '  resizeObserver.observe(containerDom);\n' +
           '}';
         scriptDom.innerText = scriptText;
@@ -211,17 +221,21 @@
     });
     // 监听大小变更
     var that = this;
+    var timer; // 去抖
     this.resizeObserver = new ResizeObserver(function (entries) {
-      var sidebar = document.querySelector('.tc-sidebar-scrollable');
-      var height = entries[0].contentRect.height;
-      if (that.fillSidebar && sidebar && !that.parentDomNode.isTiddlyWikiFakeDom && sidebar.contains(that.containerDom)) {
-        height = window.innerHeight - that.parentDomNode.getBoundingClientRect().top -
-          parseInt(getComputedStyle(sidebar).paddingBottom.replace('px', ''));
-      }
-      instance.resize({
-        width: entries[0].contentRect.width,
-        height: height,
-      });
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(function () {
+        var sidebar = document.querySelector('.tc-sidebar-scrollable');
+        var height = entries[0].contentRect.height;
+        if (that.fillSidebar && sidebar && !that.parentDomNode.isTiddlyWikiFakeDom && sidebar.contains(that.containerDom)) {
+          height = window.innerHeight - that.parentDomNode.getBoundingClientRect().top -
+            parseInt(getComputedStyle(sidebar).paddingBottom.replace('px', ''));
+        }
+        instance.resize({
+          width: entries[0].contentRect.width,
+          height: height,
+        });
+      }, 25);
     });
     this.resizeObserver.observe(this.containerDom);
     return oldOptions;
