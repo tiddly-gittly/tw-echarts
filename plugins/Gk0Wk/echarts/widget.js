@@ -269,9 +269,9 @@
             require(that.tiddlerTitle).onUpdate(that.echartsInstance, that.state, that.addonAttributes);
           }
         } else {
-          var addon = new Fn('myChart', 'chartDom', 'echarts',
+          var addon = new Fn('myChart', 'chartDom', 'echarts', '$tw',
             'var option;' + that.text + ';if (option instanceof Object) myChart.setOption(option);');
-          addon(that.echartsInstance, that.containerDom, EchartsJS);
+          addon(that.echartsInstance, that.containerDom, EchartsJS, $tw);
         }
       } catch (e) {
         console.error(e);
