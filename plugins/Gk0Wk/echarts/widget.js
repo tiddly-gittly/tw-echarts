@@ -2,6 +2,7 @@
   "use strict";
   var Widget = require("$:/core/modules/widgets/widget.js").widget;
   var EchartsJS = require("$:/plugins/Gk0Wk/echarts/echarts.min.js");
+  var Fn = Function;
   if ($tw.browser) {
     // 总算明白了，node启动时，这个会被调用一遍，在浏览器又会调用一遍
     // 两边不是一个概念
@@ -22,9 +23,9 @@
   }
   var unmountAddon = function (title, state, echartsInstance) {
     try {
+      echartsInstance.off('restore');
       if (title && $tw.wiki.getTiddler(title)) {
         if ($tw.wiki.getTiddler(title).fields.type === 'application/javascript') {
-          echartsInstance.off('restore');
           var addon = require(title);
           var onUnmount = addon.onUnmount;
           if (typeof onUnmount === 'function') {
@@ -65,52 +66,58 @@
           that.clearInstance();
         }
       }, 1000);
-    } else if (this.tiddlerTitle !== undefined && this.tiddlerTitle !== '' && $tw.wiki.getTiddler(this.tiddlerTitle)) {
+    } else if ((this.tiddlerTitle !== undefined && this.tiddlerTitle !== '' && $tw.wiki.getTiddler(this.tiddlerTitle)) || this.text !== undefined) {
       // 如果是非浏览器环境，就直接导出渲染脚本
       try {
         var scriptDom = this.document.createElement('script');
         var scriptText =
-          'var containerDom = document.querySelector(\'#' + this.uuid + '\');\nif (containerDom && typeof window !== \'undefiend\' && window.echarts) {\n' +
-          '  var instance = window.echarts.init(containerDom, ' + this.theme === 'dark' ? '\'dark\'' : 'undefined' + ', { renderer: \'' + this.renderer + '\' });\n' +
-          '  instance.setOption(' + JSON.stringfy({ darkMode: this.theme === 'dark', backgroundColor: 'transparent' }) + ');\n' +
-          '  instance.showLoading();\n' +
-          '  new Promise(function (resolve) {\n' +
-        '    try {\n';
-        var tiddler = $tw.wiki.getTiddler(that.tiddlerTitle).fields;
-        if (!tiddler.type || tiddler.type === '' || tiddler.type === 'text/vnd.tiddlywiki') {
+          'var chartDom = document.querySelector(\'#' + this.uuid + '\');\nif (chartDom && typeof window !== \'undefiend\' && window.echarts) {\n' +
+            '  var myChart = window.echarts.init(chartDom, ' + this.theme === 'dark' ? '\'dark\'' : 'undefined' + ', { renderer: \'' + this.renderer + '\' });\n' +
+            '  myChart.setOption(' + JSON.stringfy({ darkMode: this.theme === 'dark', backgroundColor: 'transparent' }) + ');\n' +
+            '  myChart.showLoading();\n' +
+            '  new Promise(function (resolve) {\n' +
+          '    try {\n';
+        if (this.text === undefined) {
+          var tiddler = $tw.wiki.getTiddler(that.tiddlerTitle).fields;
+          if (!tiddler.type || tiddler.type === '' || tiddler.type === 'text/vnd.tiddlywiki') {
+            scriptText +=
+              '      myChart.setOption(' + JSON.stringfy(JSON.parse($tw.wiki.renderTiddler('text/plain', this.tiddlerTitle, {}))) + ');\n';
+          } else if (tiddler.type === 'application/json') {
+            scriptText +=
+              '      myChart.setOption(' + JSON.stringfy(JSON.parse($tw.wiki.getTiddlerText(this.tiddlerTitle))) + ');\n';
+          } else if (tiddler.type === 'application/javascript') {
+            scriptText +=
+              '      var exports = {};\n' + $tw.wiki.getTiddlerText(this.tiddlerTitle) + '\n' +
+              '      var state = exports.onMount ? exports.onMount(myChart, ' + JSON.stringfy(this.addonAttributes) + ') : {};\n' +
+              '      var attrs = ' + JSON.stringfy(this.addonAttributes) + ';\n' +
+              '      if (exports.onUpdate) exports.onUpdate(myChart, state, attrs);\n' +
+              '      if (exports.onUpdate) myChart.on(\'restore\', function () { exports.onUpdate(myChart, state, attrs); });\n';
+          }
+        } else {
           scriptText +=
-            '      instance.setOption(' + JSON.stringfy(JSON.parse($tw.wiki.renderTiddler('text/plain', this.tiddlerTitle, {}))) + ');\n';
-        } else if (tiddler.type === 'application/json') {
-          scriptText +=
-            '      instance.setOption(' + JSON.stringfy(JSON.parse($tw.wiki.getTiddlerText(this.tiddlerTitle))) + ');\n';
-        } else if (tiddler.type === 'application/javascript') {
-          scriptText +=
-            '      var exports = {};\n' + $tw.wiki.getTiddlerText(this.tiddlerTitle) + '\n' +
-            '      var state = exports.onMount ? exports.onMount(instance, ' + JSON.stringfy(this.addonAttributes) + ') : {};\n' +
-            '      var attrs = ' + JSON.stringfy(this.addonAttributes) + ';\n' +
-            '      if (exports.onUpdate) exports.onUpdate(instance, state, attrs);\n' +
-            '      if (exports.onUpdate) instance.on(\'restore\', function () { exports.onUpdate(instance, state, attrs); });\n';
+            '      var option;\n' + this.text + ';\n' +
+            '      if (option instanceof Object) myChart.setOption(option);\n';
         }
         scriptText +=
           '    catch (e) { console.error(e); }\n' +
           '    finally { resolve(); }\n' +
-          '  }).then(function () { instance.hideLoading(); });\n' +
+          '  }).then(function () { myChart.hideLoading(); });\n' +
           '  var timer;' +
           '  var resizeObserver = new ResizeObserver(function (entries) {\n' +
           '    if (timer) clearTimeout(timer);' +
           '    timer = setTimeout(function () {' +
           '      var sidebar = document.querySelector(\'.tc-sidebar-scrollable\');\n' +
           '      var height = entries[0].contentRect.height;\n' +
-          '      if (' + this.fillSidebar.toString() + ' && sidebar && sidebar.contains && sidebar.contains(containerDom)) {\n' +
-          '        height = window.innerHeight - containerDom.parentNode.getBoundingClientRect().top - parseInt(getComputedStyle(sidebar).paddingBottom.replace(\'px\', \'\'));\n' +
+          '      if (' + this.fillSidebar.toString() + ' && sidebar && sidebar.contains && sidebar.contains(chartDom)) {\n' +
+          '        height = window.innerHeight - chartDom.parentNode.getBoundingClientRect().top - parseInt(getComputedStyle(sidebar).paddingBottom.replace(\'px\', \'\'));\n' +
           '      }\n' +
-          '      instance.resize({\n' +
+          '      myChart.resize({\n' +
           '        width: entries[0].contentRect.width,\n' +
           '        height: height\n' +
           '      });\n' +
           '    }, 25);' +
           '  });\n' +
-          '  resizeObserver.observe(containerDom);\n' +
+          '  resizeObserver.observe(chartDom);\n' +
           '}';
         scriptDom.innerText = scriptText;
         this.insertBefore(scriptDom, nextSibling);
@@ -136,6 +143,8 @@
     }
     this.renderer = this.getAttribute('$renderer', 'canvas') === 'svg' ? 'svg' : 'canvas';
     this.addonAttributes = Object.assign({}, this.attributes);
+    this.text = this.getAttribute("$text", "");
+    if (this.text.trim().length === 0) this.text = undefined;
   };
   EChartsWidget.prototype.askForAddonUpdate = function (changedTiddlers) {
     try {
@@ -168,24 +177,24 @@
   // 计算this.state
   EChartsWidget.prototype.initState = function () {
     try {
-      if (!this.tiddlerTitle || !$tw.wiki.getTiddler(this.tiddlerTitle)) return;
-      var tiddler = $tw.wiki.getTiddler(this.tiddlerTitle).fields;
-      if (!tiddler.type || tiddler.type === '' || tiddler.type === 'text/vnd.tiddlywiki' || tiddler.type === 'application/json') {
-        if (this._state) {
-          this.state = this._state;
-          this._state = undefined;
-        } else {
-          this.state = JSON.stringify($tw.wiki.filterTiddlers(tiddler['echarts-refresh-trigger']));
-        }
-      } else if (tiddler.type === 'application/javascript') {
-        var addon = require(this.tiddlerTitle);
-        var onMount = addon.onMount;
-        if (onMount === undefined) onMount = addon.onInit;
-        if (typeof onMount === 'function') {
-          this.state = onMount(this.echartsInstance, this.addonAttributes);
-        }
-      } else {
-        return;
+      if (this.text === undefined) {
+        if (!this.tiddlerTitle || !$tw.wiki.getTiddler(this.tiddlerTitle)) return;
+        var tiddler = $tw.wiki.getTiddler(this.tiddlerTitle).fields;
+        if (!tiddler.type || tiddler.type === '' || tiddler.type === 'text/vnd.tiddlywiki' || tiddler.type === 'application/json') {
+          if (this._state) {
+            this.state = this._state;
+            this._state = undefined;
+          } else {
+            this.state = JSON.stringify($tw.wiki.filterTiddlers(tiddler['echarts-refresh-trigger']));
+          }
+        } else if (tiddler.type === 'application/javascript') {
+          var addon = require(this.tiddlerTitle);
+          var onMount = addon.onMount;
+          if (onMount === undefined) onMount = addon.onInit;
+          if (typeof onMount === 'function') {
+            this.state = onMount(this.echartsInstance, this.addonAttributes);
+          }
+        } else return;
       }
       var that = this;
       this.echartsInstance.on('restore', function () {
@@ -246,17 +255,23 @@
     this.echartsInstance.showLoading();
     new Promise(function (resolve) {
       try {
-        if (!that.tiddlerTitle || !$tw.wiki.getTiddler(that.tiddlerTitle)) {
-          resolve();
-          return;
-        }
-        var tiddler = $tw.wiki.getTiddler(that.tiddlerTitle).fields;
-        if (!tiddler.type || tiddler.type === '' || tiddler.type === 'text/vnd.tiddlywiki') {
-          that.echartsInstance.setOption(JSON.parse($tw.wiki.renderTiddler('text/plain', that.tiddlerTitle, {})));
-        } else if (tiddler.type === 'application/json') {
-          that.echartsInstance.setOption(JSON.parse($tw.wiki.getTiddlerText(that.tiddlerTitle)));
-        } else if (tiddler.type === 'application/javascript') {
-          require(that.tiddlerTitle).onUpdate(that.echartsInstance, that.state, that.addonAttributes);
+        if (that.text === undefined) {
+          if (!that.tiddlerTitle || !$tw.wiki.getTiddler(that.tiddlerTitle)) {
+            resolve();
+            return;
+          }
+          var tiddler = $tw.wiki.getTiddler(that.tiddlerTitle).fields;
+          if (!tiddler.type || tiddler.type === '' || tiddler.type === 'text/vnd.tiddlywiki') {
+            that.echartsInstance.setOption(JSON.parse($tw.wiki.renderTiddler('text/plain', that.tiddlerTitle, {})));
+          } else if (tiddler.type === 'application/json') {
+            that.echartsInstance.setOption(JSON.parse($tw.wiki.getTiddlerText(that.tiddlerTitle)));
+          } else if (tiddler.type === 'application/javascript') {
+            require(that.tiddlerTitle).onUpdate(that.echartsInstance, that.state, that.addonAttributes);
+          }
+        } else {
+          var addon = new Fn('myChart', 'chartDom', 'echarts',
+            'var option;' + that.text + ';if (option instanceof Object) myChart.setOption(option);');
+          addon(that.echartsInstance, that.containerDom, EchartsJS);
         }
       } catch (e) {
         console.error(e);
@@ -277,23 +292,34 @@
     // $class、$width 和 $height 只需要修改容器的尺寸就好了
     // 剩下的就是传给插件的参数了
     if ($tw.utils.count(changedAttributes) > 0) {
-      if (changedAttributes.$tiddler) refreshFlag |= 1;
-      if (changedAttributes.$theme || changedAttributes.$fillSidebar || changedAttributes.$renderer) refreshFlag |= 2;
-      else if (changedAttributes.$class || changedAttributes.$width || changedAttributes.$height) {
-        this.containerDom.style.width = this.getAttribute('$width', '100%');
-        this.containerDom.style.height = this.getAttribute('$height', '300px');
+      var counter = 0;
+      $tw.utils.each(['$theme', '$fillSidebar', '$renderer'], function (key) {
+        if (changedAttributes[key] !== undefined) counter++;
+      });
+      if (counter > 0) refreshFlag |= 2;
+      if (changedAttributes.$class) {
+        counter++;
         this.containerDom.className = this.getAttribute("$class", "gk0wk-echarts-body");
       }
-      else refreshFlag |= 1;
+      if (changedAttributes.$width) {
+        counter++;
+        this.containerDom.style.width = this.getAttribute('$width', '100%');
+      }
+      if (changedAttributes.$height) {
+        counter++;
+        this.containerDom.style.height = this.getAttribute('$height', '300px');
+      }
+      if ($tw.utils.count(changedAttributes) > counter) refreshFlag |= 1;
     }
-    if (!(refreshFlag & 1) && ((this.tiddlerTitle && changedTiddlers[this.tiddlerTitle]) || this.askForAddonUpdate(changedTiddlers))) {
+    if (this.text === undefined && !(refreshFlag & 1) &&
+      ((this.tiddlerTitle && changedTiddlers[this.tiddlerTitle]) || this.askForAddonUpdate(changedTiddlers))) {
       refreshFlag |= 1;
     }
     this.execute();
     if (refreshFlag & 2) {
       var oldOption = this.rebuildInstance();
       if (!oldOption || (refreshFlag & 1)) {
-        unmountAddon(oldAddon, this.state, this.echartsInstance);
+        unmountAddon(this.text !== undefined ? undefined : oldAddon, this.state, this.echartsInstance);
         this.initState();
         this.generateOption();
       } else {

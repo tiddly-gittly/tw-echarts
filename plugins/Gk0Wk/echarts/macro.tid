@@ -1,0 +1,14 @@
+title: $:/plugins/Gk0Wk/echarts/macro
+type: text/vnd.tiddlywiki
+tags: $:/tags/Macro
+
+\define echarts(textortiddler,height:"300px",width:"100%",class:"gk0wk-echarts-body",theme:"auto",renderer:"canvas",fillSidebar:"true")
+<$set name="textortiddler" value="""$textortiddler$""">
+<$list filter="[<textortiddler>is[tiddler]] [<textortiddler>is[shadow]]">
+<$echarts $tiddler=<<textortiddler>> $height="$height$" $width="$width$" $class="$class$" $theme="$theme$" $renderer="$renderer$" $fillSidebar="$fillSidebar$"/>
+</$list>
+<$list filter="[<textortiddler>!is[tiddler]!is[shadow]]">
+<$echarts $text=<<textortiddler>> $height="$height$" $width="$width$" $class="$class$" $theme="$theme$" $renderer="$renderer$" $fillSidebar="$fillSidebar$"/>
+</$list>
+</$set>
+\end

@@ -1,10 +1,10 @@
 created: 20211230150144652
-modified: 20211231005127197
-tags:
+modified: 20220105144743856
+tags: 
 title: 我该如何使用该插件?
 type: text/vnd.tiddlywiki
 
-> 注意：阅读本节时，已默认你会使用ECharts。所以如果在阅读中感觉有一些不理解，请去[补补课](https://echarts.apache.org/zh/index.html)。也欢迎贡献此教程，我知道我写的不算太好。
+> 注意：阅读本节时，已默认你会使用ECharts。所以如果在阅读中感觉有一些不理解，请去[[补补课|https://echarts.apache.org/zh/index.html]]。也欢迎贡献此教程，我知道我写的不算太好。
 
 这个插件的使用方式很简单，也可以很复杂，先从最简单的方式说起：
 
@@ -17,7 +17,8 @@ type: text/vnd.tiddlywiki
 和其他控件一样，`echarts`控件有很多的参数：
 
 |!参数 |!解释 |
-|$tiddler |包含配置信息的条目(的标题)，可以是JSON类型、JS类型或者TW5类型 |
+|$text |一段js代码，能够直接生成图表 |
+|$tiddler |包含配置信息的条目(的标题)，可以是JSON类型、JS类型或者TW5类型，如果`$text`参数存在则没有任何效果 |
 |$width |画布的宽，默认为`100%` |
 |$height |画布的高，默认为`300px` |
 |$class |画布外层`div`容器的类名，默认为`gk0wk-echarts-body` |
@@ -25,6 +26,41 @@ type: text/vnd.tiddlywiki
 |$theme |ECharts的主题，`light`为亮色主题，`dark`为暗色主题，`auto`(默认)为自动判断 |
 |$renderer |渲染方式，`canvas`(默认)或者`svg` |
 |其他参数 |如果`$tiddler`指向JS类型的条目，将会作为其`onUpdate`函数的参数 |
+
+!! <$text text="$text"/>: 对初学者最友好的方式
+
+会写 JavaScript 代码的毕竟是少数，我猜很多人都是靠拷贝和修改 ECharts 的官方示例代码来入门的——没关系我当初也一样 :D
+
+所以我为大家准备了一个非常简单的使用方法。将 [[ECharts 官方示例|https://echarts.apache.org/examples/zh/]]中的任意一个例子的代码拷贝过来，作为`$text`的参数，就大功告成了。
+
+比如，我们希望使用[[这里|https://echarts.apache.org/examples/zh/editor.html?c=line-sections]]的曲线图，那么我们就将它的代码(注意：是`代码编辑`的内容而不是`完整代码`的内容)放到`$text`参数中：
+
+```
+<$echarts $text="""
+option = {
+... (太长我就不放了)
+"""/>
+```
+
+或者你也可以将其存储在一个tiddler中，比如 [[ExampleOfTextData]] ，再用 transclude 方式取其值：
+
+```
+<$echarts $text={{ExampleOfTextData}}/>
+```
+
+就可以达到如下的效果：
+
+<$echarts $text={{ExampleOfTextData}}/>
+
+我还准备了 macro 形式，所以下面的方式也是可以的：
+
+```
+<<echarts """
+option = ...
+""">>
+```
+
+macro 也有`width`等可选参数，这里就不赘述了。
 
 !! JSON 类型的条目
 

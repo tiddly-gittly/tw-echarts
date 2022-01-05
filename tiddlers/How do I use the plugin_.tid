@@ -1,5 +1,5 @@
 created: 20211230152650120
-modified: 20211231005058398
+modified: 20220105145407910
 title: How do I use the plugin?
 type: text/vnd.tiddlywiki
 
@@ -16,7 +16,8 @@ Define an "echarts" widget.
 Like other widgets, the `echarts` widget has a number of attributes.
 
 |!Attribute |!Description |
-|$tiddler |Tiddler containing configuration information (the title), either JSON type, JS type or TW5 type |
+|$text |A piece of js code that can generate charts directly |
+|$tiddler |Tiddler containing configuration information (the title), either JSON type, JS type or TW5 type. If the `$text` parameter is present, it has no effect |
 |$width |The width of the canvas, default is `100%` |
 |$height |Height of the canvas, default is `300px` |
 |$class |Class name of the outer `div` container of the canvas, default is `gk0wk-echarts-body` |
@@ -24,6 +25,41 @@ Like other widgets, the `echarts` widget has a number of attributes.
 |$theme |ECharts theme, `light` for bright theme, `dark` for dark theme, `auto` (default) for automatic judgment |
 |$renderer |Rendering method, `canvas` (default) or `svg` |
 |Others |If `$tiddler` points to an tiddler of type JS, it will be used as an argument to its `onUpdate` function |
+
+!! <$text text="$text"/>: The most beginner-friendly way
+
+After all, there are only a few people who can write JavaScript, and I guess a lot of people got started by copying and modifying the official ECharts sample code - it's okay that I did the same thing at first! :D
+
+So I've prepared a very simple way to use it for you. Copy the code from any of the [[official ECharts examples|https://echarts.apache.org/examples/en/]], use it as an argument to `$text`, and you're done.
+
+For example, if we want to use the [[graph here|https://echarts.apache.org/examples/en/editor.html?c=line-sections]], then we put its code (note: the contents of the `Edit Code` and not the contents of the `Full Code`) into the `$text` parameter.
+
+```
+<$echarts $text="""
+option = {
+... (Content is too long so omitted)
+"""/>
+```
+
+Or you can store it in a tiddler, such as [[ExampleOfTextData]], and take its value by transclude:
+
+```
+<$echarts $text={{ExampleOfTextData}}/>
+```
+
+The following can then be achieved:
+
+<$echarts $text={{ExampleOfTextData}}/>
+
+I have also prepared the macro form, so the following is also possible:
+
+```
+<<echarts """
+option = ...
+""">>
+```
+
+macro also has optional parameters such as `width`, so we won't go into them here.
 
 !! JSON type tiddlers
 
