@@ -1,6 +1,5 @@
 created: 20211230150144652
 modified: 20220105144743856
-tags: 
 title: 我该如何使用该插件?
 type: text/vnd.tiddlywiki
 
@@ -10,7 +9,7 @@ type: text/vnd.tiddlywiki
 
 定义一个`echarts`控件：
 
-```
+```html
 <$echarts />
 ```
 
@@ -35,7 +34,7 @@ type: text/vnd.tiddlywiki
 
 比如，我们希望使用[[这里|https://echarts.apache.org/examples/zh/editor.html?c=line-sections]]的曲线图，那么我们就将它的代码(注意：是`代码编辑`的内容而不是`完整代码`的内容)放到`$text`参数中：
 
-```
+```html
 <$echarts $text="""
 option = {
 ... (太长我就不放了)
@@ -44,7 +43,7 @@ option = {
 
 或者你也可以将其存储在一个tiddler中，比如 [[ExampleOfTextData]] ，再用 transclude 方式取其值：
 
-```
+```html
 <$echarts $text={{ExampleOfTextData}}/>
 ```
 
@@ -54,7 +53,7 @@ option = {
 
 我还准备了 macro 形式，所以下面的方式也是可以的：
 
-```
+```html
 <<echarts """
 option = ...
 """>>
@@ -66,10 +65,16 @@ macro 也有`width`等可选参数，这里就不赘述了。
 
 这里比较难理解的就是`$tiddler`指向的是什么？这里给一个小例子，来看一下 [[$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json]] 这个条目，可以发现它是一个JSON文件，用过ECharts的同学应该有一眼能看出来它是什么，没错，就是 `echarts.setOption` 的第一个参数。
 
-我们按照如下方式将这个柱状图导入，就可以显示了：
+我们按照如下方式将这个柱状图导入，就可以显示了:
 
-```
+```html
 <$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json"/>
+```
+
+或者:
+
+```html
+<<echarts "$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json">>
 ```
 
 <$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json"/>

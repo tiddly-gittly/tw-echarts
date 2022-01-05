@@ -9,7 +9,7 @@ This plugin can be used in a very simple or complex way, let's start with the si
 
 Define an "echarts" widget.
 
-```
+```html
 <$echarts />
 ```
 
@@ -34,16 +34,16 @@ So I've prepared a very simple way to use it for you. Copy the code from any of 
 
 For example, if we want to use the [[graph here|https://echarts.apache.org/examples/en/editor.html?c=line-sections]], then we put its code (note: the contents of the `Edit Code` and not the contents of the `Full Code`) into the `$text` parameter.
 
-```
+```html
 <$echarts $text="""
 option = {
 ... (Content is too long so omitted)
 """/>
 ```
 
-Or you can store it in a tiddler, such as [[ExampleOfTextData]], and take its value by transclude:
+Or you can store it in a tiddler, such as [[ExampleOfTextData]], and take its value by `transclude`:
 
-```
+```html
 <$echarts $text={{ExampleOfTextData}}/>
 ```
 
@@ -53,7 +53,7 @@ The following can then be achieved:
 
 I have also prepared the macro form, so the following is also possible:
 
-```
+```html
 <<echarts """
 option = ...
 """>>
@@ -67,8 +67,14 @@ The difficult thing to understand here is what does `$tiddler` point to? Here is
 
 We import this bar chart as follows, and it will be displayed.
 
-```
+```html
 <$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json"/>
+```
+
+Or:
+
+```html
+<<echarts "$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json">>
 ```
 
 <$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/SimpleExample.json"/>
