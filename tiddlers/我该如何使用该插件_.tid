@@ -106,11 +106,11 @@ macro 也有`width`等可选参数，这里就不赘述了。
 ```javascript
 /**
  * 当组件第一次初始化时调用的函数(可选)
- * @param echartsInstance echarts实例，详见echarts的API文档
+ * @param myChart echarts实例，详见echarts的API文档
  * @param addonAttributes <$echarts> 控件传入的的所有参数，是object
  * @return Object 初始化的组件状态，用于状态管理(可选)
  */
-exports.onMount = function (echartsInstance, addonAttributes) {
+exports.onMount = function (myChart, addonAttributes) {
   return {};
 };
 /**
@@ -125,14 +125,14 @@ exports.shouldUpdate = function (state, changedTiddlers) {
 }
 /**
  * 当组件被更新时调用的函数
- * @param echartsInstance echarts实例，详见echarts的API文档
+ * @param myChart echarts实例，详见echarts的API文档
  * @param state 组件的状态，就是onMount返回的那个
  * @param addonAttributes <$echarts> 控件传入的所有参数
  */
-exports.onUpdate = function (echartsInstance, state, addonAttributes) {
+exports.onUpdate = function (myChart, state, addonAttributes) {
   // 注意：函数不返回任何值，你需要手动调用setOption函数
   // 需要的参数都有了，想做什么随意
-  echartsInstance.setOption({});
+  myChart.setOption({});
 }
 /**
  * 当组件被卸载时调用的函数(可选)

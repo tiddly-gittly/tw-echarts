@@ -106,11 +106,11 @@ I took a page from Vue and React to write the component, and the template for a 
 ```javascript
 /**
  * Function to be called when the component is first initialized (optional)
- * @param echartsInstance echarts instance, see the echarts API documentation for details
+ * @param myChart echarts instance, see the echarts API documentation for details
  * @param addonAttributes An object contains all attribute passed in by the <$echarts> widget
  * @return Object Initialized component state for state management (optional)
  */
-exports.onMount = function (echartsInstance, addonAttributes) {
+exports.onMount = function (myChart, addonAttributes) {
   return {};
 };
 /**
@@ -125,14 +125,14 @@ exports.shouldUpdate = function (state, changedTiddlers) {
 }
 /**
  * Functions to be called when a component is updated
- * @param echartsInstance echarts instance, see the echarts API documentation for details
+ * @param myChart echarts instance, see the echarts API documentation for details
  * @param state An object contains all attribute passed in by the <$echarts> widget
  * @param addonAttributes <$echarts> An object contains all attribute passed in by the <$echarts> widget
  */
-exports.onUpdate = function (echartsInstance, state, addonAttributes) {
+exports.onUpdate = function (myChart, state, addonAttributes) {
   // Note: The function does not return any value, you need to call the setOption function manually
   // The required attribute are available, feel free to do whatever you want
-  echartsInstance.setOption({});
+  myChart.setOption({});
 }
 /**
  * Function to be called when the component is unloaded (optional)
