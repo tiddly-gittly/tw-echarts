@@ -1,7 +1,7 @@
 lockfileVersion: 5.3
 
 specifiers:
-  '@types/echarts': 4.9.12
+  '@types/echarts': 4.9.13
   cross-env: 7.0.3
   html-minifier-terser: 6.1.0
   tiddlywiki: 5.2.1
@@ -9,7 +9,7 @@ specifiers:
   workbox-cli: 6.4.2
 
 devDependencies:
-  '@types/echarts': 4.9.12
+  '@types/echarts': 4.9.13
   cross-env: 7.0.3
   html-minifier-terser: 6.1.0
   tiddlywiki: 5.2.1
@@ -1230,8 +1230,8 @@ packages:
       defer-to-connect: 1.1.3
     dev: true
 
-  /@types/echarts/4.9.12:
-    resolution: {integrity: sha512-yi5yzCRQCZDXeMcTD0W1sRENILJ98PjwG0UH/gZwADU2wsGt523RmocXakbpUOch6FHJqWwwJijsoSGNhGp4kA==}
+  /@types/echarts/4.9.13:
+    resolution: {integrity: sha512-xqZ21MXOBU5i+BywnxAi0He+M6lsRtANBvbqJHmqM8T64Lx7azHJWbv/vSKVJfEbv3XyYpxeDhpV7gFi5mfgeA==}
     dependencies:
       '@types/zrender': 4.0.1
     dev: true
@@ -3208,6 +3208,7 @@ packages:
     engines: {node: '>=0.8.2'}
     hasBin: true
     dev: true
+    bundledDependencies: []
 
   /tmp/0.0.33:
     resolution: {integrity: sha512-jRCJlojKnZ3addtTOjdIqoRuPEKBvNXcGYqzO6zWZX8KfKEpnGY5jfggJQ3EjKuu8D4bJRr0y+cYJFmYbImXGw==}
