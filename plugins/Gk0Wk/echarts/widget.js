@@ -22,20 +22,23 @@
         }
     }
     var unmountAddon = function (title, state, echartsInstance) {
-        try {
-            echartsInstance.off('restore');
-            if (title && $tw.wiki.getTiddler(title)) {
-                if ($tw.wiki.getTiddler(title).fields.type === 'application/javascript') {
-                    var addon = require(title);
-                    var onUnmount = addon.onUnmount;
-                    if (typeof onUnmount === 'function') {
-                        onUnmount(state);
+        new Promise(function (resolve) {
+            try {
+                echartsInstance.off('restore');
+                if (title && $tw.wiki.getTiddler(title)) {
+                    if ($tw.wiki.getTiddler(title).fields.type === 'application/javascript') {
+                        var addon = require(title);
+                        var onUnmount = addon.onUnmount;
+                        if (typeof onUnmount === 'function') {
+                            onUnmount(state);
+                        }
                     }
                 }
+            } catch (e) {
+                console.error(e);
             }
-        } catch (e) {
-            console.error(e);
-        }
+            resolve();
+        });
     };
     var EChartsWidget = function (parseTreeNode, options) {
         this.initialise(parseTreeNode, options);
