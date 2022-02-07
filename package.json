@@ -24,12 +24,12 @@
     },
     "homepage": "https://gk0wk.github.io/TiddlySeq",
     "devDependencies": {
-        "@types/echarts": "4.9.12",
+        "@types/echarts": "4.9.13",
         "cross-env": "7.0.3",
         "html-minifier-terser": "6.1.0",
         "tiddlywiki": "5.2.1",
         "tw5-typed": "^0.0.8",
-        "uglify-js": "3.14.5",
+        "uglify-js": "3.15.1",
         "workbox-cli": "6.4.2"
     }
 }
