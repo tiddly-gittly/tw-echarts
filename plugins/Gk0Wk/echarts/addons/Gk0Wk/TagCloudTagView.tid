@@ -1,0 +1,23 @@
+title: $:/plugins/Gk0Wk/echarts/addons/TagCloudTagView
+
+<$set name="tagName" value={{$:/temp/Gk0Wk/echarts/addons/TagCloud/currentTag}}>
+
+<$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
+<$list filter="[<lang>search[zh]]">
+
+!! 包含 <$link to=<<tagName>>/> 标签的条目
+
+</$list>
+
+<$list filter="[<lang>!search[zh]]">
+
+!! Tiddlers tagged with <$link to=<<tagName>>/>
+
+</$list>
+</$list>
+
+<div class="tc-table-of-contents">
+<$macrocall $name="toc" tag=<<tagName>> sort="sort[title]"/>
+</div>
+
+</$set>

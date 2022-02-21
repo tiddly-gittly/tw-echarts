@@ -1,9 +1,11 @@
 caption: TheBrain
 created: 20211220184056323
-modified: 20211224134202204
+creator: Sttot
+modified: 20220221142111932
+modifier: Sttot
 tags: $:/tags/SideBar
 title: TheBrain
 tmap.id: 5b0ba7e4-f3a6-48dc-ae7e-8b9e5fdb47ef
 type: text/vnd.tiddlywiki
 
-<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/TheBrain.js"/>
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/TheBrain.js" aliasField="caption"/>

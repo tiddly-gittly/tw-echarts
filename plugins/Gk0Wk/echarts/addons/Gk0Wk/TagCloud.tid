@@ -2,6 +2,19 @@ title: $:/plugins/Gk0Wk/echarts/addons/TagCloud.js
 type: application/javascript
 module-type: echarts-component
 
+exports.onMount = function (echart) {
+  var state = {};
+  echart.on('click', function (event) {
+    $tw.wiki.setText('$:/temp/Gk0Wk/echarts/addons/TagCloud/currentTag', 'text', null, event.data.name, {})
+    new $tw.Story().navigateTiddler('$:/plugins/Gk0Wk/echarts/addons/TagCloudTagView');
+  });
+  return state;
+};
+
+exports.shouldUpdate = function (_, changedTiddlers) {
+  return $tw.utils.count(changedTiddlers) > 0;
+};
+
 // See https://github.com/ecomfe/echarts-wordcloud
 exports.onUpdate = function (echart) {
   var data = [];

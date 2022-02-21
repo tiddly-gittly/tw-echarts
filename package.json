@@ -31,5 +31,8 @@
         "tw5-typed": "^0.0.8",
         "uglify-js": "3.15.1",
         "workbox-cli": "6.4.2"
+    },
+    "dependencies": {
+        "eslint": "^8.8.0"
     }
 }

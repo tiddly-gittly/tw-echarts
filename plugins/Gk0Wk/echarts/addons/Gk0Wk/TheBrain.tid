@@ -43,11 +43,24 @@ exports.shouldUpdate = function (_, changedTiddlers) {
   return $tw.utils.count(changedTiddlers) > 0;
 };
 
-exports.onUpdate = function (echart, state) {
+function getAliasOrTitle(tiddlerTitle, aliasField) {
+  var tiddler = $tw.wiki.getTiddler(tiddlerTitle);
+  if (tiddler) {
+    var aliasValue = tiddler.fields[aliasField];
+    return aliasValue ? aliasValue : tiddlerTitle;
+  } else {
+    return tiddlerTitle;
+  }
+}
+
+exports.onUpdate = function (echart, state, addonAttributes) {
   var focussedTiddler = $tw.wiki.getTiddlerText('$:/temp/focussedTiddler');
   if (focussedTiddler && focussedTiddler.startsWith('$:/')) return;
   var nodes = [];
   var edges = [];
+  var aliasField = addonAttributes.aliasField === '' ? undefined : addonAttributes.aliasField;
+  var excludeFilter = addonAttributes.excludeFilter === '' ? undefined :
+    addonAttributes.excludeFilter === undefined ? undefined : $tw.wiki.compileFilter(addonAttributes.excludeFilter);
   if (focussedTiddler && focussedTiddler !== '') {
     var nodeMap = {};
     nodeMap[''] = true;
@@ -58,6 +71,7 @@ exports.onUpdate = function (echart, state) {
       name: focussedTiddler,
       // fixed: true,
       category: 0,
+      label: { formatter: getAliasOrTitle(focussedTiddler, aliasField) }
     });
 
     // 历史路径
@@ -79,8 +93,9 @@ exports.onUpdate = function (echart, state) {
       historyMap[tiddlerTitle] = true;
       nextTiddler = tiddlerTitle;
       if (nodeMap[tiddlerTitle]) break;
-      nodes.push({
+      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0) nodes.push({
         name: tiddlerTitle,
+        label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
         category: 1,
       });
       nodeMap[tiddlerTitle] = true;
@@ -97,8 +112,9 @@ exports.onUpdate = function (echart, state) {
         }
       });
       if (nodeMap[tiddlerTitle]) return;
-      nodes.push({
+      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0) nodes.push({
         name: tiddlerTitle,
+        label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
         category: 2,
       });
       nodeMap[tiddlerTitle] = true;
@@ -115,8 +131,9 @@ exports.onUpdate = function (echart, state) {
         }
       });
       if (nodeMap[tiddlerTitle]) return;
-      nodes.push({
+      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0) nodes.push({
         name: tiddlerTitle,
+        label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
         category: 3,
       });
       nodeMap[tiddlerTitle] = true;
@@ -134,8 +151,9 @@ exports.onUpdate = function (echart, state) {
         }
       });
       if (nodeMap[tiddlerTitle]) return;
-      nodes.push({
+      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0) nodes.push({
         name: tiddlerTitle,
+        label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
         category: 4,
       });
       nodeMap[tiddlerTitle] = true;
@@ -152,8 +170,9 @@ exports.onUpdate = function (echart, state) {
         }
       });
       if (nodeMap[tiddlerTitle]) return;
-      nodes.push({
+      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0) nodes.push({
         name: tiddlerTitle,
+        label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
         category: 5,
       });
       nodeMap[tiddlerTitle] = true;
@@ -173,8 +192,9 @@ exports.onUpdate = function (echart, state) {
           }
         });
         if (nodeMap[tiddlerTitle]) return;
-        nodes.push({
+        if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0) nodes.push({
           name: tiddlerTitle,
+          label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
           category: 6,
         });
         nodeMap[tiddlerTitle] = true;
