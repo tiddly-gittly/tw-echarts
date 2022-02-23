@@ -47,7 +47,7 @@ function getAliasOrTitle(tiddlerTitle, aliasField) {
   var tiddler = $tw.wiki.getTiddler(tiddlerTitle);
   if (tiddler) {
     var aliasValue = tiddler.fields[aliasField];
-    return aliasValue ? aliasValue : tiddlerTitle;
+    return (aliasValue && typeof aliasValue === 'string') ? aliasValue : tiddlerTitle;
   } else {
     return tiddlerTitle;
   }
@@ -93,7 +93,7 @@ exports.onUpdate = function (echart, state, addonAttributes) {
       historyMap[tiddlerTitle] = true;
       nextTiddler = tiddlerTitle;
       if (nodeMap[tiddlerTitle]) break;
-      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0) nodes.push({
+      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length === 0) nodes.push({
         name: tiddlerTitle,
         label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
         category: 1,
@@ -112,7 +112,7 @@ exports.onUpdate = function (echart, state, addonAttributes) {
         }
       });
       if (nodeMap[tiddlerTitle]) return;
-      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0) nodes.push({
+      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length === 0) nodes.push({
         name: tiddlerTitle,
         label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
         category: 2,
@@ -131,7 +131,7 @@ exports.onUpdate = function (echart, state, addonAttributes) {
         }
       });
       if (nodeMap[tiddlerTitle]) return;
-      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0) nodes.push({
+      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length === 0) nodes.push({
         name: tiddlerTitle,
         label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
         category: 3,
@@ -151,7 +151,7 @@ exports.onUpdate = function (echart, state, addonAttributes) {
         }
       });
       if (nodeMap[tiddlerTitle]) return;
-      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0) nodes.push({
+      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length === 0) nodes.push({
         name: tiddlerTitle,
         label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
         category: 4,
@@ -170,7 +170,7 @@ exports.onUpdate = function (echart, state, addonAttributes) {
         }
       });
       if (nodeMap[tiddlerTitle]) return;
-      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0) nodes.push({
+      if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length === 0) nodes.push({
         name: tiddlerTitle,
         label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
         category: 5,
@@ -192,7 +192,7 @@ exports.onUpdate = function (echart, state, addonAttributes) {
           }
         });
         if (nodeMap[tiddlerTitle]) return;
-        if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0) nodes.push({
+        if (!excludeFilter || excludeFilter.call($tw.wiki, [tiddlerTitle]).length === 0) nodes.push({
           name: tiddlerTitle,
           label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
           category: 6,
