@@ -6,7 +6,7 @@ specifiers:
   eslint: ^8.8.0
   html-minifier-terser: 6.1.0
   tiddlywiki: 5.2.1
-  tw5-typed: ^0.0.8
+  tw5-typed: 0.1.9
   uglify-js: 3.15.1
   workbox-cli: 6.4.2
 
@@ -18,7 +18,7 @@ devDependencies:
   cross-env: 7.0.3
   html-minifier-terser: 6.1.0
   tiddlywiki: 5.2.1
-  tw5-typed: registry.npmmirror.com/tw5-typed/0.0.8
+  tw5-typed: 0.1.9
   uglify-js: 3.15.1
   workbox-cli: 6.4.2
 
@@ -1524,7 +1524,7 @@ packages:
       normalize-path: 3.0.0
       readdirp: 3.6.0
     optionalDependencies:
-      fsevents: registry.npmmirror.com/fsevents/2.3.2
+      fsevents: 2.3.2
     dev: true
 
   /ci-info/2.0.0:
@@ -1874,6 +1874,14 @@ packages:
   /fs.realpath/1.0.0:
     resolution: {integrity: sha1-FQStJSMVjKpA20onh8sBQRmU6k8=}
     dev: true
+
+  /fsevents/2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
 
   /function-bind/1.1.1:
     resolution: {integrity: sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==}
@@ -2356,7 +2364,7 @@ packages:
     dependencies:
       universalify: 2.0.0
     optionalDependencies:
-      graceful-fs: registry.npmmirror.com/graceful-fs/4.2.8
+      graceful-fs: 4.2.8
     dev: true
 
   /jsonpointer/5.0.0:
@@ -2895,7 +2903,7 @@ packages:
     engines: {node: '>=10.0.0'}
     hasBin: true
     optionalDependencies:
-      fsevents: registry.npmmirror.com/fsevents/2.3.2
+      fsevents: 2.3.2
     dev: true
 
   /run-async/2.4.1:
@@ -3202,6 +3210,10 @@ packages:
 
   /tslib/2.3.1:
     resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
+    dev: true
+
+  /tw5-typed/0.1.9:
+    resolution: {integrity: sha512-BDhHSfoUg61FZc1InhMPzhsovUnrmEYfO18nAgsETvcaPdWFkBrzELlHXiFzHm8r4XZAFs/27iEliRd0NNBmLA==}
     dev: true
 
   /type-fest/0.13.1:
@@ -3961,16 +3973,6 @@ packages:
     version: 1.0.0
     dev: false
 
-  registry.npmmirror.com/fsevents/2.3.2:
-    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/fsevents/-/fsevents-2.3.2.tgz}
-    name: fsevents
-    version: 2.3.2
-    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
-    os: [darwin]
-    requiresBuild: true
-    dev: true
-    optional: true
-
   registry.npmmirror.com/functional-red-black-tree/1.0.1:
     resolution: {integrity: sha512-dsKNQNdj6xA3T+QlADDA7mOSlX0qiMINjn0cgr+eGHGsbSHzTabcIogz2+p/iqP1Xs6EP/sS2SbqH+brGTbq0g==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz}
     name: functional-red-black-tree
@@ -4014,14 +4016,6 @@ packages:
     dependencies:
       type-fest: registry.npmmirror.com/type-fest/0.20.2
     dev: false
-
-  registry.npmmirror.com/graceful-fs/4.2.8:
-    resolution: {integrity: sha512-qkIilPUYcNhJpd33n0GBXTB1MMPp14TxEsEs0pTrsSVucApsYzW5V+Q8Qxhik6KU3evy+qkAAowTByymK0avdg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/graceful-fs/-/graceful-fs-4.2.8.tgz}
-    name: graceful-fs
-    version: 4.2.8
-    requiresBuild: true
-    dev: true
-    optional: true
 
   registry.npmmirror.com/has-flag/4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/has-flag/-/has-flag-4.0.0.tgz}
@@ -4296,12 +4290,6 @@ packages:
     name: text-table
     version: 0.2.0
     dev: false
-
-  registry.npmmirror.com/tw5-typed/0.0.8:
-    resolution: {integrity: sha512-Bo6z/KhlGRF9/aFUsI7s+TneXtbt/Qcs35SAoXttzSfMHEQ49HkrhOs1T0FCIDTKPRWNzYfK07AJG9yqujM+NA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/tw5-typed/-/tw5-typed-0.0.8.tgz}
-    name: tw5-typed
-    version: 0.0.8
-    dev: true
 
   registry.npmmirror.com/type-check/0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/type-check/-/type-check-0.4.0.tgz}
