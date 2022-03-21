@@ -7,7 +7,7 @@ specifiers:
   html-minifier-terser: 6.1.0
   tiddlywiki: 5.2.1
   tw5-typed: 0.1.9
-  uglify-js: 3.15.2
+  uglify-js: 3.15.3
   workbox-cli: 6.5.1
 
 dependencies:
@@ -19,7 +19,7 @@ devDependencies:
   html-minifier-terser: 6.1.0
   tiddlywiki: 5.2.1
   tw5-typed: 0.1.9
-  uglify-js: 3.15.2
+  uglify-js: 3.15.3
   workbox-cli: 6.5.1
 
 packages:
@@ -3296,8 +3296,8 @@ packages:
       is-typedarray: 1.0.0
     dev: true
 
-  /uglify-js/3.15.2:
-    resolution: {integrity: sha512-peeoTk3hSwYdoc9nrdiEJk+gx1ALCtTjdYuKSXMTDqq7n1W7dHPqWDdSi+BPL0ni2YMeHD7hKUSdbj3TZauY2A==}
+  /uglify-js/3.15.3:
+    resolution: {integrity: sha512-6iCVm2omGJbsu3JWac+p6kUiOpg3wFO2f8lIXjfEb8RrmLjzog1wTPMmwKB7swfzzqxj9YM+sGUM++u1qN4qJg==}
     engines: {node: '>=0.8.0'}
     hasBin: true
     dev: true
