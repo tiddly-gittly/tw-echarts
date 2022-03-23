@@ -47,7 +47,7 @@ function getAliasOrTitle(tiddlerTitle, aliasField) {
   if (tiddler) {
     var aliasValue = tiddler.fields[aliasField];
     return aliasValue && typeof aliasValue === "string"
-      ? $tw.wiki.renderText("text/html", "text/vnd.tiddlywiki", aliasValue, {
+      ? $tw.wiki.renderText("text/plain", "text/vnd.tiddlywiki", aliasValue, {
           variables: { currentTiddler: tiddlerTitle },
         })
       : tiddlerTitle;
