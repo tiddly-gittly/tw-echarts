@@ -75,23 +75,23 @@
                 var scriptDom = this.document.createElement('script');
                 var scriptText =
                     'var chartDom = document.querySelector(\'#' + this.uuid + '\');\nif (chartDom && typeof window !== \'undefiend\' && window.echarts) {\n' +
-                        '  var myChart = window.echarts.init(chartDom, ' + this.theme === 'dark' ? '\'dark\'' : 'undefined' + ', { renderer: \'' + this.renderer + '\' });\n' +
-                        '  myChart.setOption(' + JSON.stringfy({ darkMode: this.theme === 'dark', backgroundColor: 'transparent' }) + ');\n' +
-                        '  myChart.showLoading();\n' +
-                        '  new Promise(function (resolve) {\n' +
+                    '  var myChart = window.echarts.init(chartDom, ' + this.theme === 'dark' ? '\'dark\'' : 'undefined' + ', { renderer: \'' + this.renderer + '\' });\n' +
+                    '  myChart.setOption(' + JSON.stringfy({ darkMode: this.theme === 'dark', backgroundColor: 'transparent' }) + ');\n' +
+                    '  myChart.showLoading();\n' +
+                    '  new Promise(function (resolve) {\n' +
                     '    try {\n';
                 if (this.text === undefined) {
                     var tiddler = $tw.wiki.getTiddler(that.tiddlerTitle).fields;
                     if (!tiddler.type || tiddler.type === '' || tiddler.type === 'text/vnd.tiddlywiki') {
                         scriptText +=
-                            '      myChart.setOption(' + JSON.stringfy(JSON.parse($tw.wiki.renderTiddler('text/plain', this.tiddlerTitle, {}))) + ');\n';
+                            '      myChart.setOption(' + JSON.stringfy(JSON.parse($tw.wiki.renderTiddler('text/plain', this.tiddlerTitle, { variables: Object.assign({}, this.addonAttributes), }))) + ');\n';
                     } else if (tiddler.type === 'application/json') {
                         scriptText +=
                             '      myChart.setOption(' + JSON.stringfy(JSON.parse($tw.wiki.getTiddlerText(this.tiddlerTitle))) + ');\n';
                     } else if (tiddler.type === 'application/javascript') {
                         scriptText +=
                             '      var exports = {};\n' + $tw.wiki.getTiddlerText(this.tiddlerTitle) + '\n' +
-                            '      var state = exports.onMount ? exports.onMount(myChart, ' + JSON.stringfy(this.addonAttributes) + ') : {};\n' +
+                            '      var state = exports.onMount ? exports.onMount(myChart, ' + JSON.stringfy(this.addonAttributes) + ', undefined) : {};\n' +
                             '      var attrs = ' + JSON.stringfy(this.addonAttributes) + ';\n' +
                             '      if (exports.onUpdate) exports.onUpdate(myChart, state, attrs);\n' +
                             '      if (exports.onUpdate) myChart.on(\'restore\', function () { exports.onUpdate(myChart, state, attrs); });\n';
@@ -106,6 +106,7 @@
                     '    finally { resolve(); }\n' +
                     '  }).then(function () { myChart.hideLoading(); });\n' +
                     '  var timer;' +
+                    '  if (!window.ResizeObserver) return;' +
                     '  var resizeObserver = new ResizeObserver(function (entries) {\n' +
                     '    if (timer) clearTimeout(timer);' +
                     '    timer = setTimeout(function () {' +
@@ -195,7 +196,7 @@
                     var onMount = addon.onMount;
                     if (onMount === undefined) onMount = addon.onInit;
                     if (typeof onMount === 'function') {
-                        this.state = onMount(this.echartsInstance, this.addonAttributes);
+                        this.state = onMount(this.echartsInstance, this.addonAttributes, this);
                     }
                 } else return;
             }
@@ -234,22 +235,33 @@
         // 监听大小变更
         var that = this;
         var timer; // 去抖
-        this.resizeObserver = new ResizeObserver(function (entries) {
-            if (timer) clearTimeout(timer);
-            timer = setTimeout(function () {
-                var sidebar = document.querySelector('.tc-sidebar-scrollable');
+        if (window.ResizeObserver) {
+            this.resizeObserver = new ResizeObserver(function (entries) {
+              if (timer) clearTimeout(timer);
+              timer = setTimeout(function () {
+                var sidebar = document.querySelector(".tc-sidebar-scrollable");
                 var height = entries[0].contentRect.height;
-                if (that.fillSidebar && sidebar && !that.parentDomNode.isTiddlyWikiFakeDom && sidebar.contains(that.containerDom)) {
-                    height = window.innerHeight - that.parentDomNode.getBoundingClientRect().top -
-                        parseInt(getComputedStyle(sidebar).paddingBottom.replace('px', ''));
+                if (
+                  that.fillSidebar &&
+                  sidebar &&
+                  !that.parentDomNode.isTiddlyWikiFakeDom &&
+                  sidebar.contains(that.containerDom)
+                ) {
+                  height =
+                    window.innerHeight -
+                    that.parentDomNode.getBoundingClientRect().top -
+                    parseInt(
+                      getComputedStyle(sidebar).paddingBottom.replace("px", "")
+                    );
                 }
                 instance.resize({
-                    width: entries[0].contentRect.width,
-                    height: height,
+                  width: entries[0].contentRect.width,
+                  height: height,
                 });
-            }, 25);
-        });
-        this.resizeObserver.observe(this.containerDom);
+              }, 25);
+            });
+            this.resizeObserver.observe(this.containerDom);
+        }
         return oldOptions;
     };
     // 异步更新
@@ -265,7 +277,20 @@
                     }
                     var tiddler = $tw.wiki.getTiddler(that.tiddlerTitle).fields;
                     if (!tiddler.type || tiddler.type === '' || tiddler.type === 'text/vnd.tiddlywiki') {
-                        that.echartsInstance.setOption(JSON.parse($tw.wiki.renderTiddler('text/plain', that.tiddlerTitle, {})));
+                        that.echartsInstance.setOption(
+                          JSON.parse(
+                            $tw.wiki.renderTiddler(
+                              "text/plain",
+                              that.tiddlerTitle,
+                              {
+                                variables: Object.assign(
+                                  {},
+                                  that.addonAttributes
+                                ),
+                              }
+                            )
+                          )
+                        );
                     } else if (tiddler.type === 'application/json') {
                         that.echartsInstance.setOption(JSON.parse($tw.wiki.getTiddlerText(that.tiddlerTitle)));
                     } else if (tiddler.type === 'application/javascript') {

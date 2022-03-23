@@ -1,5 +1,5 @@
 created: 20211230150144652
-modified: 20220105144743856
+modified: 20220323014256195
 title: 我该如何使用该插件?
 type: text/vnd.tiddlywiki
 
@@ -95,6 +95,20 @@ macro 也有`width`等可选参数，这里就不赘述了。
 
 那么我可不可以自行决定刷新的时机？当然可以，在 `$tiddler` 指向的那个条目中添加 `echarts-refresh-trigger` 字段即可。该字段内填写你自定义的过滤器表达式，每当表达式的结果发生变化时，就会触发更新。例如 `[[Examples]get[modified]]` ，就会在 ''Examples'' 这个条目被修改后更新(因为时间戳会变化)。
 
+[[clsturgeon|https://talk.tiddlywiki.org/t/echarts-bringing-amazing-visualization-tools-to-tiddlywiki/1944/32?u=sttot]] 提出了一个需求：TW5类型的addon应当能够获取到正在使用echarts控件的tiddler的变量(比如获得使用echarts控件的tiddler的`currentTiddler`以便访问其fields)。为了实现这个需求，可以在echarts控件中添加自定义属性，就可以在对应的TW5类型的addon中作为变量来使用。例如：
+
+```html
+<$echarts $tiddler="xxx" outterTiddler=<<currentTiddler>>/>
+```
+
+然后就可以在TW5类型的addon中使用这个变量：
+
+```html
+`{
+	"value": "`<$text text=<<outterTiddler>>/>`"
+}`
+```
+
 !! JS 类型的条目
 
 使用TW5语法生成数据，肯定还是要有局限性的。如果想发挥最大限度的灵活性，推荐使用 ~JavaScript 来写(当然，肯定是有技术门槛的)。
@@ -108,9 +122,10 @@ macro 也有`width`等可选参数，这里就不赘述了。
  * 当组件第一次初始化时调用的函数(可选)
  * @param myChart echarts实例，详见echarts的API文档
  * @param addonAttributes <$echarts> 控件传入的的所有参数，是object
+ * @param echartsWidget <$echarts> 控件实例，可能为undefiend
  * @return Object 初始化的组件状态，用于状态管理(可选)
  */
-exports.onMount = function (myChart, addonAttributes) {
+exports.onMount = function (myChart, addonAttributes, echartsWidget) {
   return {};
 };
 /**

@@ -1,5 +1,5 @@
 created: 20211230152650120
-modified: 20220105145407910
+modified: 20220323014024376
 title: How do I use the plugin?
 type: text/vnd.tiddlywiki
 
@@ -95,6 +95,20 @@ But having said that, you may wonder at what point the widget will be refreshed?
 
 So can I decide the timing of the refresh myself? Sure, just add the `echarts-refresh-trigger` field to the tiddler pointed to by `$tiddler`. This field should be filled with your custom filter expression and will trigger an update whenever the result of the expression changes. For example, `[[Examples]get[modified]]` will make the updating when the ''Examples'' tiddler is modified (because the timestamp will change).
 
+[[clsturgeon|https://talk.tiddlywiki.org/t/echarts-bringing-amazing-visualization-tools-to-tiddlywiki/1944/32?u=sttot]] proposed a requirement that an addon of type TW5 should be able to get the variables of the tiddler that is using the echarts widget (e.g. get the `currentTiddler` of the tiddler using the echarts widget in order to access itsfields). To achieve this, you can add custom properties to the echarts widget, which can then be used as variables in the corresponding TW5 type addon. For example:
+
+```html
+<$echarts $tiddler="xxx" outterTiddler=<<currentTiddler>>/>
+```
+
+This variable can then be used in an addon of type TW5:
+
+```html
+`{
+	"value": "`<$text text=<<outterTiddler>>/>`"
+}`
+```
+
 !! JS type tiddlers
 
 Using TW5 syntax to generate data should definitely still have limitations. If you want the maximize flexibility, it is recommended to write in ~JavaScript (of course, there is definitely a technical threshold).
@@ -108,9 +122,10 @@ I took a page from Vue and React to write the component, and the template for a 
  * Function to be called when the component is first initialized (optional)
  * @param myChart echarts instance, see the echarts API documentation for details
  * @param addonAttributes An object contains all attribute passed in by the <$echarts> widget
+ * @param echartsWidget The <$echarts> widget instance
  * @return Object Initialized component state for state management (optional)
  */
-exports.onMount = function (myChart, addonAttributes) {
+exports.onMount = function (myChart, addonAttributes, echartsWidget) {
   return {};
 };
 /**
