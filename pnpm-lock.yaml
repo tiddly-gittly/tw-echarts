@@ -6,7 +6,7 @@ specifiers:
   eslint: ^8.8.0
   html-minifier-terser: 6.1.0
   tiddlywiki: 5.2.1
-  tw5-typed: 0.1.9
+  tw5-typed: 0.1.12
   uglify-js: 3.15.3
   workbox-cli: 6.5.1
 
@@ -18,7 +18,7 @@ devDependencies:
   cross-env: 7.0.3
   html-minifier-terser: 6.1.0
   tiddlywiki: 5.2.1
-  tw5-typed: 0.1.9
+  tw5-typed: 0.1.12
   uglify-js: 3.15.3
   workbox-cli: 6.5.1
 
@@ -3256,8 +3256,8 @@ packages:
     resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
     dev: true
 
-  /tw5-typed/0.1.9:
-    resolution: {integrity: sha512-BDhHSfoUg61FZc1InhMPzhsovUnrmEYfO18nAgsETvcaPdWFkBrzELlHXiFzHm8r4XZAFs/27iEliRd0NNBmLA==}
+  /tw5-typed/0.1.12:
+    resolution: {integrity: sha512-F7yGchzkf9d4466xrdObdyxFnwGxhOeBTq+Rk6oZ+G3kK1F+fwpAH66edTqNnkQ5rNWVSbewdGx/VORYGawTiA==}
     dev: true
 
   /type-fest/0.13.1:
