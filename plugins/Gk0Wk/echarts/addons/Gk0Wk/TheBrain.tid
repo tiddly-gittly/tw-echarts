@@ -26,10 +26,9 @@ var Categories = [
   },
 ];
 
-exports.onMount = function (echart, addonAttributes, echartsWidget) {
+exports.onMount = function (echart) {
   var state = {
     historyTiddlers: [],
-    widget: echartsWidget,
   };
   echart.on("click", function (event) {
     if (event.dataType === "node") {
@@ -43,13 +42,13 @@ exports.shouldUpdate = function (_, changedTiddlers) {
   return $tw.utils.count(changedTiddlers) > 0;
 };
 
-function getAliasOrTitle(tiddlerTitle, aliasField, variables) {
+function getAliasOrTitle(tiddlerTitle, aliasField) {
   var tiddler = $tw.wiki.getTiddler(tiddlerTitle);
   if (tiddler) {
     var aliasValue = tiddler.fields[aliasField];
     return aliasValue && typeof aliasValue === "string"
       ? $tw.wiki.renderText("text/html", "text/vnd.tiddlywiki", aliasValue, {
-          variables: variables ? variables : {},
+          variables: { currentTiddler: tiddlerTitle },
         })
       : tiddlerTitle;
   } else {
@@ -84,7 +83,6 @@ exports.onUpdate = function (echart, state, addonAttributes) {
         formatter: getAliasOrTitle(
           focussedTiddler,
           aliasField,
-          state.widget ? state.widget.variables : {}
         ),
       },
     });
