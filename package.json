@@ -30,7 +30,7 @@
         "tiddlywiki": "5.2.1",
         "tw5-typed": "0.1.12",
         "uglify-js": "3.15.3",
-        "workbox-cli": "6.5.1"
+        "workbox-cli": "6.5.2"
     },
     "dependencies": {
         "eslint": "^8.8.0"
