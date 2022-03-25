@@ -5,7 +5,7 @@ specifiers:
   cross-env: 7.0.3
   eslint: ^8.8.0
   html-minifier-terser: 6.1.0
-  tiddlywiki: 5.2.1
+  tiddlywiki: 5.2.2
   tw5-typed: 0.1.12
   uglify-js: 3.15.3
   workbox-cli: 6.5.2
@@ -17,7 +17,7 @@ devDependencies:
   '@types/echarts': 4.9.13
   cross-env: 7.0.3
   html-minifier-terser: 6.1.0
-  tiddlywiki: 5.2.1
+  tiddlywiki: 5.2.2
   tw5-typed: 0.1.12
   uglify-js: 3.15.3
   workbox-cli: 6.5.2
@@ -3206,12 +3206,11 @@ packages:
     resolution: {integrity: sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=}
     dev: true
 
-  /tiddlywiki/5.2.1:
-    resolution: {integrity: sha512-cfZX8G4/ymQzBmPcI8UWJ317eDrLf4INto99m7M8Nkbx5BMA3+Uapht7OPNaXZRR4RqvVJ7N1Ie1xYMWtvjnpw==}
+  /tiddlywiki/5.2.2:
+    resolution: {integrity: sha512-xAY30p06CI6oFvebL/BnPtM9rbYRG14AVbpEfTvCHjpGutYsn6XBOogbhqnAxncmifFK3CaBGfiaqPNGi6rxGQ==}
     engines: {node: '>=0.8.2'}
     hasBin: true
     dev: true
-    bundledDependencies: []
 
   /tmp/0.0.33:
     resolution: {integrity: sha512-jRCJlojKnZ3addtTOjdIqoRuPEKBvNXcGYqzO6zWZX8KfKEpnGY5jfggJQ3EjKuu8D4bJRr0y+cYJFmYbImXGw==}
