@@ -28,7 +28,7 @@
         "cross-env": "7.0.3",
         "html-minifier-terser": "6.1.0",
         "tiddlywiki": "5.2.2",
-        "tw5-typed": "0.1.12",
+        "tw5-typed": "0.2.0",
         "uglify-js": "3.15.3",
         "workbox-cli": "6.5.2"
     },
