@@ -24,7 +24,7 @@
     },
     "homepage": "https://gk0wk.github.io/TiddlySeq",
     "devDependencies": {
-        "@types/echarts": "4.9.13",
+        "@types/echarts": "4.9.14",
         "cross-env": "7.0.3",
         "html-minifier-terser": "6.1.0",
         "tiddlywiki": "5.2.2",
