@@ -1,0 +1,6 @@
+title: $:/plugins/Gk0Wk/echarts/Snippets/TheBrain
+type: text/vnd.tiddlywiki
+tags: $:/tags/TextEditor/Snippet
+caption: Add a new Graph Chart, "levels" (default to 1) controls how many levels will it reach from "focussedTiddler" (default to $:/temp/focussedTiddler); "graphTitle" decided the title of the chart
+
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/TheBrain.js" aliasField="caption" levels=2 focussedTiddler="Index" graphTitle="Graph" />
