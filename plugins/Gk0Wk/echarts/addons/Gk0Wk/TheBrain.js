@@ -57,6 +57,8 @@ exports.onUpdate = function onUpdate(echart, state, addonAttributes) {
   const focussedTiddler = addonAttributes.focussedTiddler || $tw.wiki.getTiddlerText('$:/temp/focussedTiddler');
   /** 参数：levels 指定图向外展开几级 */
   const levels = addonAttributes.levels || 1;
+  /** 参数：graphTitle 指定右下角显示的标题 */
+  const graphTitle = addonAttributes.graphTitle || 'The Brain View';
   // 不允许 focussedTiddler 是系统条目，以免产生大量节点
   if (focussedTiddler && focussedTiddler.startsWith('$:/')) return;
   const nodes = [];
@@ -262,14 +264,14 @@ exports.onUpdate = function onUpdate(echart, state, addonAttributes) {
       },
     ],
     title: {
-      text: 'The Brain View',
+      text: graphTitle,
       show: true,
       top: 'bottom',
       left: 'right',
     },
     series: [
       {
-        name: 'The Brain View',
+        name: graphTitle,
         type: 'graph',
         layout: 'force',
         nodes: nodes,
