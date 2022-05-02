@@ -1,4 +1,4 @@
-lockfileVersion: 5.3
+lockfileVersion: 5.4
 
 specifiers:
   '@types/echarts': 4.9.14
@@ -6,7 +6,7 @@ specifiers:
   eslint: ^8.8.0
   html-minifier-terser: 6.1.0
   tiddlywiki: 5.2.2
-  tw5-typed: 0.2.2
+  tw5-typed: 0.2.7
   uglify-js: 3.15.4
   workbox-cli: 6.5.3
 
@@ -18,7 +18,7 @@ devDependencies:
   cross-env: 7.0.3
   html-minifier-terser: 6.1.0
   tiddlywiki: 5.2.2
-  tw5-typed: 0.2.2
+  tw5-typed: 0.2.7
   uglify-js: 3.15.4
   workbox-cli: 6.5.3
 
@@ -1161,7 +1161,7 @@ packages:
       to-fast-properties: 2.0.0
     dev: true
 
-  /@rollup/plugin-babel/5.3.0_@babel+core@7.16.7+rollup@2.63.0:
+  /@rollup/plugin-babel/5.3.0_4fq7sezc5ivzuwfxwkny35qpce:
     resolution: {integrity: sha512-9uIC8HZOnVLrLHxayq/PTzw+uS25E14KPUBh5ktF+18Mjo5yK0ToMMx6epY0uEgkjwJw0aBW4x2horYXh8juWw==}
     engines: {node: '>= 10.0.0'}
     peerDependencies:
@@ -3256,8 +3256,8 @@ packages:
     resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
     dev: true
 
-  /tw5-typed/0.2.2:
-    resolution: {integrity: sha512-DkClQbIpgGmpGwQ+yIdChhPjfnm6lP/wpVQH2CansBfpKYhnu0B2c64qcQFDoiPYtJYelpiE7M2eKcQqEO9w6w==}
+  /tw5-typed/0.2.7:
+    resolution: {integrity: sha512-zpT67QdttbHNgEkkjfaQ2avOhKVSLX7v25G0mk4HVQhMqkCmHKWnTrtolvsandF6/d8nH2r0y02l9x2/AAQnSQ==}
     dev: true
 
   /type-fest/0.13.1:
@@ -3457,7 +3457,7 @@ packages:
       '@babel/core': 7.16.7
       '@babel/preset-env': 7.16.7_@babel+core@7.16.7
       '@babel/runtime': 7.16.7
-      '@rollup/plugin-babel': 5.3.0_@babel+core@7.16.7+rollup@2.63.0
+      '@rollup/plugin-babel': 5.3.0_4fq7sezc5ivzuwfxwkny35qpce
       '@rollup/plugin-node-resolve': 11.2.1_rollup@2.63.0
       '@rollup/plugin-replace': 2.4.2_rollup@2.63.0
       '@surma/rollup-plugin-off-main-thread': 2.2.3
