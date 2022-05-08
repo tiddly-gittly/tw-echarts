@@ -48,23 +48,8 @@ module.exports = {
     ],
     'unicorn/prefer-node-protocol': 'off',
     'unicorn/prefer-module': 'off',
-    '@typescript-eslint/no-empty-function': 'off',
-    '@typescript-eslint/method-signature-style': 'off',
     'unicorn/prefer-string-slice': 'off',
     'unicorn/no-array-reduce': 'off',
-    '@typescript-eslint/member-delimiter-style': [
-      'warn',
-      {
-        multiline: {
-          delimiter: 'semi', // 'none' or 'semi' or 'comma'
-          requireLast: true,
-        },
-        singleline: {
-          delimiter: 'semi', // 'semi' or 'comma'
-          requireLast: false,
-        },
-      },
-    ],
     'comma-dangle': [2, 'always-multiline'],
     'no-undef': 'off',
     'unicorn/no-array-for-each': 'off',
@@ -81,18 +66,7 @@ module.exports = {
     'unicorn/consistent-function-scoping': [0],
     'no-void': [0],
     'unicorn/prefer-ternary': 'off',
-    '@typescript-eslint/no-non-null-assertion': 'off',
-    '@typescript-eslint/no-var-requires': 'off',
     semi: [0],
-    '@typescript-eslint/no-use-before-define': [1],
-    '@typescript-eslint/no-unused-vars': [
-      'warn', // or error
-      {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-        caughtErrorsIgnorePattern: '^_',
-      },
-    ],
   },
   extends: [
     'eslint:recommended',
@@ -118,7 +92,7 @@ module.exports = {
     'prettier',
     'react',
     'html',
-    'typescript-sort-keys',
+    // 'typescript-sort-keys',
     'unicorn',
     'import',
     'react-hooks',

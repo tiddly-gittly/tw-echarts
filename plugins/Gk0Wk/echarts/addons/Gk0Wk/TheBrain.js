@@ -1,3 +1,4 @@
+/* eslint-disable no-inner-declarations */
 const Categories = [
   {
     name: 'Focusing',
