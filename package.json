@@ -1,38 +1,56 @@
 {
-    "name": "TiddlySeq",
-    "version": "0.0.3",
-    "description": "Logseq-like TiddlyWiki Template",
-    "main": "scripts/build.js",
-    "scripts": {
-        "server": "npx cross-env TIDDLYWIKI_PLUGIN_PATH='./plugins' TIDDLYWIKI_THEME_PATH='./themes' TIDDLYWIKI_LANGUAGE_PATH='./languages' npx tiddlywiki . --listen port=8080",
-        "buildonline": "node -e \"require('./scripts/build').buildOnlineHTML('dist', 'index.html');\"",
-        "buildoffline": "node -e \"require('./scripts/build').buildOfflineHTML('dist', 'offline.html', true, '-[is[draft]] -[tag[ExcludeFromEmpty]]');\"",
-        "buildlibrary": "node -e \"require('./scripts/build').buildLibrary('[prefix[$:/plugins/Gk0Wk/]]', 'dist/library');\""
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/Gk0Wk/TiddlySeq.git"
-    },
-    "keywords": [
-        "TiddlyWiki5",
-        "Theme"
-    ],
-    "author": "Gk0Wk",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/Gk0Wk/TiddlySeq/issues"
-    },
-    "homepage": "https://gk0wk.github.io/TiddlySeq",
-    "devDependencies": {
-        "@types/echarts": "4.9.15",
-        "cross-env": "7.0.3",
-        "html-minifier-terser": "6.1.0",
-        "tiddlywiki": "5.2.2",
-        "tw5-typed": "0.2.7",
-        "uglify-js": "3.15.4",
-        "workbox-cli": "6.5.3"
-    },
-    "dependencies": {
-        "eslint": "^8.8.0"
-    }
+  "name": "TW-Echarts",
+  "version": "0.0.0",
+  "description": "Echarts for TiddlyWiki",
+  "main": "scripts/build.js",
+  "scripts": {
+    "server": "npx cross-env TIDDLYWIKI_PLUGIN_PATH='./plugins' TIDDLYWIKI_THEME_PATH='./themes' TIDDLYWIKI_LANGUAGE_PATH='./languages' npx tiddlywiki . --listen port=8080",
+    "buildonline": "node -e \"require('./scripts/build').buildOnlineHTML('dist', 'index.html');\"",
+    "buildoffline": "node -e \"require('./scripts/build').buildOfflineHTML('dist', 'offline.html', true, '-[is[draft]] -[tag[ExcludeFromEmpty]]');\"",
+    "buildlibrary": "node -e \"require('./scripts/build').buildLibrary('[prefix[$:/plugins/Gk0Wk/]]', 'dist/library');\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tiddly-gittly/tw-echarts.git"
+  },
+  "keywords": [
+    "TiddlyWiki5",
+    "Theme"
+  ],
+  "author": "Gk0Wk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tiddly-gittly/tw-echarts/issues"
+  },
+  "homepage": "https://tiddly-gittly.github.io/tw-echarts",
+  "devDependencies": {
+    "@types/echarts": "4.9.15",
+    "cross-env": "7.0.3",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "html-minifier-terser": "6.1.0",
+    "tiddlywiki": "5.2.2",
+    "tw5-typed": "0.2.7",
+    "uglify-js": "3.15.4",
+    "workbox-cli": "6.5.3"
+  },
+  "dependencies": {
+    "eslint": "8.14.0",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-import-resolver-alias": "1.1.2",
+    "eslint-plugin-autofix": "1.1.0",
+    "eslint-plugin-html": "6.2.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-prettier": "4.0.0",
+    "eslint-plugin-react": "7.29.4",
+    "eslint-plugin-react-hooks": "4.5.0",
+    "eslint-plugin-security": "1.5.0",
+    "eslint-plugin-security-node": "1.1.1",
+    "eslint-plugin-typescript-sort-keys": "2.1.0",
+    "eslint-plugin-unicorn": "42.0.0",
+    "eslint-plugin-unused-imports": "2.0.0",
+    "prettier": "2.6.2"
+  }
 }
