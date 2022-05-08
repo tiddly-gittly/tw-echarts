@@ -56,7 +56,7 @@ exports.onUpdate = function onUpdate(echart, state, addonAttributes) {
   /** 参数：focussedTiddler 是图的中央节点 */
   const focussedTiddler = addonAttributes.focussedTiddler || $tw.wiki.getTiddlerText('$:/temp/focussedTiddler');
   /** 参数：levels 指定图向外展开几级 */
-  const levels = addonAttributes.levels ?  parseInt(addonAttributes.levels) : 1;
+  const levels = addonAttributes.levels ? Number.parseInt(addonAttributes.levels) : 1;
   /** 参数：graphTitle 指定右下角显示的标题 */
   const graphTitle = addonAttributes.graphTitle || 'The Brain View';
   // 不允许 focussedTiddler 是系统条目，以免产生大量节点
@@ -90,8 +90,8 @@ exports.onUpdate = function onUpdate(echart, state, addonAttributes) {
     // 历史路径
     const nextTiddler = focussedTiddler;
     const historyMap = {};
-    for (let i = state.historyTiddlers.length - 2; i >= 0; i--) {
-      const tiddlerTitle = state.historyTiddlers[i];
+    for (let index = state.historyTiddlers.length - 2; index >= 0; index--) {
+      const tiddlerTitle = state.historyTiddlers[index];
       if (historyMap[tiddlerTitle]) continue;
       if (tiddlerTitle === nextTiddler) continue;
       if (tiddlerTitle.startsWith('$:/')) continue;
@@ -139,9 +139,7 @@ exports.onUpdate = function onUpdate(echart, state, addonAttributes) {
       });
     }
     // 链接
-    $tw.utils.each($tw.wiki.getTiddlerLinks(focussedTiddler), (targetTiddler) =>
-      pushLink(targetTiddler, focussedTiddler, 1)
-    );
+    $tw.utils.each($tw.wiki.getTiddlerLinks(focussedTiddler), (targetTiddler) => pushLink(targetTiddler, focussedTiddler, 1));
 
     // 反链
     function pushBackLink(tiddlerTitle, target, recursiveLevel) {
@@ -166,9 +164,7 @@ exports.onUpdate = function onUpdate(echart, state, addonAttributes) {
         pushBackLink(tiddlerTitle2, tiddlerTitle, recursiveLevel + 1);
       });
     }
-    $tw.utils.each($tw.wiki.getTiddlerBacklinks(focussedTiddler), (sourceTiddler) =>
-      pushBackLink(sourceTiddler, focussedTiddler, 1)
-    );
+    $tw.utils.each($tw.wiki.getTiddlerBacklinks(focussedTiddler), (sourceTiddler) => pushBackLink(sourceTiddler, focussedTiddler, 1));
 
     // 指向哪些tag
     function pushTag(tiddlerTitle, source, recursiveLevel) {
@@ -195,9 +191,7 @@ exports.onUpdate = function onUpdate(echart, state, addonAttributes) {
         pushBackLink(tiddlerTag2, tiddlerTitle, recursiveLevel + 1);
       });
     }
-    $tw.utils.each($tw.wiki.getTiddler(focussedTiddler).fields.tags, (tiddlerTag) =>
-      pushTag(tiddlerTag, focussedTiddler, 1)
-    );
+    $tw.utils.each($tw.wiki.getTiddler(focussedTiddler).fields.tags, (tiddlerTag) => pushTag(tiddlerTag, focussedTiddler, 1));
 
     // 被谁作为 Tag
     function pushBackTag(tiddlerTitle, target, recursiveLevel) {
@@ -274,12 +268,12 @@ exports.onUpdate = function onUpdate(echart, state, addonAttributes) {
         name: graphTitle,
         type: 'graph',
         layout: 'force',
-        nodes: nodes,
-        edges: edges,
+        nodes,
+        edges,
         categories: Categories,
         roam: true,
         draggable: true,
-        zoom: 4.0,
+        zoom: 4,
         label: {
           position: 'right',
           show: true,
