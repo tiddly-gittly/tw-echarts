@@ -9,3 +9,6 @@ localization/
 build-resources/
 .vscode/
 .github/
+tiddlers/
+*.yaml
+*.min.js
