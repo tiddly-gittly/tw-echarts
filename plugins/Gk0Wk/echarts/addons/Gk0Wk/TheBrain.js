@@ -89,7 +89,7 @@ exports.onUpdate = function onUpdate(echart, state, addonAttributes) {
     });
 
     // 历史路径
-    const nextTiddler = focussedTiddler;
+    let nextTiddler = focussedTiddler;
     const historyMap = {};
     for (let index = state.historyTiddlers.length - 2; index >= 0; index--) {
       const tiddlerTitle = state.historyTiddlers[index];
