@@ -19,7 +19,7 @@ registerRoute(
   new StaleWhileRevalidate({
     // Use a custom cache name.
     cacheName: 'css-cache',
-  })
+  }),
 );
 
 registerRoute(
@@ -35,7 +35,7 @@ registerRoute(
         maxAgeSeconds: 7 * 24 * 60 * 60,
       }),
     ],
-  })
+  }),
 );
 
 registerRoute(/\.js$/, new StaleWhileRevalidate());
