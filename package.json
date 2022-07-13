@@ -24,7 +24,7 @@
   },
   "homepage": "https://tiddly-gittly.github.io/tw-echarts",
   "devDependencies": {
-    "@types/echarts": "4.9.15",
+    "@types/echarts": "4.9.16",
     "cross-env": "7.0.3",
     "eslint-config-standard": "17.0.0",
     "eslint-plugin-import": "2.26.0",
