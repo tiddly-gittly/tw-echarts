@@ -49,7 +49,7 @@
     "eslint-plugin-security": "1.5.0",
     "eslint-plugin-security-node": "1.1.1",
     "eslint-plugin-typescript-sort-keys": "2.1.0",
-    "eslint-plugin-unicorn": "42.0.0",
+    "eslint-plugin-unicorn": "43.0.2",
     "eslint-plugin-unused-imports": "2.0.0",
     "prettier": "2.6.2"
   }
