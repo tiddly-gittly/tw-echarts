@@ -37,7 +37,7 @@
     "workbox-cli": "6.5.3"
   },
   "dependencies": {
-    "eslint": "8.16.0",
+    "eslint": "8.28.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-import-resolver-alias": "1.1.2",
     "eslint-plugin-autofix": "1.1.0",
