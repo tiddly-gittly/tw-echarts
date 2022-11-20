@@ -28,7 +28,7 @@
     "cross-env": "7.0.3",
     "eslint-config-standard": "17.0.0",
     "eslint-plugin-import": "2.26.0",
-    "eslint-plugin-n": "15.2.0",
+    "eslint-plugin-n": "15.5.1",
     "eslint-plugin-promise": "6.0.0",
     "html-minifier-terser": "6.1.0",
     "tiddlywiki": "5.2.2",
