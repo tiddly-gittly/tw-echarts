@@ -1,14 +1,7 @@
 {
-  "name": "TW-Echarts",
-  "version": "0.0.0",
+  "name": "tw-echarts",
   "description": "Echarts for TiddlyWiki",
-  "main": "scripts/build.js",
-  "scripts": {
-    "server": "npx cross-env TIDDLYWIKI_PLUGIN_PATH='./plugins' TIDDLYWIKI_THEME_PATH='./themes' TIDDLYWIKI_LANGUAGE_PATH='./languages' npx tiddlywiki . --listen port=8080",
-    "buildonline": "node -e \"require('./scripts/build').buildOnlineHTML('dist', 'index.html');\"",
-    "buildoffline": "node -e \"require('./scripts/build').buildOfflineHTML('dist', 'offline.html', true, '-[is[draft]] -[tag[ExcludeFromEmpty]]');\"",
-    "buildlibrary": "node -e \"require('./scripts/build').buildLibrary('[prefix[$:/plugins/Gk0Wk/]]', 'dist/library');\""
-  },
+  "url": "https://tiddly-gittly.github.io/tw-echarts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tiddly-gittly/tw-echarts.git"
@@ -23,34 +16,50 @@
     "url": "https://github.com/tiddly-gittly/tw-echarts/issues"
   },
   "homepage": "https://tiddly-gittly.github.io/tw-echarts",
+  "version": "0.0.2",
+  "scripts": {
+    "reset": "rimraf ./**/node_modules",
+    "clean": "rimraf dist",
+    "prepare": "husky install",
+    "update": "npm-check-updates -u",
+    "new": "tiddlywiki-plugin-dev new",
+    "dev": "tiddlywiki-plugin-dev dev",
+    "build": "npm run clean && tiddlywiki-plugin-dev build",
+    "build:library": "npm run clean && tiddlywiki-plugin-dev build --library --output dist/library",
+    "publish": "npm run clean && tiddlywiki-plugin-dev publish",
+    "publish:offline": "npm run clean && tiddlywiki-plugin-dev publish --offline"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "node --max_old_space_size=8192 ./node_modules/eslint/bin/eslint.js --fix --color --cache --quiet"
+    ],
+    "*.{js,jsx,mjs,mjsx,cjs,cjsx}": [
+      "node --max_old_space_size=8192 ./node_modules/eslint/bin/eslint.js --fix --color --cache --quiet"
+    ]
+  },
   "devDependencies": {
-    "@types/echarts": "4.9.15",
-    "cross-env": "7.0.3",
-    "eslint-config-standard": "17.0.0",
-    "eslint-plugin-import": "2.26.0",
-    "eslint-plugin-n": "15.2.0",
-    "eslint-plugin-promise": "6.0.0",
-    "html-minifier-terser": "6.1.0",
-    "tiddlywiki": "5.2.2",
-    "tw5-typed": "0.2.7",
-    "uglify-js": "3.15.4",
-    "workbox-cli": "6.5.3"
+    "@modern-js/eslint-config": "^2.0.2",
+    "@modern-js/tsconfig": "^2.0.2",
+    "@types/echarts": "^4.9.16",
+    "@types/node": "^18.11.18",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.1.0",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.9.1",
+    "tw5-typed": "^0.2.16",
+    "typescript": "^4.9.4"
   },
   "dependencies": {
-    "eslint": "8.16.0",
-    "eslint-config-prettier": "8.5.0",
-    "eslint-import-resolver-alias": "1.1.2",
-    "eslint-plugin-autofix": "1.1.0",
-    "eslint-plugin-html": "6.2.0",
-    "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-prettier": "4.0.0",
-    "eslint-plugin-react": "7.30.0",
-    "eslint-plugin-react-hooks": "4.5.0",
-    "eslint-plugin-security": "1.5.0",
-    "eslint-plugin-security-node": "1.1.1",
-    "eslint-plugin-typescript-sort-keys": "2.1.0",
-    "eslint-plugin-unicorn": "42.0.0",
-    "eslint-plugin-unused-imports": "2.0.0",
-    "prettier": "2.6.2"
+    "npm-check-updates": "^16.6.2",
+    "tiddlywiki": "^5.2.5",
+    "tiddlywiki-plugin-dev": "^0.0.25"
   }
 }

@@ -1,8 +1,8 @@
 resources/
 settings-dev/
 out/
-logs/
 dist/
+logs/
 wiki/
 template/
 .webpack/

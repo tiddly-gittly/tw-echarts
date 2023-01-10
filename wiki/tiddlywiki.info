@@ -1,0 +1,17 @@
+{
+    "description": "EChart For TiddlyWiki5",
+    "plugins": [
+        "tiddlywiki/filesystem",
+        "tiddlywiki/tiddlyweb",
+        "tiddlywiki/highlight",
+        "tiddlywiki/pluginlibrary",
+        "tiddlywiki/menubar"
+    ],
+    "themes": [
+        "tiddlywiki/vanilla"
+    ],
+    "languages": [
+        "zh-Hans"
+    ],
+    "build": {}
+}

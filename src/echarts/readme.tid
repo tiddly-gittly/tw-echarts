@@ -1,0 +1,21 @@
+title: $:/plugins/Gk0Wk/echarts/readme
+
+<$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
+<$list filter="[<lang>search[zh]]">
+
+将强大的可视化工具 [[ECharts|https://echarts.apache.org/zh/index.html]] 以优雅的方式与 TiddlyWiki 相结合。
+
+插件说明与使用教程较长，请参考 https://tiddly-gittly.github.io/tw-echarts/
+
+</$list>
+
+<$list filter="[<lang>!search[zh]]">
+
+Combines the powerful visualization tool [[ECharts|https://echarts.apache.org/en/index.html]] with TiddlyWiki in an elegant way.
+
+The plugin description and tutorial is long, please refer to https://tiddly-gittly.github.io/tw-echarts/
+
+</$list>
+</$list>
+
+[img[$:/plugins/Gk0Wk/echarts/banner]]

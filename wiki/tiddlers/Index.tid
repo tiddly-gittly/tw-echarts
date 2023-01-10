@@ -1,0 +1,67 @@
+created: 20211225111332641
+icon: 🎉
+modified: 20230110094601947
+page-cover: banner.png
+tags: ECharts Readme
+title: Index
+type: text/vnd.tiddlywiki
+
+<$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
+<$list filter="[<lang>search[zh]]">
+
+很久以前，在我刚刚开始使用 ~TiddlyWiki 的时候，我就希望 ~TiddlyWiki 能够进行数据的可视化工作，我希望用条目中的数据直接生成图表，我希望描绘条目间的逻辑关系，我希望能够统计词云，希望能用直观的方式描述数据...
+
+可惜的是，尽管官方推出了 [[d3.js|https://d3js.org/]] 的插件，但这款插件尚未在普通用户可以使用的范围内：插件只是包装了 JS 库，并只给了两个简单的使用示例。 d3.js 是一个高度自由但是也因此具有高额学习成本的可视化库，想要利用其做各种可视化工具，就需要使用 ~JavaScript 来编写独立的控件，这对普通用户来说太极客了。
+
+于是我引入了另一个著名的可视化库 [[ECharts|https://echarts.apache.org/zh/index.html]] ，借助 ECharts (相对来讲)便于配置与使用以及可视化方式丰富的特点，来为普通用户提供一个不那么复杂又保留了可拓展性的可视化框架。这就是这个项目的始末了。
+
+本项目的第一作者为 [[Gk0Wk|https://github.com/Gk0Wk]] ，这同时是一个使用MIT开源许可的开源项目，项目地址为 https://github.com/tiddly-gittly/tw-echarts 。我只是造了一个能够方便使用 ECharts 的框架，但是具体该用什么方式可视化、可以可视化哪些数据，取决于使用这个框架的所有人。所以''欢迎任何人通过 [[GitHub Discussions|https://github.com/tiddly-gittly/tw-echarts/discussions]] 贡献自己的可视化组件(下面会解释)，或者通过 [[GitHub Issues|https://github.com/tiddly-gittly/tw-echarts/issues]] 对框架提出建议''，期待你富有创造性的新点子！
+
+<<<
+本项目属于太微中国社区生态圈，我们一直在为 ~TiddlyWiki 开发插件、编写教程，致力于推广和挖掘这款强大而小众的软件，欢迎加入我们：
+
+* 社区开源项目集：https://github.com/tiddly-gittly
+* 太微插件源(收集有趣的插件)：https://tw-cpl.netlify.app/
+* ~TidGi(基于~TiddlyWiki的知识管理桌面应用)：https://github.com/tiddly-gittly/TidGi-Desktop
+* 太微中文教程：https://tw-cn.netlify.app/
+* ~TiddlyWIki爱好者QQ群：946052860
+<<<
+
+如需使用此插件，或者在使用中遇到任何问题，请阅读以下四部分内容：
+
+* [[什么是ECharts?]]
+* [[如何安装这款插件?]]
+* [[我该如何使用该插件?]]
+* [[请与大家分享你的工作!]]
+
+</$list>
+
+<$list filter="[<lang>!search[zh]]">
+
+When I first started using ~TiddlyWiki a long time ago, I wanted ~TiddlyWiki to be able to visualize data. I wanted to generate charts directly from the data in the tiddlers, I wanted to depict the logical relationships between tiddlers, I wanted to be able to count word clouds, I wanted to be able to describe the data in an intuitive way...
+
+Unfortunately, despite the official [[d3.js|https://d3js.org/]] plugin, it is not yet within the reach of the average user: the plugin only wraps the JS library and gives only two simple examples of its use. d3.js is a highly free but therefore expensive to learn visualization library, and to use it for various visualization tools, you need to write standalone controls using ~JavaScript, which is too geeky for the average user.
+
+So I import another well-known visualization library [[ECharts|https://echarts.apache.org/en/index.html]] to provide a less complex and more extensible visualization framework for the average user by leveraging ECharts' (relatively) ease of configuration and use and the richness of its visualization. That's how this project started.
+
+The first author of this project is [[Gk0Wk|https://github.com/Gk0Wk]], and this is also an open source project using the MIT open source license , the project uri is https://github.com/tiddly-gittly/tw-echarts. I just built a framework that makes it easy to use ECharts, but it's up to everyone who uses it to decide exactly how to visualize it and what data they can visualize. So ''feel free to share your visualization components (explained below) in [[GitHub Discussions|https://github.com/tiddly-gittly/tw-echarts/discussions]], or make suggestions in [[GitHub Issues|https://github.com/tiddly-gittly/tw-echarts/issues]]''. Looking forward to your creative new ideas!
+
+<<<
+This project is part of the TW China community ecosystem, we have been developing plugins and writing tutorials for ~TiddlyWiki, and are dedicated to promoting and exploring this powerful but niche software, welcome to join us at:
+
+* Community open source projects collection: https://github.com/tiddly-gittly
+* TW Community Plugin Library (collection of interesting plugins): https://tw-cpl.netlify.app/
+* ~TidGi (knowledge management desktop application based on ~TiddlyWiki): https://github.com/tiddly-gittly/TidGi-Desktop
+* TW Chinese Tutorial: https://tw-cn.netlify.app/
+* ~TiddlyWIki Lovers QQ Group: 946052860
+<<<
+
+To use this plugin, or if you have any problems using it, please read the following four sections：
+
+* [[What is ECharts?]]
+* [[How do I install this plugin?]]
+* [[How do I use the plugin?]]
+* [[Please share your work with everyone!]]
+
+</$list>
+</$list>
