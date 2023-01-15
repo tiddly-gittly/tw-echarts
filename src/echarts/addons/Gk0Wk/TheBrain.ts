@@ -308,7 +308,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
           source,
           target: tiddlerTitle,
           lineStyle: {
-            color: 'target',
+            color: 'source',
           },
         });
         if (nodeMap.has(tiddlerTitle)) {
@@ -393,7 +393,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
       if (type === 'text/vnd.tiddlywiki' || type === 'text/x-markdown') {
         const transcluded: Set<string> = new Set();
         const findTransclude = (children: IParseTreeNode[]) => {
-          const length = children.length;
+          const { length } = children;
           for (let i = 0; i < length; i++) {
             const node = children[i];
             if (node.type === 'tiddler') {
