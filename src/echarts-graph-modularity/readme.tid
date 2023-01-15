@@ -7,6 +7,8 @@ title: $:/plugins/Gk0Wk/echarts-graph-modularity/readme
 
 * 文档: https://github.com/ecomfe/echarts-graph-modularity
 
+> 本插件使用灵活而强大的 <$text text="TiddlyWiki" /> 开发框架 [[Tiddly.ModernDev|https://github.com/tiddly-gittly/Modern.TiddlyDev]]
+
 </$list>
 
 <$list filter="[<lang>!search[zh]]">
@@ -14,6 +16,8 @@ title: $:/plugins/Gk0Wk/echarts-graph-modularity/readme
 [[Graph modularity extension|https://github.com/ecomfe/echarts-graph-modularity]] will do community detection and partition a graph's vertices in several subsets. Each subset will be assigned a different color.
 
 * Doc: https://github.com/ecomfe/echarts-graph-modularity
+
+> This plugin uses the flexible and powerful <$text text="TiddlyWiki" /> development framework [[Tiddly.ModernDev|https://github.com/tiddly-gittly/Modern.TiddlyDev]]
 
 </$list>
 </$list>

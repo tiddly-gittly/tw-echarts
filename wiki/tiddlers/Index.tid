@@ -1,10 +1,14 @@
 created: 20211225111332641
-icon: 🎉
-modified: 20230110094601947
+icon: $:/favicon.ico
+modified: 20230115082351288
 page-cover: banner.png
 tags: ECharts Readme
 title: Index
 type: text/vnd.tiddlywiki
+
+<div style="max-width: 800px; height: 200px; margin: 0 auto;">
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/GitHubHeatMap.js" $width="100%" $height="100%" />
+</div>
 
 <$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
 <$list filter="[<lang>search[zh]]">

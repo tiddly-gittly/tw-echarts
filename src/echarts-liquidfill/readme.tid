@@ -8,6 +8,8 @@ title: $:/plugins/Gk0Wk/echarts-liquidfill/readme
 * 文档: https://github.com/ecomfe/echarts-liquidfill
 * 示例: https://www.makeapie.com/explore.html#tags=liquidFill~sort=rank~timeframe=all~author=all
 
+> 本插件使用灵活而强大的 <$text text="TiddlyWiki" /> 开发框架 [[Tiddly.ModernDev|https://github.com/tiddly-gittly/Modern.TiddlyDev]]
+
 </$list>
 
 <$list filter="[<lang>!search[zh]]">
@@ -16,6 +18,8 @@ The [[liquid-fill chart|https://github.com/ecomfe/echarts-liquidfill]] is a char
 
 * Doc: https://github.com/ecomfe/echarts-liquidfill
 * Examples: https://www.makeapie.com/explore.html#tags=liquidFill~sort=rank~timeframe=all~author=all
+
+> This plugin uses the flexible and powerful <$text text="TiddlyWiki" /> development framework [[Tiddly.ModernDev|https://github.com/tiddly-gittly/Modern.TiddlyDev]]
 
 </$list>
 </$list>

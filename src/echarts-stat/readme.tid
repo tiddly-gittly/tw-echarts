@@ -9,6 +9,8 @@ EchartStat中，基本统计方法 `statistics` 的API导出至 `window.EChartsS
 
 * 文档: https://github.com/ecomfe/echarts-stat/blob/master/README.zh-CN.md
 
+> 本插件使用灵活而强大的 <$text text="TiddlyWiki" /> 开发框架 [[Tiddly.ModernDev|https://github.com/tiddly-gittly/Modern.TiddlyDev]]
+
 </$list>
 
 <$list filter="[<lang>!search[zh]]">
@@ -18,6 +20,8 @@ EchartStat中，基本统计方法 `statistics` 的API导出至 `window.EChartsS
 In EchartStat, the API for the basic statistics method `statistics` is exported to `window.EChartsStat`.
 
 * Doc: https://github.com/ecomfe/echarts-stat/blob/master/README.md
+
+> This plugin uses the flexible and powerful <$text text="TiddlyWiki" /> development framework [[Tiddly.ModernDev|https://github.com/tiddly-gittly/Modern.TiddlyDev]]
 
 </$list>
 </$list>

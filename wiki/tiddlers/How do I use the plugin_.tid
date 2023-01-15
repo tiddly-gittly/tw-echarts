@@ -120,29 +120,31 @@ I took a page from Vue and React to write the component, and the template for a 
 ```javascript
 /**
  * Function to be called when the component is first initialized (optional)
- * @param myChart echarts instance, see the echarts API documentation for details
- * @param addonAttributes An object contains all attribute passed in by the <$echarts> widget
- * @param echartsWidget The <$echarts> widget instance
- * @return Object Initialized component state for state management (optional)
+ * @param {ECharts} myChart echarts instance, see the echarts API documentation for details
+ * @param {AttributesType} addonAttributes An object contains all attribute passed in by the <$echarts> widget
+ * @param {EChartsWidget} echartsWidget The <$echarts> widget instance
+ * @return {StateType} Initialized component state for state management (optional)
  */
 exports.onMount = function (myChart, addonAttributes, echartsWidget) {
   return {};
 };
 /**
  * Determine if the formation needs to be refreshed (optional)
- * @param state The state of the component, which is the one returned by onMount
- * @param changedTiddlers The refresh is triggered by the TW system listening for a change in the tiddler, which is an array of strings containing the titles of all changed tiddlers
- * @return boolean Returns true if a refresh is required, and vice versa
+ * @param {StateType} state The state of the component, which is the one returned by onMount
+ * @param {IChangedTiddlers} changedTiddlers The refresh is triggered by the TW system listening for a change in the tiddler, which is an array of strings containing the titles of all changed tiddlers
+ * @param {Record<string, true>} Which parameters have been changed, including those beginning with $
+ * @return {boolean} boolean Returns true if a refresh is required, and vice versa
+ *
+ * shouldRefresh It can also be a string, which would be the same as the echarts-refresh-trigger field
  */
-/* shouldRefresh It can also be a string, which would be the same as the echarts-refresh-trigger field */
 exports.shouldUpdate = function (state, changedTiddlers) {
   return true;
 }
 /**
  * Functions to be called when a component is updated
- * @param myChart echarts instance, see the echarts API documentation for details
- * @param state An object contains all attribute passed in by the <$echarts> widget
- * @param addonAttributes <$echarts> An object contains all attribute passed in by the <$echarts> widget
+ * @param {ECharts}myChart echarts instance, see the echarts API documentation for details
+ * @param {StateType} state An object contains all attribute passed in by the <$echarts> widget
+ * @param {AttributesType} addonAttributes <$echarts> An object contains all attribute passed in by the <$echarts> widget
  */
 exports.onUpdate = function (myChart, state, addonAttributes) {
   // Note: The function does not return any value, you need to call the setOption function manually
@@ -152,7 +154,7 @@ exports.onUpdate = function (myChart, state, addonAttributes) {
 /**
  * Function to be called when the component is unloaded (optional)
  * Note: If the browser page is closed directly, it may not be possible to call this function
- * @param state An object contains all attribute passed in by the <$echarts> widget
+ * @param {StateType} state An object contains all attribute passed in by the <$echarts> widget
  */
 exports.onUnmount = function (state) {
 
@@ -161,7 +163,7 @@ exports.onUnmount = function (state) {
 
 @@color:red;Note: This tiddler should be of type `application/javascript` and should contain the field `module-type` with the value `echarts-component`. @@
 
-Here is also a simple example for generating a tag word cloud of all non-system tiddlers ([[$:/plugins/Gk0Wk/echarts/addons/TagCloud.js]]):
+Here is also a simple example for generating a tag word cloud of all non-system tiddlers ([[$:/plugins/Gk0Wk/echarts/addons/TagCloud.ts]]):
 
 <$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/TagCloud.js"/>
 

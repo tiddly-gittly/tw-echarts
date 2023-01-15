@@ -7,6 +7,8 @@ title: $:/plugins/Gk0Wk/echarts/readme
 
 插件说明与使用教程较长，请参考 https://tiddly-gittly.github.io/tw-echarts/
 
+> 本插件使用灵活而强大的 <$text text="TiddlyWiki" /> 开发框架 [[Tiddly.ModernDev|https://github.com/tiddly-gittly/Modern.TiddlyDev]]
+
 </$list>
 
 <$list filter="[<lang>!search[zh]]">
@@ -14,6 +16,8 @@ title: $:/plugins/Gk0Wk/echarts/readme
 Combines the powerful visualization tool [[ECharts|https://echarts.apache.org/en/index.html]] with TiddlyWiki in an elegant way.
 
 The plugin description and tutorial is long, please refer to https://tiddly-gittly.github.io/tw-echarts/
+
+> This plugin uses the flexible and powerful <$text text="TiddlyWiki" /> development framework [[Tiddly.ModernDev|https://github.com/tiddly-gittly/Modern.TiddlyDev]]
 
 </$list>
 </$list>

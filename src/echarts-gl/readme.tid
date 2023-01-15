@@ -8,6 +8,8 @@ title: $:/plugins/Gk0Wk/echarts-gl/readme
 * 文档: https://echarts.apache.org/zh/option-gl.html
 * 示例: https://www.makeapie.com/explore.html#tags=echarts-gl
 
+> 本插件使用灵活而强大的 <$text text="TiddlyWiki" /> 开发框架 [[Tiddly.ModernDev|https://github.com/tiddly-gittly/Modern.TiddlyDev]]
+
 </$list>
 
 <$list filter="[<lang>!search[zh]]">
@@ -16,6 +18,8 @@ title: $:/plugins/Gk0Wk/echarts-gl/readme
 
 * Doc: https://echarts.apache.org/en/option-gl.html
 * Examples: https://www.makeapie.com/explore.html#tags=echarts-gl
+
+> This plugin uses the flexible and powerful <$text text="TiddlyWiki" /> development framework [[Tiddly.ModernDev|https://github.com/tiddly-gittly/Modern.TiddlyDev]]
 
 </$list>
 </$list>
