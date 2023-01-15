@@ -26,6 +26,7 @@ const attributes = new Set<string>([
   'graphTitle',
   'aliasField',
   'excludeFilter',
+  'previewDelay',
 ]);
 const getPlatteColor = (name: string) =>
   $tw.wiki.renderText(
@@ -79,10 +80,8 @@ interface ITheBrainState {
 
 const TheBrainAddon: IScriptAddon<ITheBrainState> = {
   onMount: (myChart, attributes) => {
-    myChart.on('click', (event: any) => {
-      if (event.dataType === 'node') {
-        new $tw.Story().navigateTiddler(event.data.name);
-      }
+    myChart.on('click', { dataType: 'node' }, (event: any) => {
+      new $tw.Story().navigateTiddler(event.data.name);
     });
     return {
       historyTiddlers: [],
@@ -104,6 +103,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
         $tw.wiki.getTiddlerText('$:/temp/focussedTiddler') !== currentlyFocused)
     );
   },
+  // eslint-disable-next-line complexity
   onUpdate: (
     myCharts,
     state,
@@ -113,6 +113,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
       graphTitle?: string;
       aliasField?: string;
       excludeFilter?: string;
+      previewDelay?: string;
     },
   ) => {
     /** 参数：focussedTiddler 是图的中央节点 */
@@ -450,9 +451,14 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
     let cache: Element[] | undefined;
     const cachedTooltipFormatter = ({
       data: { name },
+      dataType,
     }: {
       data: { name: string };
+      dataType: string;
     }) => {
+      if (dataType !== 'node') {
+        return [];
+      }
       if (name !== lastTitle || !cache) {
         const container = $tw.utils.domMaker('div', {
           style: {
@@ -487,6 +493,10 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
       return cache;
     };
 
+    let previewDelay = Number(addonAttributes.previewDelay || '1200');
+    if (!Number.isSafeInteger(previewDelay)) {
+      previewDelay = -1;
+    }
     myCharts.setOption({
       backgroundColor: 'transparent',
       legend: [
@@ -515,9 +525,11 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
       tooltip: {
         position: 'top',
         formatter: cachedTooltipFormatter,
-        triggerOn: 'mousemove',
+        triggerOn: previewDelay >= 0 ? 'mousemove' : 'none',
         enterable: true,
+        showDelay: Math.max(0, previewDelay),
         hideDelay: 800,
+        confine: true,
         textStyle: {
           color: 'inherit',
           fontFamily: 'inherit',

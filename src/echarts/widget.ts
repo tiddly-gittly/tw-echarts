@@ -179,7 +179,8 @@ class EChartsWidget extends Widget {
           this.document,
         );
         if (node) {
-          this.containerDom.insertBefore(node, nextSibling);
+          this.containerDom.setAttribute('id', this.uuid);
+          parent.appendChild(node);
         }
       } catch (error) {
         this.containerDom.innerText = String(error);

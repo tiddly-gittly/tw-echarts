@@ -99,6 +99,6 @@ export const renderHeadless = (
   const scriptNode = $tw.utils.domMaker('script', {
     document,
   });
-  scriptNode.innerHTML = scriptText.join('\n');
+  scriptNode.textContent = scriptText.join('\n');
   return scriptNode;
 };
