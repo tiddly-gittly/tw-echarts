@@ -8,5 +8,5 @@
   "description": "ECharts for TiddlyWiki5",
   "author": "Gk0Wk",
   "source": "https://github.com/tiddly-gittly/tw-echarts/tree/master/plugins/Gk0Wk/echarts",
-  "dependents": "$:/plugins/Gk0Wk/focused-tiddler",
+  "dependents": "$:/plugins/Gk0Wk/focused-tiddler"
 }
