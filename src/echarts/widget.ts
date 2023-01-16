@@ -4,8 +4,8 @@ import type {
   IParseTreeNode,
   IWidgetInitialiseOptions,
   IChangedTiddlers,
-} from 'tw5-typed';
-import { renderHeadless } from './renderHeadless';
+} from 'tiddlywiki';
+// import { renderHeadless } from './renderHeadless';
 import type { IScriptAddon } from './scriptAddon';
 import { widget as Widget } from '$:/core/modules/widgets/widget.js';
 import * as ECharts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
@@ -108,7 +108,6 @@ class EChartsWidget extends Widget {
   initialise(parseTreeNode: IParseTreeNode, options: IWidgetInitialiseOptions) {
     super.initialise(parseTreeNode, options);
     this.computeAttributes();
-    this.execute();
   }
 
   execute() {
@@ -146,6 +145,7 @@ class EChartsWidget extends Widget {
 
   render(parent: HTMLElement, nextSibling: HTMLElement) {
     this.parentDomNode = parent;
+    this.execute();
     this.containerDom = $tw.utils.domMaker('div', {
       class: this.class,
       document: this.document,
@@ -157,34 +157,54 @@ class EChartsWidget extends Widget {
     this.containerDom.id = this.uuid;
     parent.insertBefore(this.containerDom, nextSibling);
     this.domNodes.push(this.containerDom);
-    if (!(parent as any).isTiddlyWikiFakeDom) {
-      this.rebuildInstance();
+    try {
+      if (
+        !(this.tiddlerTitle && $tw.wiki.getTiddler(this.tiddlerTitle)) &&
+        !this.text
+      ) {
+        throw new Error('Widget need either $tiddler or $text attribute!');
+      }
+      const ssr = (parent as any).isTiddlyWikiFakeDom;
+      this.rebuildInstance(ssr);
       this.initAddon();
       this.renderAddon();
-      echartWidgets.add(this);
-    } else if (
-      (this.tiddlerTitle && $tw.wiki.getTiddler(this.tiddlerTitle)) ||
-      this.text !== undefined
-    ) {
-      // 如果是非浏览器环境，就直接导出渲染脚本
-      try {
-        const node = renderHeadless(
-          this.text,
-          this.tiddlerTitle,
-          this.attributes,
-          this.theme,
-          this.uuid,
-          this.renderer,
-          this.fillSidebar,
-          this.document,
-        );
-        if (node) {
-          this.containerDom.setAttribute('id', this.uuid);
-          parent.appendChild(node);
+      if (ssr) {
+        // 如果是非浏览器环境，使用 SSR
+        // const node = renderHeadless(
+        //     this.text,
+        //     this.tiddlerTitle,
+        //     this.attributes,
+        //     this.theme,
+        //     this.uuid,
+        //     this.renderer,
+        //     this.fillSidebar,
+        //     this.document,
+        //   );
+        //   if (node) {
+        //     this.containerDom.setAttribute('id', this.uuid);
+        //     parent.appendChild(node);
+        //   }
+        // https://echarts.apache.org/handbook/zh/how-to/cross-platform/server
+        if (
+          !Number.isSafeInteger(Number(this.width.replace('px', ''))) ||
+          !Number.isSafeInteger(Number(this.height.replace('px', '')))
+        ) {
+          console.error(
+            "If you require SSR(server side render), you need to define $height and $width with format like '300px'",
+          );
         }
-      } catch (error) {
-        this.containerDom.innerText = String(error);
+        this.parentDomNode.innerHTML = (
+          this.echartsInstance! as any
+        ).renderToSVGString();
+      } else {
+        echartWidgets.add(this);
       }
+    } catch (error) {
+      console.error(error);
+      this.containerDom.innerText = String(error);
+      this.containerDom.style.color = 'white';
+      this.containerDom.style.background = 'red';
+      this.containerDom.style.fontSize = '12px';
     }
   }
 
@@ -322,18 +342,29 @@ class EChartsWidget extends Widget {
     return oldOptions;
   }
 
-  rebuildInstance() {
+  rebuildInstance(ssr = false) {
     const oldOptions = this.clearInstance();
     // 新建实例
-    this.echartsInstance = ECharts.init(this.containerDom, this.theme, {
-      renderer: this.renderer,
-    });
+    this.echartsInstance = ECharts.init(
+      (ssr ? null : this.containerDom) as HTMLDivElement,
+      this.theme,
+      ssr
+        ? ({
+            ssr: true,
+            renderer: 'svg',
+            height: Number(this.height.replace('px', '')) || 300,
+            width: Number(this.width.replace('px', '')) || 400,
+          } as any)
+        : {
+            renderer: this.renderer,
+          },
+    );
     this.echartsInstance.setOption({
       darkMode: this.theme === 'dark',
       backgroundColor: 'transparent',
     } as any);
     // 监听大小变更
-    if (globalThis.ResizeObserver && $tw.browser) {
+    if (globalThis.ResizeObserver && $tw.browser && !ssr) {
       this.resizeObserver = new ResizeObserver(entries => {
         requestAnimationFrame(() => {
           if (this.echartsInstance) {

@@ -2,6 +2,17 @@
 import type { IParseTreeNode } from 'tiddlywiki';
 import type { IScriptAddon } from '../../scriptAddon';
 
+const colors = [
+  '#5470c6',
+  '#91cc75',
+  '#fac858',
+  '#ee6666',
+  '#73c0de',
+  '#3ba272',
+  '#fc8452',
+  '#9a60b4',
+  '#ea7ccc',
+];
 const CategoriesEn = [
   'Focusing',
   'History',
@@ -10,16 +21,22 @@ const CategoriesEn = [
   'Tag To',
   'Tag By',
   'Transclude',
-].map(name => ({ name }));
+].map((name, index) => ({
+  name,
+  itemStyle: { color: colors[index % colors.length] },
+}));
 const CategoriesZh = [
   '聚焦',
   '历史',
-  '引用',
-  '被引用',
+  '链接',
+  '反链',
+  '标签',
   '作为标签',
-  '赋予标签',
-  '嵌入',
-].map(name => ({ name }));
+  '嵌套',
+].map((name, index) => ({
+  name,
+  itemStyle: { color: colors[index % colors.length] },
+}));
 const attributes = new Set<string>([
   'focussedTiddler',
   'levels',
@@ -54,20 +71,23 @@ const findIcon = (title: string) => {
 const getAliasOrTitle = (
   tiddlerTitle: string,
   aliasField: string | undefined,
-) => {
+): [string, boolean] => {
   if (aliasField === undefined || aliasField === 'title') {
-    return tiddlerTitle;
+    return [tiddlerTitle, Boolean($tw.wiki.getTiddler(tiddlerTitle))];
   }
   const tiddler = $tw.wiki.getTiddler(tiddlerTitle);
   if (tiddler) {
     const aliasValue = tiddler.fields[aliasField];
-    return typeof aliasValue === 'string'
-      ? $tw.wiki.renderText('text/plain', 'text/vnd.tiddlywiki', aliasValue, {
-          variables: { currentTiddler: tiddlerTitle },
-        })
-      : tiddlerTitle;
+    return [
+      typeof aliasValue === 'string'
+        ? $tw.wiki.renderText('text/plain', 'text/vnd.tiddlywiki', aliasValue, {
+            variables: { currentTiddler: tiddlerTitle },
+          })
+        : tiddlerTitle,
+      true,
+    ];
   } else {
-    return tiddlerTitle;
+    return [tiddlerTitle, false];
   }
 };
 
@@ -117,9 +137,9 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
     },
   ) => {
     /** 参数：focussedTiddler 是图的中央节点 */
-    const focussedTiddler =
+    let focussedTiddler =
       addonAttributes.focussedTiddler ||
-      $tw.wiki.getTiddlerText('$:/temp/focussedTiddler');
+      $tw.wiki.getTiddlerText('$:/temp/focussedTiddler')!;
     state.viewingTiddlers.clear();
     state.focusing = addonAttributes.focussedTiddler;
     state.currentlyFocused = focussedTiddler;
@@ -127,6 +147,11 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
       return;
     }
     state.viewingTiddlers.add(focussedTiddler);
+    if ($tw.wiki.getTiddler(focussedTiddler)?.fields['draft.of']) {
+      focussedTiddler = $tw.wiki.getTiddler(focussedTiddler)!.fields[
+        'draft.of'
+      ] as string;
+    }
     // 不允许 focussedTiddler 是系统条目，以免产生大量节点
     if (focussedTiddler?.startsWith('$:/')) {
       return;
@@ -152,16 +177,20 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
       : undefined;
     if (focussedTiddler && focussedTiddler !== '') {
       const nodeMap: Set<string> = new Set();
+      const nodeExist: Set<string> = new Set();
       nodeMap.add('');
 
       // 当前关注的 Tiddler
       nodeMap.add(focussedTiddler);
+      nodeExist.add(focussedTiddler);
       nodes.push({
         name: focussedTiddler,
         // fixed: true,
         category: 0,
         label: {
-          formatter: getAliasOrTitle(focussedTiddler, aliasField),
+          formatter: getAliasOrTitle(focussedTiddler, aliasField)[0],
+          fontWeight: 'bold',
+          fontSize: '15px',
         },
         symbol: findIcon(focussedTiddler),
         symbolSize: 15,
@@ -170,126 +199,107 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
         },
         itemStyle: {
           opacity: 1,
+          borderColor: `${colors[0]}66`,
+          borderWidth: 15,
+        },
+        isTag: false,
+        tooltip: {
+          show: false,
         },
       });
 
-      // 历史路径
-      let nextTiddler = focussedTiddler;
-      const historyMap: Set<string> = new Set();
-      for (let index = state.historyTiddlers.length - 2; index >= 0; index--) {
-        const tiddlerTitle = state.historyTiddlers[index];
-        if (
-          historyMap.add(tiddlerTitle) ||
-          tiddlerTitle === nextTiddler ||
-          tiddlerTitle.startsWith('$:/')
-        ) {
-          continue;
-        }
-        edges.push({
-          source: tiddlerTitle,
-          target: nextTiddler,
-          lineStyle: {
-            color: 'source',
-            type: 'dashed',
-          },
-        });
-        historyMap.add(tiddlerTitle);
-        nextTiddler = tiddlerTitle;
-        if (nodeMap.has(tiddlerTitle)) {
-          break;
-        }
-        if (
-          !excludeFilter ||
-          excludeFilter.call($tw.wiki, [tiddlerTitle]).length === 0
-        ) {
-          nodes.push({
-            name: tiddlerTitle,
-            label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
-            category: 1,
-            symbol: findIcon(tiddlerTitle),
-            itemStyle: {
-              opacity: 0.5,
-            },
-          });
-        }
-        nodeMap.add(tiddlerTitle);
-      }
-
+      // Link
       const pushLink = (
         target: string,
         source: string,
         recursiveLevel: number,
       ) => {
+        if (
+          excludeFilter &&
+          excludeFilter.call($tw.wiki, [target]).length > 0
+        ) {
+          return;
+        }
+        const newNode = !nodeMap.has(target);
+        const [label, exist] = newNode
+          ? getAliasOrTitle(target, aliasField)
+          : ['', nodeExist.has(target)];
+        if (newNode) {
+          nodes.push({
+            name: target,
+            label: { formatter: label },
+            itemStyle: { opacity: exist ? 1 : 0.65 },
+            symbol: findIcon(target),
+            category: 2,
+            isTag: false,
+          });
+          nodeMap.add(target);
+          if (exist) {
+            nodeExist.add(target);
+          }
+        }
         edges.push({
           source,
           target,
           lineStyle: {
-            color: 'target',
+            color: colors[2],
+            type: exist ? 'solid' : 'dashed',
           },
         });
-        if (nodeMap.has(target)) {
-          return;
-        }
-        if (
-          !excludeFilter ||
-          excludeFilter.call($tw.wiki, [target]).length === 0
-        ) {
-          nodes.push({
-            name: target,
-            label: { formatter: getAliasOrTitle(target, aliasField) },
-            symbol: findIcon(target),
-            category: 2,
+        if (exist && recursiveLevel < levels) {
+          $tw.utils.each($tw.wiki.getTiddlerLinks(target), target2 => {
+            pushLink(target2, target, recursiveLevel + 1);
           });
         }
-        nodeMap.add(target);
-        if (recursiveLevel === levels) {
-          return;
-        }
-        $tw.utils.each($tw.wiki.getTiddlerLinks(target), target2 => {
-          pushLink(target2, target, recursiveLevel + 1);
-        });
       };
       // 链接
       $tw.utils.each($tw.wiki.getTiddlerLinks(focussedTiddler), targetTiddler =>
         pushLink(targetTiddler, focussedTiddler, 1),
       );
 
-      // 反链
+      // Backlink
       const pushBackLink = (
-        tiddlerTitle: string,
+        source: string,
         target: string,
         recursiveLevel: number,
       ) => {
+        if (
+          excludeFilter &&
+          excludeFilter.call($tw.wiki, [source]).length > 0
+        ) {
+          return;
+        }
+        const newNode = !nodeMap.has(source);
+        const [label, exist] = newNode
+          ? getAliasOrTitle(source, aliasField)
+          : ['', nodeExist.has(source)];
+        if (newNode) {
+          nodes.push({
+            name: source,
+            label: { formatter: label },
+            itemStyle: { opacity: exist ? 1 : 0.65 },
+            symbol: findIcon(source),
+            category: 3,
+            isTag: false,
+          });
+          nodeMap.add(source);
+          if (exist) {
+            nodeExist.add(source);
+          }
+        }
         edges.push({
-          source: tiddlerTitle,
+          source,
           target,
           lineStyle: {
-            color: 'source',
+            color: colors[3],
+            type: exist ? 'solid' : 'dashed',
           },
         });
-        if (nodeMap.has(tiddlerTitle)) {
-          return;
-        }
-        if (
-          !excludeFilter ||
-          excludeFilter.call($tw.wiki, [tiddlerTitle]).length === 0
-        ) {
-          nodes.push({
-            name: tiddlerTitle,
-            symbol: findIcon(tiddlerTitle),
-            category: 3,
+        if (exist && recursiveLevel < levels) {
+          $tw.utils.each($tw.wiki.getTiddlerLinks(source), source_ => {
+            pushBackLink(source_, source, recursiveLevel + 1);
           });
         }
-        nodeMap.add(tiddlerTitle);
-        if (recursiveLevel === levels) {
-          return;
-        }
-        $tw.utils.each(
-          $tw.wiki.getTiddlerLinks(tiddlerTitle),
-          tiddlerTitle2 => {
-            pushBackLink(tiddlerTitle2, tiddlerTitle, recursiveLevel + 1);
-          },
-        );
       };
       $tw.utils.each(
         $tw.wiki.getTiddlerBacklinks(focussedTiddler),
@@ -297,45 +307,41 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
       );
 
       // 指向哪些tag
-      const pushTag = (
-        tiddlerTitle: string,
-        source: string,
-        recursiveLevel: number,
-      ) => {
-        if (!$tw.wiki.tiddlerExists(tiddlerTitle)) {
+      const pushTag = (tag: string, source: string, recursiveLevel: number) => {
+        if (excludeFilter && excludeFilter.call($tw.wiki, [tag]).length > 0) {
           return;
+        }
+        const newNode = !nodeMap.has(tag);
+        const [label, exist] = newNode
+          ? getAliasOrTitle(tag, aliasField)
+          : ['', nodeExist.has(tag)];
+        if (newNode) {
+          nodes.push({
+            name: tag,
+            label: { formatter: label },
+            itemStyle: { opacity: exist ? 1 : 0.65 },
+            symbol: findIcon(tag),
+            category: 4,
+            isTag: true,
+          });
+          nodeMap.add(tag);
+          if (exist) {
+            nodeExist.add(tag);
+          }
         }
         edges.push({
           source,
-          target: tiddlerTitle,
+          target: tag,
           lineStyle: {
-            color: 'source',
+            color: colors[4],
+            type: exist ? 'solid' : 'dashed',
           },
         });
-        if (nodeMap.has(tiddlerTitle)) {
-          return;
-        }
-        if (
-          !excludeFilter ||
-          excludeFilter.call($tw.wiki, [tiddlerTitle]).length === 0
-        ) {
-          nodes.push({
-            name: tiddlerTitle,
-            label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
-            symbol: findIcon(tiddlerTitle),
-            category: 4,
+        if (exist && recursiveLevel < levels) {
+          $tw.utils.each($tw.wiki.getTiddler(tag)?.fields?.tags ?? [], tag_ => {
+            pushTag(tag_, tag, recursiveLevel + 1);
           });
         }
-        nodeMap.add(tiddlerTitle);
-        if (recursiveLevel === levels) {
-          return;
-        }
-        $tw.utils.each(
-          $tw.wiki.getTiddler(tiddlerTitle)?.fields?.tags ?? [],
-          tiddlerTag2 => {
-            pushBackLink(tiddlerTag2, tiddlerTitle, recursiveLevel + 1);
-          },
-        );
       };
       $tw.utils.each(
         $tw.wiki.getTiddler(focussedTiddler)?.fields?.tags ?? [],
@@ -344,48 +350,48 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
 
       // 被谁作为 Tag
       const pushBackTag = (
-        tiddlerTitle: string,
+        tag: string,
         target: string,
         recursiveLevel: number,
       ) => {
+        if (excludeFilter && excludeFilter.call($tw.wiki, [tag]).length > 0) {
+          return;
+        }
+        const newNode = !nodeMap.has(tag);
+        const [label, exist] = newNode
+          ? getAliasOrTitle(tag, aliasField)
+          : ['', nodeExist.has(tag)];
+        if (newNode) {
+          nodes.push({
+            name: tag,
+            label: { formatter: label },
+            itemStyle: { opacity: exist ? 1 : 0.65 },
+            symbol: findIcon(tag),
+            category: 5,
+            isTag: false,
+          });
+          nodeMap.add(tag);
+          if (exist) {
+            nodeExist.add(tag);
+          }
+        }
         edges.push({
-          source: tiddlerTitle,
+          source: tag,
           target,
           lineStyle: {
-            color: 'target',
+            color: colors[5],
+            type: exist ? 'solid' : 'dashed',
           },
         });
-        if (nodeMap.has(tiddlerTitle)) {
-          return;
-        }
-        if (
-          !excludeFilter ||
-          excludeFilter.call($tw.wiki, [tiddlerTitle]).length === 0
-        ) {
-          nodes.push({
-            name: tiddlerTitle,
-            label: { formatter: getAliasOrTitle(tiddlerTitle, aliasField) },
-            symbol: findIcon(tiddlerTitle),
-            category: 5,
+        if (exist && recursiveLevel < levels) {
+          $tw.utils.each($tw.wiki.getTiddlersWithTag(tag), tag_ => {
+            pushBackTag(tag_, tag, recursiveLevel + 1);
           });
         }
-        nodeMap.add(tiddlerTitle);
-        if (recursiveLevel === levels) {
-          return;
-        }
-        $tw.utils.each(
-          $tw.wiki.getTiddlersWithTag(tiddlerTitle),
-          tiddlerTitle2 => {
-            pushBackTag(tiddlerTitle2, tiddlerTitle, recursiveLevel + 1);
-          },
-        );
       };
-      $tw.utils.each(
-        $tw.wiki.getTiddlersWithTag(focussedTiddler),
-        tiddlerTitle => {
-          pushBackTag(tiddlerTitle, focussedTiddler, 1);
-        },
-      );
+      $tw.utils.each($tw.wiki.getTiddlersWithTag(focussedTiddler), tag => {
+        pushBackTag(tag, focussedTiddler, 1);
+      });
 
       // 嵌入
       const type =
@@ -411,31 +417,90 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
         };
         findTransclude($tw.wiki.parseTiddler(focussedTiddler).tree);
         for (const transcludeTiddler of transcluded) {
+          if (
+            excludeFilter &&
+            excludeFilter.call($tw.wiki, [transcludeTiddler]).length > 0
+          ) {
+            continue;
+          }
+          const newNode = !nodeMap.has(transcludeTiddler);
+          const [label, exist] = newNode
+            ? getAliasOrTitle(transcludeTiddler, aliasField)
+            : ['', nodeExist.has(transcludeTiddler)];
+          if (newNode) {
+            nodes.push({
+              name: transcludeTiddler,
+              label: { formatter: label },
+              itemStyle: { opacity: exist ? 1 : 0.65 },
+              symbol: findIcon(transcludeTiddler),
+              category: 6,
+              isTag: false,
+            });
+            nodeMap.add(transcludeTiddler);
+            // eslint-disable-next-line max-depth
+            if (exist) {
+              nodeExist.add(transcludeTiddler);
+            }
+          }
           edges.push({
             source: focussedTiddler,
             target: transcludeTiddler,
             lineStyle: {
-              color: 'target',
+              color: colors[6],
+              type: exist ? 'solid' : 'dashed',
             },
           });
-          if (nodeMap.has(transcludeTiddler)) {
-            continue;
-          }
-          if (
-            !excludeFilter ||
-            excludeFilter.call($tw.wiki, [transcludeTiddler]).length === 0
-          ) {
-            nodes.push({
-              name: transcludeTiddler,
-              label: {
-                formatter: getAliasOrTitle(transcludeTiddler, aliasField),
-              },
-              symbol: findIcon(transcludeTiddler),
-              category: 6,
-            });
-          }
-          nodeMap.add(transcludeTiddler);
         }
+      }
+
+      // 历史路径
+      let nextTiddler = focussedTiddler;
+      const historyMap: Set<string> = new Set();
+      for (let index = state.historyTiddlers.length - 2; index >= 0; index--) {
+        const tiddlerTitle = state.historyTiddlers[index];
+        if (
+          historyMap.has(tiddlerTitle) ||
+          tiddlerTitle === nextTiddler ||
+          tiddlerTitle.startsWith('$:/')
+        ) {
+          continue;
+        }
+        if (
+          excludeFilter &&
+          excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0
+        ) {
+          continue;
+        }
+        const newNode = !nodeMap.has(tiddlerTitle);
+        const [label, exist] = newNode
+          ? getAliasOrTitle(tiddlerTitle, aliasField)
+          : ['', nodeExist.has(tiddlerTitle)];
+        if (!newNode) {
+          break;
+        }
+        nodes.push({
+          name: tiddlerTitle,
+          label: { formatter: label, fontSize: '10px' },
+          category: 1,
+          symbol: findIcon(tiddlerTitle),
+          symbolSize: 3,
+          itemStyle: { opacity: exist ? 0.65 : 0.4 },
+          isTag: false,
+        });
+        nodeMap.add(tiddlerTitle);
+        if (exist) {
+          nodeExist.add(tiddlerTitle);
+        }
+        edges.push({
+          source: tiddlerTitle,
+          target: nextTiddler,
+          lineStyle: {
+            color: colors[1],
+            type: exist ? 'dashed' : 'dotted',
+            opacity: 0.5,
+          },
+        });
+        nextTiddler = tiddlerTitle;
       }
     }
 
@@ -450,10 +515,10 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
     let lastTitle = '';
     let cache: Element[] | undefined;
     const cachedTooltipFormatter = ({
-      data: { name },
+      data: { name, isTag },
       dataType,
     }: {
-      data: { name: string };
+      data: { name: string; isTag: boolean };
       dataType: string;
     }) => {
       if (dataType !== 'node') {
@@ -469,31 +534,56 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
           },
           class: 'gk0wk-echarts-thebrain-popuptiddler-container',
         });
-        // 不可以直接 renderText, 那种是 headless 渲染
-        $tw.wiki
-          .makeWidget(
-            $tw.wiki.parseTiddler(
-              '$:/plugins/Gk0Wk/echarts/addons/TheBrainPopup',
-            ),
-            {
-              document,
-              parseAsInline: true,
-              variables: { currentTiddler: name },
-            } as any,
-          )
-          .render(container, null);
-        cache = [
-          container,
-          $tw.utils.domMaker('style', {
-            innerHTML: `.gk0wk-echarts-thebrain-popuptiddler-container::-webkit-scrollbar {display: none;} .gk0wk-echarts-thebrain-popuptiddler-container .tc-tiddler-controls { display: none; }`,
-          }),
-        ];
+        if (isTag) {
+          const ul = $tw.utils.domMaker('ul', {});
+          const tiddlers = $tw.wiki.getTiddlersWithTag(name);
+          const len = tiddlers.length;
+          for (let i = 0; i < len; i++) {
+            const tiddler = tiddlers[i];
+            const li = $tw.utils.domMaker('li', {});
+            const a = $tw.utils.domMaker('a', {
+              text: tiddler,
+              class:
+                'tc-tiddlylink tc-tiddlylink-resolves tc-popup-handle tc-popup-absolute',
+              style: {
+                cursor: 'pointer',
+              },
+            });
+            // eslint-disable-next-line @typescript-eslint/no-loop-func
+            a.addEventListener('click', () =>
+              new $tw.Story().navigateTiddler(tiddler),
+            );
+            li.appendChild(a);
+            ul.appendChild(li);
+          }
+          cache = [ul];
+        } else {
+          // 不可以直接 renderText, 那种是 headless 渲染
+          $tw.wiki
+            .makeWidget(
+              $tw.wiki.parseTiddler(
+                '$:/plugins/Gk0Wk/echarts/addons/TheBrainPopup',
+              ),
+              {
+                document,
+                parseAsInline: true,
+                variables: { currentTiddler: name },
+              } as any,
+            )
+            .render(container, null);
+          cache = [
+            container,
+            $tw.utils.domMaker('style', {
+              innerHTML: `.gk0wk-echarts-thebrain-popuptiddler-container::-webkit-scrollbar {display: none;} .gk0wk-echarts-thebrain-popuptiddler-container .tc-tiddler-controls { display: none; }`,
+            }),
+          ];
+        }
         lastTitle = name;
       }
       return cache;
     };
 
-    let previewDelay = Number(addonAttributes.previewDelay || '1200');
+    let previewDelay = Number(addonAttributes.previewDelay || '1000');
     if (!Number.isSafeInteger(previewDelay)) {
       previewDelay = -1;
     }
@@ -568,7 +658,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
             repulsion: 50,
           },
           cursor: 'pointer',
-          symbolSize: 5,
+          symbolSize: 6,
           edgeSymbol: ['none', 'arrow'],
           edgeSymbolSize: [4, 10],
           lineStyle: {
