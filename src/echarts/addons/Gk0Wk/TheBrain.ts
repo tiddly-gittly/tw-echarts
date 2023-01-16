@@ -60,10 +60,15 @@ const findIcon = (title: string) => {
   }
   const iconFields = $tw.wiki.getTiddler(fields.icon as string)?.fields;
   if (!iconFields) {
+    if (/^https?:\/\//.test(fields.icon as string)) {
+      return `image://${fields.icon as string}`;
+    }
     return undefined;
   }
   if (iconFields._canonical_uri) {
     return `image://${iconFields._canonical_uri}`;
+  } else if (iconFields.title.startsWith('$:/core/images/')) {
+    return undefined;
   } else {
     return `image://data:${iconFields.type};base64,${iconFields.text}`;
   }
@@ -152,333 +157,254 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
         'draft.of'
       ] as string;
     }
-    // 不允许 focussedTiddler 是系统条目，以免产生大量节点
-    if (focussedTiddler?.startsWith('$:/')) {
-      return;
-    }
-    const nodes = [];
-    const edges = [];
+    const nodes: any[] = [];
+    const edges: any[] = [];
     const ifChinese =
       $tw.wiki.getTiddlerText('$:/language')?.includes('zh') === true;
     /** 参数：levels 指定图向外展开几级 */
-    const levels = Number(addonAttributes.levels) || 1;
+    let levels = Number(addonAttributes.levels);
+    if (Number.isNaN(levels)) {
+      levels = 1;
+    }
+    levels = Math.max(levels, 0);
     /** 参数：graphTitle 指定右下角显示的标题 */
     const graphTitle =
-      addonAttributes.graphTitle || ifChinese ? '聚焦' : 'Focusing Map';
-
+      addonAttributes.graphTitle || (ifChinese ? '聚焦' : 'Focusing Map');
     /** 参数：aliasField 用于指定展示为节点标题的字段，例如 caption */
     const aliasField =
       addonAttributes.aliasField === ''
         ? undefined
         : addonAttributes.aliasField;
     /** 参数：excludeFilter 用于排除部分节点 */
-    const excludeFilter = addonAttributes.excludeFilter
-      ? $tw.wiki.compileFilter(addonAttributes.excludeFilter)
-      : undefined;
-    if (focussedTiddler && focussedTiddler !== '') {
-      const nodeMap: Set<string> = new Set();
-      const nodeExist: Set<string> = new Set();
-      nodeMap.add('');
+    const excludeFilter =
+      addonAttributes.excludeFilter === ''
+        ? undefined
+        : $tw.wiki.compileFilter(
+            addonAttributes.excludeFilter ?? '[prefix[$:/]]',
+          );
+    const nodeMap: Map<string, boolean> = new Map();
 
-      // 当前关注的 Tiddler
-      nodeMap.add(focussedTiddler);
-      nodeExist.add(focussedTiddler);
-      nodes.push({
-        name: focussedTiddler,
-        // fixed: true,
-        category: 0,
-        label: {
-          formatter: getAliasOrTitle(focussedTiddler, aliasField)[0],
-          fontWeight: 'bold',
-          fontSize: '15px',
-        },
-        symbol: findIcon(focussedTiddler),
-        symbolSize: 15,
-        select: {
-          disabled: true,
-        },
-        itemStyle: {
-          opacity: 1,
-          borderColor: `${colors[0]}66`,
-          borderWidth: 15,
-        },
-        isTag: false,
-        tooltip: {
-          show: false,
-        },
-      });
+    // 聚焦点
+    nodes.push({
+      name: focussedTiddler,
+      // fixed: true,
+      category: 0,
+      label: {
+        formatter: getAliasOrTitle(focussedTiddler, aliasField)[0],
+        fontWeight: 'bold',
+        fontSize: '15px',
+      },
+      symbol: findIcon(focussedTiddler),
+      symbolSize: 15,
+      select: {
+        disabled: true,
+      },
+      itemStyle: {
+        opacity: 1,
+        borderColor: `${colors[0]}66`,
+        borderWidth: 15,
+      },
+      isTag: false,
+      tooltip: {
+        show: false,
+      },
+    });
 
-      // Link
-      const pushLink = (
-        target: string,
-        source: string,
-        recursiveLevel: number,
-      ) => {
-        if (
-          excludeFilter &&
-          excludeFilter.call($tw.wiki, [target]).length > 0
-        ) {
-          return;
-        }
-        const newNode = !nodeMap.has(target);
-        const [label, exist] = newNode
-          ? getAliasOrTitle(target, aliasField)
-          : ['', nodeExist.has(target)];
-        if (newNode) {
-          nodes.push({
-            name: target,
-            label: { formatter: label },
-            itemStyle: { opacity: exist ? 1 : 0.65 },
-            symbol: findIcon(target),
-            category: 2,
-            isTag: false,
-          });
-          nodeMap.add(target);
-          if (exist) {
-            nodeExist.add(target);
-          }
-        }
-        edges.push({
-          source,
-          target,
-          lineStyle: {
-            color: colors[2],
-            type: exist ? 'solid' : 'dashed',
-          },
-        });
-        if (exist && recursiveLevel < levels) {
-          $tw.utils.each($tw.wiki.getTiddlerLinks(target), target2 => {
-            pushLink(target2, target, recursiveLevel + 1);
-          });
-        }
-      };
-      // 链接
-      $tw.utils.each($tw.wiki.getTiddlerLinks(focussedTiddler), targetTiddler =>
-        pushLink(targetTiddler, focussedTiddler, 1),
-      );
+    // 初始化：当前关注的 Tiddler
+    let tiddlerQueue = [focussedTiddler];
+    if (excludeFilter) {
+      const tiddlers = new Set<string>(tiddlerQueue);
+      for (const excluded of excludeFilter.call($tw.wiki, tiddlerQueue)) {
+        tiddlers.delete(excluded);
+      }
+      tiddlerQueue = Array.from(tiddlers);
+    }
+    nodeMap.set(focussedTiddler, true);
+    nodeMap.set('', false);
 
-      // Backlink
-      const pushBackLink = (
-        source: string,
-        target: string,
-        recursiveLevel: number,
-      ) => {
-        if (
-          excludeFilter &&
-          excludeFilter.call($tw.wiki, [source]).length > 0
-        ) {
-          return;
-        }
-        const newNode = !nodeMap.has(source);
-        const [label, exist] = newNode
-          ? getAliasOrTitle(source, aliasField)
-          : ['', nodeExist.has(source)];
-        if (newNode) {
-          nodes.push({
-            name: source,
-            label: { formatter: label },
-            itemStyle: { opacity: exist ? 1 : 0.65 },
-            symbol: findIcon(source),
-            category: 3,
-            isTag: false,
-          });
-          nodeMap.add(source);
-          if (exist) {
-            nodeExist.add(source);
-          }
-        }
-        edges.push({
-          source,
-          target,
-          lineStyle: {
-            color: colors[3],
-            type: exist ? 'solid' : 'dashed',
-          },
-        });
-        if (exist && recursiveLevel < levels) {
-          $tw.utils.each($tw.wiki.getTiddlerLinks(source), source_ => {
-            pushBackLink(source_, source, recursiveLevel + 1);
-          });
-        }
-      };
-      $tw.utils.each(
-        $tw.wiki.getTiddlerBacklinks(focussedTiddler),
-        sourceTiddler => pushBackLink(sourceTiddler, focussedTiddler, 1),
-      );
-
-      // 指向哪些tag
-      const pushTag = (tag: string, source: string, recursiveLevel: number) => {
-        if (excludeFilter && excludeFilter.call($tw.wiki, [tag]).length > 0) {
-          return;
-        }
-        const newNode = !nodeMap.has(tag);
-        const [label, exist] = newNode
-          ? getAliasOrTitle(tag, aliasField)
-          : ['', nodeExist.has(tag)];
-        if (newNode) {
-          nodes.push({
-            name: tag,
-            label: { formatter: label },
-            itemStyle: { opacity: exist ? 1 : 0.65 },
-            symbol: findIcon(tag),
-            category: 4,
-            isTag: true,
-          });
-          nodeMap.add(tag);
-          if (exist) {
-            nodeExist.add(tag);
-          }
-        }
-        edges.push({
-          source,
-          target: tag,
-          lineStyle: {
-            color: colors[4],
-            type: exist ? 'solid' : 'dashed',
-          },
-        });
-        if (exist && recursiveLevel < levels) {
-          $tw.utils.each($tw.wiki.getTiddler(tag)?.fields?.tags ?? [], tag_ => {
-            pushTag(tag_, tag, recursiveLevel + 1);
-          });
-        }
-      };
-      $tw.utils.each(
-        $tw.wiki.getTiddler(focussedTiddler)?.fields?.tags ?? [],
-        tiddlerTag => pushTag(tiddlerTag, focussedTiddler, 1),
-      );
-
-      // 被谁作为 Tag
-      const pushBackTag = (
-        tag: string,
-        target: string,
-        recursiveLevel: number,
-      ) => {
-        if (excludeFilter && excludeFilter.call($tw.wiki, [tag]).length > 0) {
-          return;
-        }
-        const newNode = !nodeMap.has(tag);
-        const [label, exist] = newNode
-          ? getAliasOrTitle(tag, aliasField)
-          : ['', nodeExist.has(tag)];
-        if (newNode) {
-          nodes.push({
-            name: tag,
-            label: { formatter: label },
-            itemStyle: { opacity: exist ? 1 : 0.65 },
-            symbol: findIcon(tag),
-            category: 5,
-            isTag: false,
-          });
-          nodeMap.add(tag);
-          if (exist) {
-            nodeExist.add(tag);
-          }
-        }
-        edges.push({
-          source: tag,
-          target,
-          lineStyle: {
-            color: colors[5],
-            type: exist ? 'solid' : 'dashed',
-          },
-        });
-        if (exist && recursiveLevel < levels) {
-          $tw.utils.each($tw.wiki.getTiddlersWithTag(tag), tag_ => {
-            pushBackTag(tag_, tag, recursiveLevel + 1);
-          });
-        }
-      };
-      $tw.utils.each($tw.wiki.getTiddlersWithTag(focussedTiddler), tag => {
-        pushBackTag(tag, focussedTiddler, 1);
-      });
-
-      // 嵌入
-      const type =
-        $tw.wiki.getTiddler(focussedTiddler)!.fields?.type ||
-        'text/vnd.tiddlywiki';
-      if (type === 'text/vnd.tiddlywiki' || type === 'text/x-markdown') {
-        const transcluded: Set<string> = new Set();
-        const findTransclude = (children: IParseTreeNode[]) => {
-          const { length } = children;
-          for (let i = 0; i < length; i++) {
-            const node = children[i];
-            if (node.type === 'tiddler') {
-              const title = node.attributes!.tiddler?.value as
-                | string
-                | undefined;
-              if (title) {
-                transcluded.add(title);
-              }
-            } else if (Array.isArray((node as any).children)) {
-              findTransclude((node as any).children);
-            }
-          }
-        };
-        findTransclude($tw.wiki.parseTiddler(focussedTiddler).tree);
-        for (const transcludeTiddler of transcluded) {
-          if (
-            excludeFilter &&
-            excludeFilter.call($tw.wiki, [transcludeTiddler]).length > 0
-          ) {
-            continue;
-          }
-          const newNode = !nodeMap.has(transcludeTiddler);
-          const [label, exist] = newNode
-            ? getAliasOrTitle(transcludeTiddler, aliasField)
-            : ['', nodeExist.has(transcludeTiddler)];
-          if (newNode) {
-            nodes.push({
-              name: transcludeTiddler,
-              label: { formatter: label },
-              itemStyle: { opacity: exist ? 1 : 0.65 },
-              symbol: findIcon(transcludeTiddler),
-              category: 6,
-              isTag: false,
-            });
-            nodeMap.add(transcludeTiddler);
-            // eslint-disable-next-line max-depth
-            if (exist) {
-              nodeExist.add(transcludeTiddler);
-            }
-          }
-          edges.push({
-            source: focussedTiddler,
-            target: transcludeTiddler,
-            lineStyle: {
-              color: colors[6],
-              type: exist ? 'solid' : 'dashed',
-            },
-          });
+    const tryPush = (
+      title: string,
+      node: (label: string, exist: boolean) => any,
+      edge: (exist: boolean) => any,
+    ) => {
+      if (excludeFilter && excludeFilter.call($tw.wiki, [title]).length > 0) {
+        return false;
+      }
+      const nodeState = nodeMap.get(title);
+      const [label, exist] =
+        nodeState === undefined
+          ? getAliasOrTitle(title, aliasField)
+          : ['', nodeState];
+      if (nodeState === undefined) {
+        nodes.push(node(label, exist));
+        nodeMap.set(title, exist);
+        if (exist) {
+          tiddlerQueue.push(title);
         }
       }
+      edges.push(edge(exist));
+      return exist;
+    };
 
-      // 历史路径
-      let nextTiddler = focussedTiddler;
-      const historyMap: Set<string> = new Set();
-      for (let index = state.historyTiddlers.length - 2; index >= 0; index--) {
-        const tiddlerTitle = state.historyTiddlers[index];
-        if (
-          historyMap.has(tiddlerTitle) ||
-          tiddlerTitle === nextTiddler ||
-          tiddlerTitle.startsWith('$:/')
-        ) {
-          continue;
+    // 广搜 levels 层
+    while (tiddlerQueue.length && levels-- > 0) {
+      const tiddlers = tiddlerQueue;
+      tiddlerQueue = [];
+      for (const tiddler of tiddlers) {
+        // 链接
+        for (const linksTo of $tw.wiki.getTiddlerLinks(tiddler)) {
+          tryPush(
+            linksTo,
+            (label, exist) => ({
+              name: linksTo,
+              label: { formatter: label },
+              itemStyle: { opacity: exist ? 1 : 0.65 },
+              symbol: findIcon(linksTo),
+              category: 2,
+              isTag: false,
+            }),
+            exist => ({
+              source: tiddler,
+              target: linksTo,
+              lineStyle: {
+                color: colors[2],
+                type: exist ? 'solid' : 'dashed',
+              },
+            }),
+          );
         }
-        if (
-          excludeFilter &&
-          excludeFilter.call($tw.wiki, [tiddlerTitle]).length > 0
-        ) {
-          continue;
+        // 反链
+        for (const backlinksFrom of $tw.wiki.getTiddlerBacklinks(tiddler)) {
+          tryPush(
+            backlinksFrom,
+            (label, exist) => ({
+              name: backlinksFrom,
+              label: { formatter: label },
+              itemStyle: { opacity: exist ? 1 : 0.65 },
+              symbol: findIcon(backlinksFrom),
+              category: 3,
+              isTag: false,
+            }),
+            exist => ({
+              source: backlinksFrom,
+              target: tiddler,
+              lineStyle: {
+                color: colors[3],
+                type: exist ? 'solid' : 'dashed',
+              },
+            }),
+          );
         }
-        const newNode = !nodeMap.has(tiddlerTitle);
-        const [label, exist] = newNode
-          ? getAliasOrTitle(tiddlerTitle, aliasField)
-          : ['', nodeExist.has(tiddlerTitle)];
-        if (!newNode) {
-          break;
+        // 标签
+        for (const tag of $tw.wiki.getTiddler(focussedTiddler)?.fields?.tags ??
+          []) {
+          tryPush(
+            tag,
+            (label, exist) => ({
+              name: tag,
+              label: { formatter: label },
+              itemStyle: { opacity: exist ? 1 : 0.65 },
+              symbol: findIcon(tag),
+              category: 4,
+              isTag: true,
+            }),
+            exist => ({
+              source: tiddler,
+              target: tag,
+              lineStyle: {
+                color: colors[4],
+                type: exist ? 'solid' : 'dashed',
+              },
+            }),
+          );
         }
-        nodes.push({
+        // 作为标签
+        for (const tagBy of $tw.wiki.getTiddlersWithTag(tiddler)) {
+          tryPush(
+            tagBy,
+            (label, exist) => ({
+              name: tagBy,
+              label: { formatter: label },
+              itemStyle: { opacity: exist ? 1 : 0.65 },
+              symbol: findIcon(tagBy),
+              category: 5,
+              isTag: false,
+            }),
+            exist => ({
+              source: tagBy,
+              target: tiddler,
+              lineStyle: {
+                color: colors[5],
+                type: exist ? 'solid' : 'dashed',
+              },
+            }),
+          );
+        }
+        // 嵌入
+        const tiddler_ = $tw.wiki.getTiddler(tiddler);
+        if (tiddler_) {
+          const type = tiddler_.fields.type || 'text/vnd.tiddlywiki';
+          if (type === 'text/vnd.tiddlywiki' || type === 'text/x-markdown') {
+            const transcluded: Set<string> = new Set();
+            const findTransclude = (children: IParseTreeNode[]) => {
+              const { length } = children;
+              for (let i = 0; i < length; i++) {
+                const node = children[i];
+                if (node.type === 'tiddler') {
+                  const title = node.attributes!.tiddler?.value as
+                    | string
+                    | undefined;
+                  if (title) {
+                    transcluded.add(title);
+                  }
+                } else if (Array.isArray((node as any).children)) {
+                  findTransclude((node as any).children);
+                }
+              }
+            };
+            findTransclude($tw.wiki.parseTiddler(tiddler).tree);
+            // eslint-disable-next-line max-depth
+            for (const transcludeTiddler of transcluded) {
+              tryPush(
+                transcludeTiddler,
+                (label, exist) => ({
+                  name: transcludeTiddler,
+                  label: { formatter: label },
+                  itemStyle: { opacity: exist ? 1 : 0.65 },
+                  symbol: findIcon(transcludeTiddler),
+                  category: 6,
+                  isTag: false,
+                }),
+                exist => ({
+                  source: tiddler,
+                  target: transcludeTiddler,
+                  lineStyle: {
+                    color: colors[6],
+                    type: exist ? 'solid' : 'dashed',
+                  },
+                }),
+              );
+            }
+          }
+        }
+      }
+    }
+
+    // 历史路径
+    let nextTiddler = focussedTiddler;
+    const historyMap: Set<string> = new Set();
+    for (let index = state.historyTiddlers.length - 2; index >= 0; index--) {
+      const tiddlerTitle = state.historyTiddlers[index];
+      if (
+        historyMap.has(tiddlerTitle) ||
+        tiddlerTitle === nextTiddler ||
+        tiddlerTitle.startsWith('$:/')
+      ) {
+        continue;
+      }
+      tryPush(
+        tiddlerTitle,
+        (label, exist) => ({
           name: tiddlerTitle,
           label: { formatter: label, fontSize: '10px' },
           category: 1,
@@ -486,12 +412,9 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
           symbolSize: 3,
           itemStyle: { opacity: exist ? 0.65 : 0.4 },
           isTag: false,
-        });
-        nodeMap.add(tiddlerTitle);
-        if (exist) {
-          nodeExist.add(tiddlerTitle);
-        }
-        edges.push({
+        }),
+        // eslint-disable-next-line @typescript-eslint/no-loop-func
+        exist => ({
           source: tiddlerTitle,
           target: nextTiddler,
           lineStyle: {
@@ -499,9 +422,9 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
             type: exist ? 'dashed' : 'dotted',
             opacity: 0.5,
           },
-        });
-        nextTiddler = tiddlerTitle;
-      }
+        }),
+      );
+      nextTiddler = tiddlerTitle;
     }
 
     // 更新历史
@@ -660,7 +583,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
           cursor: 'pointer',
           symbolSize: 6,
           edgeSymbol: ['none', 'arrow'],
-          edgeSymbolSize: [4, 10],
+          edgeSymbolSize: [0, 5],
           lineStyle: {
             width: 1,
             opacity: 0.75,
