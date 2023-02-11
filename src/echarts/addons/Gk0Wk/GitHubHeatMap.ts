@@ -1,3 +1,4 @@
+import type { SourceIterator } from 'tiddlywiki';
 import { IScriptAddon } from '../../scriptAddon';
 import * as ECharts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
 
@@ -5,7 +6,7 @@ const getFilterByDate = (date: string) =>
   `[sameday:created[${date}]] [sameday:modified[${date}]]`;
 const yearDates: Map<number, [string, string][]> = new Map();
 const dayTime = 3600 * 24 * 1000;
-const getData = (year: number, subfilter: string) => {
+const getData = (year: number, tiddlerSourceIterator: SourceIterator) => {
   if (!yearDates.has(year)) {
     const startDate = (ECharts as any).number
       .parseDate(`${year}-01-01`)
@@ -25,10 +26,6 @@ const getData = (year: number, subfilter: string) => {
     yearDates.set(year, dates);
   }
   let total = 0;
-  /** Use subfilter to narrow down tiddler pool before the array.map on dates */
-  const tiddlerSourceIterator = $tw.wiki.makeTiddlerIterator(
-    $tw.wiki.filterTiddlers(subfilter),
-  );
   return [
     yearDates.get(year)!.map(([timeFmt, timeTW]) => {
       const count = $tw.wiki.filterTiddlers(
@@ -65,7 +62,11 @@ const GitHubHeatMapAddon: IScriptAddon<any> = {
     const year = parseInt(addonAttributes.year, 10) || new Date().getFullYear();
     const subfilter =
       addonAttributes.subfilter || '[all[tiddlers]!is[shadow]!is[system]]';
-    const [data, total] = getData(year, subfilter);
+    /** Use subfilter to narrow down tiddler pool before the array.map on dates */
+    const tiddlerSourceIterator = $tw.wiki.makeTiddlerIterator(
+      $tw.wiki.filterTiddlers(subfilter),
+    );
+    const [data, total] = getData(year, tiddlerSourceIterator);
     const tooltipFormatter = (dateValue: string, count: number) => {
       if (count === 0) {
         return checkIfChinese()
@@ -91,7 +92,9 @@ const GitHubHeatMapAddon: IScriptAddon<any> = {
       });
       const ul = $tw.utils.domMaker('ul', {});
       const tiddlers = $tw.wiki.filterTiddlers(
-        getFilterByDate(dateValue.replace(/-/g, ''), subfilter),
+        getFilterByDate(dateValue.replace(/-/g, '')),
+        undefined,
+        tiddlerSourceIterator,
       );
       const len = tiddlers.length;
       for (let i = 0; i < len; i++) {
