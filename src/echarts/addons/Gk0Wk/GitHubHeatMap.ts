@@ -1,8 +1,8 @@
 import { IScriptAddon } from '../../scriptAddon';
 import * as ECharts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
 
-const getFilterByDate = (date: string, subfilter: string) =>
-  `[all[tiddlers]sameday:created[${date}]][all[tiddlers]sameday:modified[${date}]] +${subfilter} +[sort[]]`;
+const getFilterByDate = (date: string) =>
+  `[sameday:created[${date}]] [sameday:modified[${date}]]`;
 const yearDates: Map<number, [string, string][]> = new Map();
 const dayTime = 3600 * 24 * 1000;
 const getData = (year: number, subfilter: string) => {
@@ -25,10 +25,16 @@ const getData = (year: number, subfilter: string) => {
     yearDates.set(year, dates);
   }
   let total = 0;
+  /** Use subfilter to narrow down tiddler pool before the array.map on dates */
+  const tiddlerSourceIterator = $tw.wiki.makeTiddlerIterator(
+    $tw.wiki.filterTiddlers(subfilter),
+  );
   return [
     yearDates.get(year)!.map(([timeFmt, timeTW]) => {
       const count = $tw.wiki.filterTiddlers(
-        getFilterByDate(timeTW, subfilter),
+        getFilterByDate(timeTW),
+        undefined,
+        tiddlerSourceIterator,
       ).length;
       total += count;
       return [timeFmt, count];
@@ -57,7 +63,8 @@ const GitHubHeatMapAddon: IScriptAddon<any> = {
   shouldUpdate: (_, changedTiddlers) => $tw.utils.count(changedTiddlers) > 0,
   onUpdate: (myChart, _state, addonAttributes) => {
     const year = parseInt(addonAttributes.year, 10) || new Date().getFullYear();
-    const subfilter = addonAttributes.subfilter || '[!is[shadow]!prefix[$:/]]';
+    const subfilter =
+      addonAttributes.subfilter || '[all[tiddlers]!is[shadow]!is[system]]';
     const [data, total] = getData(year, subfilter);
     const tooltipFormatter = (dateValue: string, count: number) => {
       if (count === 0) {
