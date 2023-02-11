@@ -1,0 +1,10 @@
+created: 20230207114500000
+modified: 20230208114500000
+title: ExampleCalendarTiddler
+type: text/vnd.tiddlywiki
+calendarEntry: yes
+endDate: 20230207114500000
+startDate: 20230207110000000
+caption: Example Calendar Tiddler
+
+With `calendarEntry: yes` on this.
