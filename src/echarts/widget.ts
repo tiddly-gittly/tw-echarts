@@ -427,17 +427,19 @@ class EChartsWidget extends Widget {
 
   // 异步更新
   async renderAddon() {
-    this.echartsInstance!.showLoading();
+    // when upgrading plugin, this maybe unloaded to be undefined.
+    if (!this.echartsInstance) return;
+    this.echartsInstance.showLoading();
     try {
       if (this.text === undefined) {
         if (!this.tiddlerTitle || !$tw.wiki.getTiddler(this.tiddlerTitle)) {
-          this.echartsInstance!.hideLoading();
+          this.echartsInstance.hideLoading();
           return;
         }
         const tiddler = $tw.wiki.getTiddler(this.tiddlerTitle)!.fields;
         const type = tiddler.type || 'text/vnd.tiddlywiki';
         if (type === 'text/vnd.tiddlywiki') {
-          this.echartsInstance!.setOption(
+          this.echartsInstance.setOption(
             JSON.parse(
               $tw.wiki.renderTiddler('text/plain', this.tiddlerTitle, {
                 variables: this.attributes,
@@ -445,13 +447,13 @@ class EChartsWidget extends Widget {
             ),
           );
         } else if (type === 'application/json') {
-          this.echartsInstance!.setOption(
+          this.echartsInstance.setOption(
             JSON.parse($tw.wiki.getTiddlerText(this.tiddlerTitle)!),
           );
         } else if (type === 'application/javascript') {
           const _addon = require(this.tiddlerTitle);
           const addon = (_addon.default ?? _addon) as IScriptAddon;
-          addon.onUpdate(this.echartsInstance!, this.state, this.attributes);
+          addon.onUpdate(this.echartsInstance, this.state, this.attributes);
         }
       } else {
         const addon = new Function_(
@@ -466,7 +468,7 @@ class EChartsWidget extends Widget {
     } catch (error) {
       console.error(error);
     }
-    this.echartsInstance!.hideLoading();
+    this.echartsInstance.hideLoading();
   }
 }
 
