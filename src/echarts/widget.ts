@@ -449,7 +449,7 @@ class EChartsWidget extends Widget {
           // Allow using js style key without `""`, and allow list to have tailing comma, and allow having `//`
           // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
           const executedJSContent = new Function(
-            `return ${plainTextContent}`,
+            `return (${plainTextContent})`,
           )();
           this.echartsInstance.setOption(executedJSContent);
         } else if (type === 'application/json') {
