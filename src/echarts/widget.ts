@@ -439,13 +439,19 @@ class EChartsWidget extends Widget {
         const tiddler = $tw.wiki.getTiddler(this.tiddlerTitle)!.fields;
         const type = tiddler.type || 'text/vnd.tiddlywiki';
         if (type === 'text/vnd.tiddlywiki') {
-          this.echartsInstance.setOption(
-            JSON.parse(
-              $tw.wiki.renderTiddler('text/plain', this.tiddlerTitle, {
-                variables: this.attributes,
-              }),
-            ),
+          const plainTextContent = $tw.wiki.renderTiddler(
+            'text/plain',
+            this.tiddlerTitle,
+            {
+              variables: this.attributes,
+            },
           );
+          // Allow using js style key without `""`, and allow list to have tailing comma, and allow having `//`
+          // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
+          const executedJSContent = new Function(
+            `return ${plainTextContent}`,
+          )();
+          this.echartsInstance.setOption(executedJSContent);
         } else if (type === 'application/json') {
           this.echartsInstance.setOption(
             JSON.parse($tw.wiki.getTiddlerText(this.tiddlerTitle)!),
