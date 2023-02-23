@@ -471,6 +471,18 @@ class EChartsWidget extends Widget {
         );
         addon(this.echartsInstance, this.containerDom, ECharts, $tw);
       }
+      // add event listeners
+      const getHandler = (handlerCallback: string) => (params: unknown) =>
+        new Function_(
+          'params',
+          'parentWidget',
+          `(${handlerCallback})(params, parentWidget);`,
+        )(params, this.parentWidget);
+
+      const dblclickHandlerString = this.getAttribute('dblclick');
+      if (dblclickHandlerString) {
+        this.echartsInstance.on('dblclick', getHandler(dblclickHandlerString));
+      }
     } catch (error) {
       console.error(error);
     }

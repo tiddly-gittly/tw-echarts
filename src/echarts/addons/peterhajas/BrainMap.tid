@@ -16,10 +16,9 @@ type: text/vnd.tiddlywiki
     },
     "draggable": false,
     "data": [
-<$list>
-{"name": "<<currentTiddler>>"},
-</$list>
-      {"name": "___" }
+      <$list>
+        {"name": "<<currentTiddler>>"},
+      </$list>
     ],
     "force": {
       "edgeLength": 25,
@@ -27,14 +26,13 @@ type: text/vnd.tiddlywiki
       "gravity": 0.1
     },
     "edges": [
-<$list counter="counter">
-<$set name=current value=<<currentTiddler>> >
-<$list filter="[all[current]links[]]">
-{"source":"<<current>>", "target": "{{!!title}}"},
-</$list>
-</$set>
-</$list>
-{"source": 0, "target" : 0}
+      <$list>
+        <$set name=currentSource value=<<currentTiddler>> >
+          <$list filter="[all[current]links[]]">
+            {"source":"<<currentSource>>", "target": "{{!!title}}"},
+          </$list>
+        </$set>
+      </$list>
     ]
     }]
 }
