@@ -1,0 +1,40 @@
+title: $:/plugins/Gk0Wk/echarts/addons/BrainMap
+type: text/vnd.tiddlywiki
+
+{
+  "tooltip": {
+    "trigger": "item"
+  },
+  "series": [{
+    "type": "graph",
+    "layout": "force",
+    "roam": true,
+    "animation": false,
+    "label": {
+      "position": "right",
+      "formatter": "{b}"
+    },
+    "draggable": false,
+    "data": [
+<$list>
+{"name": "<<currentTiddler>>"},
+</$list>
+      {"name": "___" }
+    ],
+    "force": {
+      "edgeLength": 25,
+      "repulsion": 50,
+      "gravity": 0.1
+    },
+    "edges": [
+<$list counter="counter">
+<$set name=current value=<<currentTiddler>> >
+<$list filter="[all[current]links[]]">
+{"source":"<<current>>", "target": "{{!!title}}"},
+</$list>
+</$set>
+</$list>
+{"source": 0, "target" : 0}
+    ]
+    }]
+}
