@@ -6,8 +6,25 @@ tags: ECharts Readme
 title: Index
 type: text/vnd.tiddlywiki
 
-<div style="max-width: 800px; height: 200px; margin: 0 auto;">
-<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/GitHubHeatMap.js" subfilter="[all[tiddlers]!is[shadow]!is[system]!field:calendarEntry[yes]]" $width="100%" $height="100%" />
+<div style="max-width: 800px; height: 230px; margin: 0 auto;">
+    <center style="font-size:20px;">
+        <$button
+            set="$:/state/heatmap!!year"
+            setTo={{{ [{$:/state/heatmap!!year}subtract[1]!match[-1]] ~[<now YYYY>subtract[1]] }}}
+            class="tc-btn-invisible tc-tiddlylink"
+
+        >
+            ◄
+        </$button> ''<$text text={{{[{$:/state/heatmap!!year}match[]then<now YYYY>else{$:/state/heatmap!!year}]}}}/>'' <$button
+            set="$:/state/heatmap!!year"
+            setTo={{{ [{$:/state/heatmap!!year}add[1]!match[1]] ~[<now YYYY>add[1]] }}}
+            class="tc-btn-invisible tc-tiddlylink"
+
+        >
+            ►
+        </$button>
+    </center>
+    <$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/GitHubHeatMap.js" $width="100%" $height="100%" year={{$:/state/heatmap!!year}} subfilter="[all[tiddlers]!is[shadow]!is[system]!field:calendarEntry[yes]]" />
 </div>
 
 <$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
