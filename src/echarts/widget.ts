@@ -428,7 +428,9 @@ class EChartsWidget extends Widget {
   // 异步更新
   async renderAddon() {
     // when upgrading plugin, this maybe unloaded to be undefined.
-    if (!this.echartsInstance) return;
+    if (!this.echartsInstance) {
+      return;
+    }
     this.echartsInstance.showLoading();
     try {
       if (this.text === undefined) {
