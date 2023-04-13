@@ -51,8 +51,11 @@ jobs:
             ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
             ${{ runner.os }}-node-
 
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.2.0
       - name: Install Dependencies
-        run: npm install -g pnpm && pnpm install
+        run: pnpm install
 
       - name: Build Plugins
         run: pnpm run build
