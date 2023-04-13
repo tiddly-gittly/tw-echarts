@@ -54,7 +54,7 @@
     "lint-staged": "^13.1.0",
     "rimraf": "^4.0.4",
     "ts-node": "^10.9.1",
-    "tw5-typed": "^0.2.25",
+    "tw5-typed": "^0.2.26",
     "typescript": "^4.9.4"
   },
   "dependencies": {

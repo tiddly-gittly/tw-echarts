@@ -110,6 +110,26 @@ macro 也有`width`等可选参数，这里就不赘述了。
 }`
 ```
 
+!!! 绑定点击事件
+
+```
+<$echarts
+  $tiddler="$:/plugins/Gk0Wk/echarts/addons/BrainMap"
+  $height="500px"
+  dblclick="(params, parentWidget) => { console.log(params); parentWidget.dispatchEvent({ type: 'tm-navigate', navigateTo: params.data.name }) }"
+/> 
+```
+
+<$echarts
+  $tiddler="$:/plugins/Gk0Wk/echarts/addons/BrainMap"
+  $height="500px"
+  dblclick="(params, parentWidget) => { console.log(params); parentWidget.dispatchEvent({ type: 'tm-navigate', navigateTo: params.data.name }) }"
+/>
+
+可用的鼠标事件及参数详见[[Echarts - events.鼠标事件|https://echarts.apache.org/zh/api.html#events.%E9%BC%A0%E6%A0%87%E4%BA%8B%E4%BB%B6]]
+
+可用的 `$tw` api，可以通过在浏览器控制台里学习（详见[[太微中文教程-交互式查看API|https://tw-cn.netlify.app/#%E4%BA%A4%E4%BA%92%E5%BC%8F%E6%9F%A5%E7%9C%8BAPI]]），也可以通过搜索[[TW5-Typed|https://github.com/tiddly-gittly/TW5-Typed]]来学习
+
 !! JS 类型的条目
 
 使用TW5语法生成数据，肯定还是要有局限性的。如果想发挥最大限度的灵活性，推荐使用 ~JavaScript 来写(当然，肯定是有技术门槛的)。

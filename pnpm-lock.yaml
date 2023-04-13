@@ -12,13 +12,13 @@ specifiers:
   tiddlywiki: ^5.2.5
   tiddlywiki-plugin-dev: ^0.0.34
   ts-node: ^10.9.1
-  tw5-typed: ^0.2.25
+  tw5-typed: ^0.2.26
   typescript: ^4.9.4
 
 dependencies:
   npm-check-updates: 16.6.2
   tiddlywiki: 5.2.5
-  tiddlywiki-plugin-dev: 0.0.34_tw5-typed@0.2.25
+  tiddlywiki-plugin-dev: 0.0.34_tw5-typed@0.2.26
 
 devDependencies:
   '@modern-js/eslint-config': 2.1.0
@@ -29,7 +29,7 @@ devDependencies:
   lint-staged: 13.1.0
   rimraf: 4.0.4
   ts-node: 10.9.1_awa2wsr5thmg3i7jqycphctjfq
-  tw5-typed: 0.2.25
+  tw5-typed: 0.2.26
   typescript: 4.9.4
 
 packages:
@@ -5603,7 +5603,7 @@ packages:
   /through/2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
 
-  /tiddlywiki-plugin-dev/0.0.34_tw5-typed@0.2.25:
+  /tiddlywiki-plugin-dev/0.0.34_tw5-typed@0.2.26:
     resolution: {integrity: sha512-9LugdoIgB+HLwEIvD1vxXqoLmC6gsw7ENktzfHGZaTymC/gDAOsqLuwmZZfacR4FwzbhnP6eAZ7jEAYTb7r2tQ==}
     engines: {node: '>=14.17.6'}
     hasBin: true
@@ -5625,7 +5625,7 @@ packages:
       sha256: 0.2.0
       simple-git: 3.15.1
       tiddlywiki: 5.2.5
-      tw5-typed: 0.2.25
+      tw5-typed: 0.2.26
       uglify-js: 3.17.4
       ws: 8.12.0
     transitivePeerDependencies:
@@ -5716,8 +5716,8 @@ packages:
       typescript: 4.9.4
     dev: true
 
-  /tw5-typed/0.2.25:
-    resolution: {integrity: sha512-G8h4Pw96LE3FRlcetaoqch6Pxm9O7J7C6e3/32ANKKR8Jg8U3/sSPYi4+0TBu7B8toGBP/uCc77/XarxqCTazQ==}
+  /tw5-typed/0.2.26:
+    resolution: {integrity: sha512-KuJUENsOMzPf5g/RmX2/aXKUfQP9HQpc46xYPYpi18m3bfooi342IBwlyHFxv5u8kMW24u1UoJvgAtiP8YJUNQ==}
     dependencies:
       '@types/codemirror': 5.60.6
       '@types/echarts': 4.9.16

@@ -1,11 +1,12 @@
+import type { SourceIterator } from 'tiddlywiki';
 import { IScriptAddon } from '../../scriptAddon';
 import * as ECharts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
 
-const getFilterByDate = (date: string, subfilter: string) =>
-  `[all[tiddlers]sameday:created[${date}]][all[tiddlers]sameday:modified[${date}]] +${subfilter} +[sort[]]`;
+const getFilterByDate = (date: string) =>
+  `[sameday:created[${date}]] [sameday:modified[${date}]]`;
 const yearDates: Map<number, [string, string][]> = new Map();
 const dayTime = 3600 * 24 * 1000;
-const getData = (year: number, subfilter: string) => {
+const getData = (year: number, tiddlerSourceIterator: SourceIterator) => {
   if (!yearDates.has(year)) {
     const startDate = (ECharts as any).number
       .parseDate(`${year}-01-01`)
@@ -28,7 +29,9 @@ const getData = (year: number, subfilter: string) => {
   return [
     yearDates.get(year)!.map(([timeFmt, timeTW]) => {
       const count = $tw.wiki.filterTiddlers(
-        getFilterByDate(timeTW, subfilter),
+        getFilterByDate(timeTW),
+        undefined,
+        tiddlerSourceIterator,
       ).length;
       total += count;
       return [timeFmt, count];
@@ -57,8 +60,13 @@ const GitHubHeatMapAddon: IScriptAddon<any> = {
   shouldUpdate: (_, changedTiddlers) => $tw.utils.count(changedTiddlers) > 0,
   onUpdate: (myChart, _state, addonAttributes) => {
     const year = parseInt(addonAttributes.year, 10) || new Date().getFullYear();
-    const subfilter = addonAttributes.subfilter || '[!is[shadow]!prefix[$:/]]';
-    const [data, total] = getData(year, subfilter);
+    const subfilter =
+      addonAttributes.subfilter || '[all[tiddlers]!is[shadow]!is[system]]';
+    /** Use subfilter to narrow down tiddler pool before the array.map on dates */
+    const tiddlerSourceIterator = $tw.wiki.makeTiddlerIterator(
+      $tw.wiki.filterTiddlers(subfilter),
+    );
+    const [data, total] = getData(year, tiddlerSourceIterator);
     const tooltipFormatter = (dateValue: string, count: number) => {
       if (count === 0) {
         return checkIfChinese()
@@ -84,7 +92,9 @@ const GitHubHeatMapAddon: IScriptAddon<any> = {
       });
       const ul = $tw.utils.domMaker('ul', {});
       const tiddlers = $tw.wiki.filterTiddlers(
-        getFilterByDate(dateValue.replace(/-/g, ''), subfilter),
+        getFilterByDate(dateValue.replace(/-/g, '')),
+        undefined,
+        tiddlerSourceIterator,
       );
       const len = tiddlers.length;
       for (let i = 0; i < len; i++) {

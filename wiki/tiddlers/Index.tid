@@ -24,7 +24,7 @@ type: text/vnd.tiddlywiki
             ►
         </$button>
     </center>
-    <$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/GitHubHeatMap.js" $width="100%" $height="100%" year={{$:/state/heatmap!!year}}/>
+    <$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/GitHubHeatMap.js" $width="100%" $height="100%" year={{$:/state/heatmap!!year}} subfilter="[all[tiddlers]!is[shadow]!is[system]!field:calendarEntry[yes]]" />
 </div>
 
 <$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">

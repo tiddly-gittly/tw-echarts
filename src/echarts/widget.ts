@@ -427,31 +427,39 @@ class EChartsWidget extends Widget {
 
   // 异步更新
   async renderAddon() {
-    this.echartsInstance!.showLoading();
+    // when upgrading plugin, this maybe unloaded to be undefined.
+    if (!this.echartsInstance) return;
+    this.echartsInstance.showLoading();
     try {
       if (this.text === undefined) {
         if (!this.tiddlerTitle || !$tw.wiki.getTiddler(this.tiddlerTitle)) {
-          this.echartsInstance!.hideLoading();
+          this.echartsInstance.hideLoading();
           return;
         }
         const tiddler = $tw.wiki.getTiddler(this.tiddlerTitle)!.fields;
         const type = tiddler.type || 'text/vnd.tiddlywiki';
         if (type === 'text/vnd.tiddlywiki') {
-          this.echartsInstance!.setOption(
-            JSON.parse(
-              $tw.wiki.renderTiddler('text/plain', this.tiddlerTitle, {
-                variables: this.attributes,
-              }),
-            ),
+          const plainTextContent = $tw.wiki.renderTiddler(
+            'text/plain',
+            this.tiddlerTitle,
+            {
+              variables: this.attributes,
+            },
           );
+          // Allow using js style key without `""`, and allow list to have tailing comma, and allow having `//`
+          // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
+          const executedJSContent = new Function(
+            `return (${plainTextContent})`,
+          )();
+          this.echartsInstance.setOption(executedJSContent);
         } else if (type === 'application/json') {
-          this.echartsInstance!.setOption(
+          this.echartsInstance.setOption(
             JSON.parse($tw.wiki.getTiddlerText(this.tiddlerTitle)!),
           );
         } else if (type === 'application/javascript') {
           const _addon = require(this.tiddlerTitle);
           const addon = (_addon.default ?? _addon) as IScriptAddon;
-          addon.onUpdate(this.echartsInstance!, this.state, this.attributes);
+          addon.onUpdate(this.echartsInstance, this.state, this.attributes);
         }
       } else {
         const addon = new Function_(
@@ -463,10 +471,22 @@ class EChartsWidget extends Widget {
         );
         addon(this.echartsInstance, this.containerDom, ECharts, $tw);
       }
+      // add event listeners
+      const getHandler = (handlerCallback: string) => (params: unknown) =>
+        new Function_(
+          'params',
+          'parentWidget',
+          `(${handlerCallback})(params, parentWidget);`,
+        )(params, this.parentWidget);
+
+      const dblclickHandlerString = this.getAttribute('dblclick');
+      if (dblclickHandlerString) {
+        this.echartsInstance.on('dblclick', getHandler(dblclickHandlerString));
+      }
     } catch (error) {
       console.error(error);
     }
-    this.echartsInstance!.hideLoading();
+    this.echartsInstance.hideLoading();
   }
 }
 
