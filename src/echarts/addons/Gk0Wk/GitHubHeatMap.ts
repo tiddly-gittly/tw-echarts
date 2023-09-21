@@ -158,11 +158,11 @@ const GitHubHeatMapAddon: IScriptAddon<any> = {
         top: 175,
         pieces: [
           // 设置分段范围
-          { lte: 0, color: checkIfDarkMode() ? '#161B22' : '#EBEDF0' },
-          { gt: 0, lte: 3, color: '#0E4429' },
-          { gt: 3, lte: 7, color: '#006D32' },
-          { gt: 7, lte: 15, color: '#26A641' },
-          { gt: 15, color: '#39D353' },
+          { lte: 0, color: checkIfDarkMode() ? "#161B22" : "#EBEDF0" },
+          { gt: 0, lte: 3, color: checkIfDarkMode() ? "#0E4429" : "#39D353" },
+          { gt: 3, lte: 7, color: checkIfDarkMode() ? "#006D32" : "#26A641" },
+          { gt: 7, lte: 15, color: checkIfDarkMode() ? "#26A641" : "#006D32" },
+          { gt: 15, color: checkIfDarkMode() ? "#39D353" : "#0E4429" },
         ],
       },
       calendar: {
