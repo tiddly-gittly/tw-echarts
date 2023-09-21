@@ -101,6 +101,7 @@ interface ITheBrainState {
   historyTiddlers: string[];
   viewingTiddlers: Set<string>;
   focusing?: string;
+  zoomTimer: NodeJS.Timer;
 }
 
 const TheBrainAddon: IScriptAddon<ITheBrainState> = {
@@ -112,7 +113,23 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
       historyTiddlers: [],
       viewingTiddlers: new Set(),
       focusing: attributes.focussedTiddler,
+      // 缩放检测
+      zoomTimer: setInterval(() => {
+        const option = myChart.getOption() as any;
+        const zoom = option?.series?.[0]?.zoom;
+        if (typeof zoom !== 'number') {
+          return;
+        }
+        const newShow = zoom >= 1;
+        if (option.series[0].label.show !== newShow) {
+          option.series[0].label.show = newShow;
+          myChart.setOption(option);
+        }
+      }, 200),
     };
+  },
+  onUnmount: ({ zoomTimer }) => {
+    clearInterval(zoomTimer);
   },
   shouldUpdate: (
     { viewingTiddlers, focusing, currentlyFocused },
@@ -576,6 +593,9 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
           },
           labelLayout: {
             moveOverlap: true,
+          },
+          edgeLabel: {
+            show: false,
           },
           force: {
             repulsion: 50,

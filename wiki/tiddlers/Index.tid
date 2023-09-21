@@ -1,13 +1,13 @@
 created: 20211225111332641
 icon: $:/favicon.ico
-modified: 20230115082351288
+modified: 20230921071025797
 page-cover: banner.png
 tags: ECharts Readme
 title: Index
 type: text/vnd.tiddlywiki
 
-<div style="max-width: 800px; height: 230px; margin: 0 auto;">
-    <center style="font-size:20px;">
+<div style="max-width: 800px; height: 230px; margin: 0 auto; position: relative;">
+    <center style="font-size:20px; position: absolute; bottom: 28px; z-index: 1000; width: 100%; left: 0; right: 0; display: flex; align-items: center; justify-content: center;">
         <$button
             set="$:/state/heatmap!!year"
             setTo={{{ [{$:/state/heatmap!!year}subtract[1]!match[-1]] ~[<now YYYY>subtract[1]] }}}
@@ -15,7 +15,7 @@ type: text/vnd.tiddlywiki
 
         >
             ◄
-        </$button> ''<$text text={{{[{$:/state/heatmap!!year}match[]then<now YYYY>else{$:/state/heatmap!!year}]}}}/>'' <$button
+        </$button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<$button
             set="$:/state/heatmap!!year"
             setTo={{{ [{$:/state/heatmap!!year}add[1]!match[1]] ~[<now YYYY>add[1]] }}}
             class="tc-btn-invisible tc-tiddlylink"

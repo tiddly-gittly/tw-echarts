@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/lines-between-class-members */
-/* eslint-disable max-lines */
+/* eslint-disable max-lines, no-bitwise */
 import type {
   IParseTreeNode,
   IWidgetInitialiseOptions,
   IChangedTiddlers,
 } from 'tiddlywiki';
-// import { renderHeadless } from './renderHeadless';
 import type { IScriptAddon } from './scriptAddon';
 import { widget as Widget } from '$:/core/modules/widgets/widget.js';
 import * as ECharts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
@@ -164,26 +163,12 @@ class EChartsWidget extends Widget {
       ) {
         throw new Error('Widget need either $tiddler or $text attribute!');
       }
-      const ssr = (parent as any).isTiddlyWikiFakeDom;
+      const ssr = Boolean((parent as any).isTiddlyWikiFakeDom);
       this.rebuildInstance(ssr);
       this.initAddon();
       this.renderAddon();
       if (ssr) {
         // 如果是非浏览器环境，使用 SSR
-        // const node = renderHeadless(
-        //     this.text,
-        //     this.tiddlerTitle,
-        //     this.attributes,
-        //     this.theme,
-        //     this.uuid,
-        //     this.renderer,
-        //     this.fillSidebar,
-        //     this.document,
-        //   );
-        //   if (node) {
-        //     this.containerDom.setAttribute('id', this.uuid);
-        //     parent.appendChild(node);
-        //   }
         // https://echarts.apache.org/handbook/zh/how-to/cross-platform/server
         if (
           !Number.isSafeInteger(Number(this.width.replace('px', ''))) ||
@@ -231,7 +216,6 @@ class EChartsWidget extends Widget {
           }
         });
         if (counter > 0) {
-          // eslint-disable-next-line no-bitwise
           refreshFlag |= 2;
         }
         if (changedAttributes.$class) {
@@ -250,25 +234,25 @@ class EChartsWidget extends Widget {
           this.containerDom.style.height = this.height;
         }
         if ($tw.utils.count(changedAttributes) > counter) {
-          // eslint-disable-next-line no-bitwise
           refreshFlag |= 1;
         }
       }
       if (
         this.text === undefined &&
-        // eslint-disable-next-line no-bitwise
         !(refreshFlag & 1) &&
         ((this.tiddlerTitle && changedTiddlers[this.tiddlerTitle]) ||
           this.askForAddonUpdate(changedTiddlers, changedAttributes))
       ) {
-        // eslint-disable-next-line no-bitwise
         refreshFlag |= 1;
       }
+      // 检查自动主题时，黑暗模式是否切换了
+      const oldTheme = this.theme;
       this.execute();
-      // eslint-disable-next-line no-bitwise
+      if (oldTheme !== this.theme) {
+        refreshFlag |= 2;
+      }
       if (refreshFlag & 2) {
         const oldOption = this.rebuildInstance();
-        // eslint-disable-next-line no-bitwise
         if (!oldOption || refreshFlag & 1) {
           unmountAddon(
             this.text !== undefined ? undefined : oldAddonTitle,
@@ -280,7 +264,6 @@ class EChartsWidget extends Widget {
         } else {
           this.echartsInstance!.setOption(oldOption);
         }
-        // eslint-disable-next-line no-bitwise
       } else if (refreshFlag & 1) {
         this.renderAddon();
       }
@@ -297,6 +280,13 @@ class EChartsWidget extends Widget {
         return false;
       }
       const tiddler = $tw.wiki.getTiddler(this.tiddlerTitle)!.fields;
+      // 懒加载模式，还在加载，要等待
+      if (
+        '_is_skinny' in tiddler &&
+        $tw.wiki.getTiddlerText(this.tiddlerTitle) === null
+      ) {
+        return false;
+      }
       const type = tiddler.type || 'text/vnd.tiddlywiki';
       if (type === 'text/vnd.tiddlywiki' || type === 'application/json') {
         this._state = JSON.stringify(
@@ -398,6 +388,13 @@ class EChartsWidget extends Widget {
           return;
         }
         const tiddler = $tw.wiki.getTiddler(this.tiddlerTitle)!.fields;
+        // 懒加载模式，还在加载，要等待
+        if (
+          '_is_skinny' in tiddler &&
+          $tw.wiki.getTiddlerText(this.tiddlerTitle) === null
+        ) {
+          return;
+        }
         const type = tiddler.type || 'text/vnd.tiddlywiki';
         if (type === 'text/vnd.tiddlywiki' || type === 'application/json') {
           this.state =
@@ -439,6 +436,13 @@ class EChartsWidget extends Widget {
           return;
         }
         const tiddler = $tw.wiki.getTiddler(this.tiddlerTitle)!.fields;
+        // 懒加载模式，还在加载，要等待
+        if (
+          '_is_skinny' in tiddler &&
+          $tw.wiki.getTiddlerText(this.tiddlerTitle) === null
+        ) {
+          return;
+        }
         const type = tiddler.type || 'text/vnd.tiddlywiki';
         if (type === 'text/vnd.tiddlywiki') {
           const plainTextContent = $tw.wiki.renderTiddler(
@@ -449,8 +453,7 @@ class EChartsWidget extends Widget {
             },
           );
           // Allow using js style key without `""`, and allow list to have tailing comma, and allow having `//`
-          // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-          const executedJSContent = new Function(
+          const executedJSContent = new Function_(
             `return (${plainTextContent})`,
           )();
           this.echartsInstance.setOption(executedJSContent);
@@ -493,5 +496,5 @@ class EChartsWidget extends Widget {
 }
 
 exports.echarts = EChartsWidget;
-/* eslint-enable max-lines */
+/* eslint-enable max-lines, no-bitwise */
 /* eslint-enable @typescript-eslint/lines-between-class-members */
