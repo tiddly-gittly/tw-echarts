@@ -133,11 +133,12 @@ const GitHubHeatMapAddon: IScriptAddon<any> = {
       return cache;
     };
     const darkMode = checkIfDarkMode();
+    const chinese = checkIfChinese();
     myChart.setOption({
       title: {
         top: 0,
         left: 'center',
-        text: checkIfChinese()
+        text: chinese
           ? `今年产出 ${total} 篇文章`
           : `Produced ${total} tiddlers this year`,
       },
@@ -184,11 +185,11 @@ const GitHubHeatMapAddon: IScriptAddon<any> = {
         },
         dayLabel: {
           show: true,
-          nameMap: checkIfChinese() ? 'ZH' : 'EN',
+          nameMap: chinese ? 'ZH' : 'EN',
         },
         monthLabel: {
           show: true,
-          nameMap: checkIfChinese() ? 'ZH' : 'EN',
+          nameMap: chinese ? 'ZH' : 'EN',
         },
         yearLabel: {
           show: true,
