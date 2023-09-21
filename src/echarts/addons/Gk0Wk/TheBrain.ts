@@ -109,6 +109,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
     myChart.on('click', { dataType: 'node' }, (event: any) => {
       new $tw.Story().navigateTiddler(event.data.name);
     });
+    let fontScale = 4;
     return {
       historyTiddlers: [],
       viewingTiddlers: new Set(),
@@ -120,9 +121,26 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
         if (typeof zoom !== 'number') {
           return;
         }
-        const newShow = zoom >= 1;
+        let needUpdate = false;
+        const newFontScale = Math.floor(zoom * 4);
+        const newShow = zoom >= 2.5;
         if (option.series[0].label.show !== newShow) {
           option.series[0].label.show = newShow;
+          needUpdate = true;
+        }
+        if (newFontScale !== fontScale) {
+          fontScale = newFontScale;
+          option.series[0].label.fontSize = `${Math.min(
+            0.5 * fontScale + 2,
+            24,
+          )}px`;
+          needUpdate = true;
+          const root = option.series[0].nodes[0];
+          if (root.category === 0) {
+            root.label.fontSize = `${Math.min(0.75 * fontScale + 3, 30)}px`;
+          }
+        }
+        if (needUpdate) {
           myChart.setOption(option);
         }
       }, 200),
@@ -423,7 +441,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
         tiddlerTitle,
         (label, exist) => ({
           name: tiddlerTitle,
-          label: { formatter: label, fontSize: '10px' },
+          label: { formatter: label },
           category: 1,
           symbol: findIcon(tiddlerTitle),
           symbolSize: 3,
@@ -584,11 +602,12 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
           edges,
           categories: ifChinese ? CategoriesZh : CategoriesEn,
           roam: true,
-          draggable: true,
+          draggable: false,
           zoom: 4,
           label: {
             position: 'right',
             show: true,
+            fontSize: '10px',
             backgroundColor: 'transparent',
           },
           labelLayout: {
@@ -611,6 +630,15 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
           },
           itemStyle: {
             opacity: 0.9,
+          },
+          // 高亮聚焦
+          emphasis: {
+            disabled: false,
+            focus: 'adjacency',
+          },
+          blur: {
+            itemStyle: { opacity: 0.3 },
+            lineStyle: { opacity: 0.3 },
           },
         },
       ],
