@@ -63,7 +63,7 @@ const GitHubHeatMapAddon: IScriptAddon<any> = {
     const subfilter =
       addonAttributes.subfilter || '[all[tiddlers]!is[shadow]!is[system]]';
     /** Use subfilter to narrow down tiddler pool before the array.map on dates */
-    const tiddlerSourceIterator = $tw.wiki.makeTiddlerIterator(
+    const tiddlerSourceIterator = ($tw.wiki as any).makeTiddlerIterator(
       $tw.wiki.filterTiddlers(subfilter),
     );
     const [data, total] = getData(year, tiddlerSourceIterator);
@@ -132,6 +132,7 @@ const GitHubHeatMapAddon: IScriptAddon<any> = {
       }
       return cache;
     };
+    const darkMode = checkIfDarkMode();
     myChart.setOption({
       title: {
         top: 0,
@@ -158,11 +159,11 @@ const GitHubHeatMapAddon: IScriptAddon<any> = {
         top: 175,
         pieces: [
           // 设置分段范围
-          { lte: 0, color: checkIfDarkMode() ? '#161B22' : '#EBEDF0' },
-          { gt: 0, lte: 3, color: checkIfDarkMode() ? '#0E4429' : '#39D353' },
-          { gt: 3, lte: 7, color: checkIfDarkMode() ? '#006D32' : '#26A641' },
-          { gt: 7, lte: 15, color: checkIfDarkMode() ? '#26A641' : '#006D32' },
-          { gt: 15, color: checkIfDarkMode() ? '#39D353' : '#0E4429' },
+          { lte: 0, color: darkMode ? '#161B22' : '#EBEDF0' },
+          { gt: 0, lte: 3, color: darkMode ? '#0E4429' : '#39D353' },
+          { gt: 3, lte: 7, color: darkMode ? '#006D32' : '#26A641' },
+          { gt: 7, lte: 15, color: darkMode ? '#26A641' : '#006D32' },
+          { gt: 15, color: darkMode ? '#39D353' : '#0E4429' },
         ],
       },
       calendar: {
