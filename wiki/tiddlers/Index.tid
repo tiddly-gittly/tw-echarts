@@ -55,6 +55,12 @@ type: text/vnd.tiddlywiki
 * [[我该如何使用该插件?]]
 * [[请与大家分享你的工作!]]
 
+---
+
+!! 内置插件(欢迎提交)
+
+安装 echarts 后，你可以在 设置-插件-echarts-addons 中找到如下的页面:
+
 </$list>
 
 <$list filter="[<lang>!search[zh]]">
@@ -84,5 +90,15 @@ To use this plugin, or if you have any problems using it, please read the follow
 * [[How do I use the plugin?]]
 * [[Please share your work with everyone!]]
 
+---
+
+!! Built-in plugins (welcome to submit)
+
+After installing echarts, you can find the following page in Settings-Plugins-echarts-addons:
+
 </$list>
 </$list>
+
+<<<
+{{$:/plugins/Gk0Wk/echarts/addons}}
+<<<

@@ -1,4 +1,4 @@
-import type { IScriptAddon } from '../../scriptAddon';
+import type { IScriptAddon } from '../../../scriptAddon';
 
 const getPlatteColor = (name: string) =>
   $tw.wiki.renderText(

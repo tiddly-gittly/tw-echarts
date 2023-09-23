@@ -1,4 +1,7 @@
 title: $:/plugins/Gk0Wk/echarts/addons/TagCloud.ts
 type: application/javascript
 module-type: echarts-component
+caption: TagCloud
+echarts.author: Gk0Wk(Sttot)
+echarts.readme: {{$:/plugins/Gk0Wk/echarts/addons/TagCloud-readme}}
 Modern.TiddlyDev#IncludeSource: false

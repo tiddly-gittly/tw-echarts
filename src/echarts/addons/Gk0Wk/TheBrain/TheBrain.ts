@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import type { IParseTreeNode } from 'tiddlywiki';
-import type { IScriptAddon } from '../../scriptAddon';
+import type { IScriptAddon } from '../../../scriptAddon';
 
 const colors = [
   '#5470c6',
@@ -44,6 +44,9 @@ const attributes = new Set<string>([
   'aliasField',
   'excludeFilter',
   'previewDelay',
+  'focusBlur',
+  'previewTemplate',
+  'zoom',
 ]);
 const getPlatteColor = (name: string) =>
   $tw.wiki.renderText(
@@ -97,11 +100,11 @@ const getAliasOrTitle = (
 };
 
 interface ITheBrainState {
-  currentlyFocused?: string;
+  currentlyFocused?: Set<string>;
   historyTiddlers: string[];
   viewingTiddlers: Set<string>;
   focusing?: string;
-  zoomTimer: NodeJS.Timer;
+  unmount: () => void;
 }
 
 const TheBrainAddon: IScriptAddon<ITheBrainState> = {
@@ -109,45 +112,78 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
     myChart.on('click', { dataType: 'node' }, (event: any) => {
       new $tw.Story().navigateTiddler(event.data.name);
     });
+    // 缩放检测
     let fontScale = 4;
+    let originTriggerOn: string | undefined;
+    let originShowDelay: number | undefined;
+    const timer = setInterval(() => {
+      const option = myChart.getOption() as any;
+      const zoom = option?.series?.[0]?.zoom;
+      if (typeof zoom !== 'number') {
+        return;
+      }
+      if (!originTriggerOn) {
+        originTriggerOn = option.tooltip.triggerOn;
+        originShowDelay = option.tooltip.showDelay;
+      }
+      let needUpdate = false;
+      const newFontScale = Math.floor(zoom * 4);
+      const newShow = zoom >= 2.5;
+      const newShowDelay = zoom >= 3 ? originShowDelay : 2 * originShowDelay!;
+      if (option.series[0].label.show !== newShow) {
+        option.series[0].label.show = newShow;
+        option.tooltip.triggerOn = newShow ? originTriggerOn! : 'none';
+        needUpdate = true;
+      }
+      if (option.tooltip.showDelay !== newShowDelay) {
+        option.tooltip.showDelay = newShowDelay;
+        needUpdate = true;
+      }
+      if (newFontScale !== fontScale) {
+        fontScale = newFontScale;
+        option.series[0].label.fontSize = `${Math.min(
+          0.5 * fontScale + 2,
+          24,
+        )}px`;
+        option.series[0].lineStyle.width = Math.min(
+          Math.max(0.0625 * fontScale, 0.5),
+          6,
+        );
+        if (newFontScale > 160) {
+          option.series[0].label.position = 'inside';
+        } else if (newFontScale > 24) {
+          option.series[0].label.position = 'bottom';
+        } else {
+          option.series[0].label.position = 'right';
+        }
+        const rootBorderWidth = Math.min(0.75 * fontScale + 3, 30);
+        const rootFontSize = `${rootBorderWidth}px`;
+        for (const root of option.series[0].nodes) {
+          if (root.category === 0) {
+            root.label.fontSize = rootFontSize;
+            root.itemStyle.borderWidth = rootBorderWidth;
+          } else {
+            break;
+          }
+        }
+        needUpdate = true;
+      }
+      if (needUpdate) {
+        myChart.setOption(option);
+      }
+    }, 200);
+
     return {
       historyTiddlers: [],
       viewingTiddlers: new Set(),
       focusing: attributes.focussedTiddler,
-      // 缩放检测
-      zoomTimer: setInterval(() => {
-        const option = myChart.getOption() as any;
-        const zoom = option?.series?.[0]?.zoom;
-        if (typeof zoom !== 'number') {
-          return;
-        }
-        let needUpdate = false;
-        const newFontScale = Math.floor(zoom * 4);
-        const newShow = zoom >= 2.5;
-        if (option.series[0].label.show !== newShow) {
-          option.series[0].label.show = newShow;
-          needUpdate = true;
-        }
-        if (newFontScale !== fontScale) {
-          fontScale = newFontScale;
-          option.series[0].label.fontSize = `${Math.min(
-            0.5 * fontScale + 2,
-            24,
-          )}px`;
-          needUpdate = true;
-          const root = option.series[0].nodes[0];
-          if (root.category === 0) {
-            root.label.fontSize = `${Math.min(0.75 * fontScale + 3, 30)}px`;
-          }
-        }
-        if (needUpdate) {
-          myChart.setOption(option);
-        }
-      }, 200),
+      unmount: () => {
+        clearInterval(timer);
+      },
     };
   },
-  onUnmount: ({ zoomTimer }) => {
-    clearInterval(zoomTimer);
+  onUnmount: ({ unmount }) => {
+    unmount();
   },
   shouldUpdate: (
     { viewingTiddlers, focusing, currentlyFocused },
@@ -160,7 +196,9 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
         attributes.has(attribute),
       ) ||
       (focusing === undefined &&
-        $tw.wiki.getTiddlerText('$:/temp/focussedTiddler') !== currentlyFocused)
+        currentlyFocused?.has(
+          $tw.wiki.getTiddlerText('$:/temp/focussedTiddler') ?? '',
+        ) !== true)
     );
   },
   // eslint-disable-next-line complexity
@@ -174,24 +212,48 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
       aliasField?: string;
       excludeFilter?: string;
       previewDelay?: string;
+      focusBlur?: string;
+      previewTemplate?: string;
+      zoom?: string;
     },
   ) => {
     /** 参数：focussedTiddler 是图的中央节点 */
-    let focussedTiddler =
-      addonAttributes.focussedTiddler ||
-      $tw.wiki.getTiddlerText('$:/temp/focussedTiddler')!;
-    state.viewingTiddlers.clear();
-    state.focusing = addonAttributes.focussedTiddler;
-    state.currentlyFocused = focussedTiddler;
-    if (!focussedTiddler) {
+    let focussedTiddlers = new Set<string>();
+    if (addonAttributes.focussedTiddler) {
+      for (const title of $tw.wiki.filterTiddlers(
+        addonAttributes.focussedTiddler,
+      )) {
+        focussedTiddlers.add(title);
+      }
+    } else {
+      const t = $tw.wiki.getTiddlerText('$:/temp/focussedTiddler');
+      if (t) {
+        focussedTiddlers.add(t);
+      }
+    }
+    if (focussedTiddlers.size === 0) {
       return;
     }
-    state.viewingTiddlers.add(focussedTiddler);
-    if ($tw.wiki.getTiddler(focussedTiddler)?.fields['draft.of']) {
-      focussedTiddler = $tw.wiki.getTiddler(focussedTiddler)!.fields[
-        'draft.of'
-      ] as string;
+    // draft
+    const t = new Set<string>();
+    for (const title of focussedTiddlers) {
+      const draftOf = $tw.wiki.getTiddler(title)?.fields['draft.of'];
+      if (draftOf) {
+        t.add(draftOf as string);
+      } else {
+        t.add(title);
+      }
     }
+    focussedTiddlers = t;
+
+    // State
+    state.focusing = addonAttributes.focussedTiddler;
+    state.currentlyFocused = focussedTiddlers;
+    state.viewingTiddlers.clear();
+    for (const tiddler of focussedTiddlers) {
+      state.viewingTiddlers.add(tiddler);
+    }
+
     const nodes: any[] = [];
     const edges: any[] = [];
     const ifChinese =
@@ -201,52 +263,56 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
     if (Number.isNaN(levels)) {
       levels = 1;
     }
-    levels = Math.max(levels, 0);
+    levels = Math.max(levels, -1);
     /** 参数：graphTitle 指定右下角显示的标题 */
     const graphTitle =
       addonAttributes.graphTitle || (ifChinese ? '聚焦' : 'Focusing Map');
     /** 参数：aliasField 用于指定展示为节点标题的字段，例如 caption */
-    const aliasField =
-      addonAttributes.aliasField === ''
-        ? undefined
-        : addonAttributes.aliasField;
+    const aliasField = addonAttributes.aliasField || 'caption';
     /** 参数：excludeFilter 用于排除部分节点 */
     const excludeFilter =
       addonAttributes.excludeFilter === ''
         ? undefined
         : $tw.wiki.compileFilter(
-            addonAttributes.excludeFilter ?? '[prefix[$:/]]',
+            addonAttributes.excludeFilter ?? '[prefix[$:/]] [is[draft]]',
           );
     const nodeMap: Map<string, boolean> = new Map();
 
     // 聚焦点
-    nodes.push({
-      name: focussedTiddler,
-      // fixed: true,
-      category: 0,
-      label: {
-        formatter: getAliasOrTitle(focussedTiddler, aliasField)[0],
-        fontWeight: 'bold',
-        fontSize: '15px',
-      },
-      symbol: findIcon(focussedTiddler),
-      symbolSize: 15,
-      select: {
-        disabled: true,
-      },
-      itemStyle: {
-        opacity: 1,
-        borderColor: `${colors[0]}66`,
-        borderWidth: 15,
-      },
-      isTag: false,
-      tooltip: {
-        show: false,
-      },
-    });
+    for (const focussedTiddler of focussedTiddlers) {
+      nodes.push({
+        name: focussedTiddler,
+        // fixed: true,
+        category: 0,
+        label: {
+          formatter: getAliasOrTitle(focussedTiddler, aliasField)[0],
+          fontWeight: 'bold',
+          fontSize: '15px',
+        },
+        symbol: findIcon(focussedTiddler),
+        symbolSize: 15,
+        select: {
+          disabled: true,
+        },
+        itemStyle: {
+          opacity: 1,
+          borderColor: `${colors[0]}66`,
+          borderWidth: 15,
+        },
+        isTag: false,
+        tooltip: {
+          show: false,
+        },
+      });
+    }
 
     // 初始化：当前关注的 Tiddler
-    let tiddlerQueue = [focussedTiddler];
+    let tiddlerQueue: string[] = [];
+    nodeMap.set('', false);
+    for (const tiddler of focussedTiddlers) {
+      tiddlerQueue.push(tiddler);
+      nodeMap.set(tiddler, true);
+    }
     if (excludeFilter) {
       const tiddlers = new Set<string>(tiddlerQueue);
       for (const excluded of excludeFilter.call($tw.wiki, tiddlerQueue)) {
@@ -254,8 +320,6 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
       }
       tiddlerQueue = Array.from(tiddlers);
     }
-    nodeMap.set(focussedTiddler, true);
-    nodeMap.set('', false);
 
     const tryPush = (
       title: string,
@@ -293,7 +357,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
             (label, exist) => ({
               name: linksTo,
               label: { formatter: label },
-              itemStyle: { opacity: exist ? 1 : 0.65 },
+              itemStyle: { opacity: exist ? 1 : 0.5 },
               symbol: findIcon(linksTo),
               category: 2,
               isTag: false,
@@ -315,7 +379,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
             (label, exist) => ({
               name: backlinksFrom,
               label: { formatter: label },
-              itemStyle: { opacity: exist ? 1 : 0.65 },
+              itemStyle: { opacity: exist ? 1 : 0.5 },
               symbol: findIcon(backlinksFrom),
               category: 3,
               isTag: false,
@@ -331,14 +395,13 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
           );
         }
         // 标签
-        for (const tag of $tw.wiki.getTiddler(focussedTiddler)?.fields?.tags ??
-          []) {
+        for (const tag of $tw.wiki.getTiddler(tiddler)?.fields?.tags ?? []) {
           tryPush(
             tag,
             (label, exist) => ({
               name: tag,
               label: { formatter: label },
-              itemStyle: { opacity: exist ? 1 : 0.65 },
+              itemStyle: { opacity: exist ? 1 : 0.5 },
               symbol: findIcon(tag),
               category: 4,
               isTag: true,
@@ -360,7 +423,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
             (label, exist) => ({
               name: tagBy,
               label: { formatter: label },
-              itemStyle: { opacity: exist ? 1 : 0.65 },
+              itemStyle: { opacity: exist ? 1 : 0.5 },
               symbol: findIcon(tagBy),
               category: 5,
               isTag: false,
@@ -405,7 +468,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
                 (label, exist) => ({
                   name: transcludeTiddler,
                   label: { formatter: label },
-                  itemStyle: { opacity: exist ? 1 : 0.65 },
+                  itemStyle: { opacity: exist ? 1 : 0.5 },
                   symbol: findIcon(transcludeTiddler),
                   category: 6,
                   isTag: false,
@@ -426,49 +489,51 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
     }
 
     // 历史路径
-    let nextTiddler = focussedTiddler;
-    const historyMap: Set<string> = new Set();
-    for (let index = state.historyTiddlers.length - 2; index >= 0; index--) {
-      const tiddlerTitle = state.historyTiddlers[index];
-      if (
-        historyMap.has(tiddlerTitle) ||
-        tiddlerTitle === nextTiddler ||
-        tiddlerTitle.startsWith('$:/')
-      ) {
-        continue;
+    if (focussedTiddlers.size === 1) {
+      const focussedTiddler = focussedTiddlers.values().next().value;
+      let nextTiddler = focussedTiddler;
+      const historyMap: Set<string> = new Set();
+      for (let index = state.historyTiddlers.length - 2; index >= 0; index--) {
+        const tiddlerTitle = state.historyTiddlers[index];
+        if (
+          historyMap.has(tiddlerTitle) ||
+          tiddlerTitle === nextTiddler ||
+          tiddlerTitle.startsWith('$:/')
+        ) {
+          continue;
+        }
+        tryPush(
+          tiddlerTitle,
+          (label, exist) => ({
+            name: tiddlerTitle,
+            label: { formatter: label },
+            category: 1,
+            symbol: findIcon(tiddlerTitle),
+            symbolSize: 3,
+            itemStyle: { opacity: exist ? 0.65 : 0.4 },
+            isTag: false,
+          }),
+          // eslint-disable-next-line @typescript-eslint/no-loop-func
+          exist => ({
+            source: tiddlerTitle,
+            target: nextTiddler,
+            lineStyle: {
+              color: colors[1],
+              type: exist ? 'dashed' : 'dotted',
+              opacity: 0.5,
+            },
+          }),
+        );
+        nextTiddler = tiddlerTitle;
       }
-      tryPush(
-        tiddlerTitle,
-        (label, exist) => ({
-          name: tiddlerTitle,
-          label: { formatter: label },
-          category: 1,
-          symbol: findIcon(tiddlerTitle),
-          symbolSize: 3,
-          itemStyle: { opacity: exist ? 0.65 : 0.4 },
-          isTag: false,
-        }),
-        // eslint-disable-next-line @typescript-eslint/no-loop-func
-        exist => ({
-          source: tiddlerTitle,
-          target: nextTiddler,
-          lineStyle: {
-            color: colors[1],
-            type: exist ? 'dashed' : 'dotted',
-            opacity: 0.5,
-          },
-        }),
-      );
-      nextTiddler = tiddlerTitle;
+      // 更新历史
+      const historyIndex = state.historyTiddlers.indexOf(focussedTiddler);
+      if (historyIndex > -1) {
+        state.historyTiddlers.splice(historyIndex, 1);
+      }
+      state.historyTiddlers.push(focussedTiddler);
+      state.historyTiddlers.slice(-10);
     }
-
-    // 更新历史
-    const historyIndex = state.historyTiddlers.indexOf(focussedTiddler);
-    if (historyIndex > -1) {
-      state.historyTiddlers.splice(historyIndex, 1);
-    }
-    state.historyTiddlers.push(focussedTiddler);
-    state.historyTiddlers.slice(-10);
 
     let lastTitle = '';
     let cache: Element[] | undefined;
@@ -520,7 +585,8 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
           $tw.wiki
             .makeWidget(
               $tw.wiki.parseTiddler(
-                '$:/plugins/Gk0Wk/echarts/addons/TheBrainPopup',
+                addonAttributes.previewTemplate ||
+                  '$:/plugins/Gk0Wk/echarts/addons/TheBrainPopup',
               ),
               {
                 document,
@@ -541,10 +607,15 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
       return cache;
     };
 
+    let zoom = Number(addonAttributes.zoom);
+    if (Number.isNaN(zoom) || Number.isFinite(zoom) || zoom <= 0) {
+      zoom = 4;
+    }
     let previewDelay = Number(addonAttributes.previewDelay || '1000');
     if (!Number.isSafeInteger(previewDelay)) {
       previewDelay = -1;
     }
+    const focusBlur = addonAttributes.focusBlur?.toLowerCase?.() !== 'false';
     myCharts.setOption({
       backgroundColor: 'transparent',
       legend: [
@@ -576,7 +647,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
         triggerOn: previewDelay >= 0 ? 'mousemove' : 'none',
         enterable: true,
         showDelay: Math.max(0, previewDelay),
-        hideDelay: 800,
+        hideDelay: 200,
         confine: true,
         textStyle: {
           color: 'inherit',
@@ -603,7 +674,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
           categories: ifChinese ? CategoriesZh : CategoriesEn,
           roam: true,
           draggable: false,
-          zoom: 4,
+          zoom,
           label: {
             position: 'right',
             show: true,
@@ -633,8 +704,9 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
           },
           // 高亮聚焦
           emphasis: {
-            disabled: false,
+            disabled: !focusBlur,
             focus: 'adjacency',
+            scale: 1.2,
           },
           blur: {
             itemStyle: { opacity: 0.3 },

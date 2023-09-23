@@ -5,7 +5,7 @@ import type {
   IWidgetInitialiseOptions,
   IChangedTiddlers,
 } from 'tiddlywiki';
-import type { IScriptAddon } from './scriptAddon';
+import type { IScriptAddon } from '../scriptAddon';
 import { widget as Widget } from '$:/core/modules/widgets/widget.js';
 import * as ECharts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
 

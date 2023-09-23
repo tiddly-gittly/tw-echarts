@@ -1,0 +1,12 @@
+title: $:/plugins/Gk0Wk/echarts/addons
+type: text/vnd.tiddlywiki
+
+<div class="tc-more-sidebar">
+    <$macrocall
+        $name="tabs"
+        tabsList="[all[shadows+tiddlers]has[echarts.author]get[echarts.author]unique[]sort[]]"
+        default={{{ [all[shadows+tiddlers]has[echarts.author]get[echarts.author]unique[]sort[]first[]] }}}
+        class="tc-vertical"
+        template="$:/plugins/Gk0Wk/echarts/addon-author-template"
+    />
+</div>

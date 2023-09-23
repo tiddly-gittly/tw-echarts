@@ -1,0 +1,58 @@
+title: $:/plugins/Gk0Wk/echarts/addons/TheBrain-readme
+
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/TheBrain.js" focussedTiddler="$:/plugins/Gk0Wk/echarts" excludeFilter="[is[draft]]" $width="100%" $height="300px" />
+
+<$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
+<$list filter="[<lang>search[zh]]">
+
+聚焦图，灵感来源于 <$text text="TheBrain" /> 与知识图谱理论，目的是在用户阅读条目时提供信息侧载，用直观的视觉信息告诉用户与该条目相关的信息，帮助用户在茫茫的知识海洋中自由漫步。
+
+因该图关注的是当前条目所发散的信息，因此成为「聚焦」，与Obsidian的全局知识图谱不同（全局图谱正在设计中，欢迎提出建议）。
+
+一般的使用方法：将该图放置于侧栏，并下载安装 <$text text="$:/plugins/Gk0Wk/focused-tiddler" /> 插件（[[CPL|https://tw-cpl.netlify.app/]]中有）。具体操作为：
+
+# 创建一个条目，并赋予其 `$:/tags/SideBar` 标签；
+# 其中写如下内容：`<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/TheBrain.js" />`；
+# 设置一下`caption`字段，作为侧栏的标题
+# 保存，即可以在侧边栏看到它。
+
+聚焦图提供了一些参数，可以根据这些参数设定其行为：
+
+* `focussedTiddler` 用于设定当前聚焦的条目，即从该条目开始向外扩展。默认使用 <$text text="$:/plugins/Gk0Wk/focused-tiddler" /> 提供的当前聚焦的条目。支持使用过滤表达式包含多个条目，如 `[tag[A]]`；
+* `levels` 用于设定图的层级，即从当前条目开始，向外扩展几层。默认为 `1`，`Infinity`为无限扩展直到遍历所有关系，@@color:red; 层级越多就越有可能卡死页面，自己当心 @@；
+* `graphTitle` 用于设定图的标题，即侧边栏的标题。默认为 `聚焦`；
+* `aliasField` 用于设定别名字段，即在聚焦图中，显示的是别名字段的内容。默认为 `caption`；
+* `excludeFilter` 用于设定排除的过滤器，即在聚焦图中，排除哪些条目。默认为 `[prefix[$:/]] [is[draft]]`，即排除所有系统条目和被编辑的条目；
+* `previewDelay` 用于设定预览延迟，即鼠标悬停在节点上多久后显示预览。默认为 `1000`，即 1000ms，`-1` 表示不显示预览；
+* `focusBlur` 在鼠标悬浮在某个节点上时，其他节点是否变淡。默认为 `true`，即变淡；
+* `previewTemplate` 用于设定预览模板，渲染预览内容。默认为 `$:/plugins/Gk0Wk/echarts/addons/TheBrainPopup`；
+* `zoom` 用于设定初始缩放比例。默认为 `4`。
+
+</$list>
+<$list filter="[<lang>!search[zh]]">
+
+Focus map, inspired by <$text text="TheBrain" /> and knowledge graph theory, aims to provide information side-loading when users read a tiddler, and use intuitive visual information to tell users the information related to the tiddler, helping users to freely walk in the vast ocean of knowledge.
+
+Because the graph focuses on the information diverging from the current tiddler, it names "focus", which is different from the global knowledge graph of Obsidian (the global graph is under design, suggestions are welcome).
+
+General usage: place the graph in the sidebar, and install the <$text text="$:/plugins/Gk0Wk/focused-tiddler" /> plugin (available in [[CPL|https://tw-cpl.netlify.app/]]). The specific operation is:
+
+# Create a tiddler and assign it the `$:/tags/SideBar` tag;
+# Write the following content in it: `<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/TheBrain.js" />`;
+# Set the `caption` field as the title of the sidebar;
+# Save, and you can see it in the sidebar.
+
+The focus map provides some parameters, which can be used to set its behavior:
+
+* `focussedTiddler` is used to set the current focused tiddler, that is, expand from this tiddler. The default is the current focused tiddler provided by <$text text="$:/plugins/Gk0Wk/focused-tiddler" />. Multiple tiddlers can be included in the filter expression, such as `[tag[A]]`;
+* `levels` is used to set the level of the graph, that is, expand several levels from the current tiddler. The default is `1`, `Infinity` means unlimited expansion until all relationships are traversed, @@color:red; the more levels, the more likely it is to freeze the page, be careful @@;
+* `graphTitle` is used to set the title of the graph, that is, the title of the sidebar. The default is `Focusing Map`;
+* `aliasField` is used to set the alias field, that is, the content of the alias field is displayed in the focus map. The default is `caption`;
+* `excludeFilter` is used to set the exclude filter, that is, which tiddlers are excluded in the focus map. The default is `[prefix[$:/]] [is[draft]]`, that is, exclude all system tiddlers and editing tiddlers;
+* `previewDelay` is used to set the preview delay, that is, how long the preview is displayed after the mouse hovers over the node. The default is `1000`, that is, 1000ms, `-1` means no preview;
+* `focusBlur` is used to set whether other nodes become lighter when the mouse hovers over a node. The default is `true`, that is, lighter;
+* `previewTemplate` is used to set the preview template to render the preview content. The default is `$:/plugins/Gk0Wk/echarts/addons/TheBrainPopup`;
+* `zoom` is used to set the initial zoom ratio. The default is `4`.
+
+</$list>
+</$list>

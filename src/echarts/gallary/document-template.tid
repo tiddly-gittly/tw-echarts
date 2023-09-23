@@ -1,0 +1,31 @@
+title: $:/plugins/Gk0Wk/echarts/addon-document-template
+type: text/vnd.tiddlywiki
+
+!! <$text text={{{ [<currentTab>get[caption]] }}} />
+
+@@background:#0003;padding:5px 10px;border-left:3px solid #03fffc;font-weight:750;background-image:linear-gradient(0,#03fffc12,#03fffc12);
+<$list filter="[<currentTab>has[echarts.author]]">
+<$list filter="[[$:/language]get[text]removeprefix[$:/languages/]else[en-GB]]" variable="lang">
+<$list filter="[<lang>search[zh]]">
+
+作者: <$text text={{{ [<currentTab>get[echarts.author]] }}} />
+
+插件: <<currentTab>>
+
+文档需要改进？希望分享经验？欢迎提 [[Issue|https://github.com/tiddly-gittly/tw-echarts/issues]] 或者 QQ 群里联系我！
+
+</$list>
+<$list filter="[<lang>!search[zh]]">
+
+Author: <$text text={{{ [<currentTab>get[echarts.author]] }}} />
+
+Addon: <<currentTab>>
+
+Need to improve the documentation? Want to share your experience? Feel free for an [[Issue|https://github.com/tiddly-gittly/tw-echarts/issues]]!
+
+</$list>
+</$list>
+</$list>
+@@
+
+<$transclude mode="block" tiddler=<<currentTab>> field="echarts.readme" />

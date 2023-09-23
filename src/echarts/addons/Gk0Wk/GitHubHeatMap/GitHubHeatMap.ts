@@ -1,5 +1,5 @@
 import type { SourceIterator } from 'tiddlywiki';
-import { IScriptAddon } from '../../scriptAddon';
+import { IScriptAddon } from '../../../scriptAddon';
 import * as ECharts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
 
 const getFilterByDate = (date: string) =>

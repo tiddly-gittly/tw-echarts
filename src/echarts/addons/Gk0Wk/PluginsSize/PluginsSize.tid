@@ -1,5 +1,8 @@
 title: $:/plugins/Gk0Wk/echarts/addons/PluginsSize
 type: text/vnd.tiddlywiki
+caption: PluginsSize
+echarts.author: Gk0Wk(Sttot)
+echarts.readme: {{$:/plugins/Gk0Wk/echarts/addons/PluginsSize-readme}}
 
 `{
   "tooltip": {
