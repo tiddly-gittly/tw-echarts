@@ -1,0 +1,54 @@
+created: 20231007055729671
+modified: 20231007080002757
+tags: 基础折线图
+title: 折线图-模板使用
+type: text/vnd.tiddlywiki
+
+哈哈，没想到吧，还有更好的玩法。
+
+如果我们想要把这个作为模板进行使用怎么办呢？明年国庆的时候又能拿出来用了。
+
+这里我们就需要把里面的筛选器改成变量`<<currentTiddler>>`了。但因为我们还需要在addon里进行传递，所以我们需要另一个变量`graphRootTiddler`，那我们怎么把这两个变量给连起来呢？这里我们就需要用到`<$let>`微件了。
+
+!!! 直接上代码！
+
+<$macrocall $name=code src=```<$let 
+graphRootTiddler=<<currentTiddler>>
+>
+{
+  "xAxis": {
+    "type": "category",
+    "data": [<$list filter="[tag<graphRootTiddler>]">'<<currentTiddler>>', </$list>]
+  },
+  "yAxis": {
+    "type": "value"
+  },
+  "series": [
+    {
+      "data": [<$list filter="[tag<graphRootTiddler>]">'{{!!game-time}}', </$list>],
+      "type": "line",
+			 "type": "line",
+			 "label": {
+        "show": "true",
+        "position": 'top'
+      }
+    }
+  ]
+}
+</$let>
+```/>
+
+这里我们把`[tag[国庆七天]]`改成了`[tag<graphRootTiddler>]`。这样就可以进行变量传递了。
+
+同样我们把上面的代码保存到[[折线图-模板使用-addon]]条目里。然后我们需要去[[国庆七天]]里写下面代码。
+
+<$macrocall $name=code src=```<$echarts $tiddler="折线图-模板使用-addon" currentTiddler=<<currentTiddler>> $height="500px"/>
+```/>
+
+这样就会把国庆七天传递到`<<currentTiddler>>`，在addon里则会通过`<$let>`微件，把`<<currentTiddler>>`变成`<<graphRootTiddler>>`变量。这样两个变量就不会冲突了。然后自动生成图谱了。
+
+你可以去[[国庆七天]]检查有没有生成图谱。
+
+{{国庆七天}}
+
+当然你还可以结合`detail`，做成可以点击展开的。然后还可以加上`$:/tags/ViewTemplate`标签和`<$list>`微件选择性的展示。这些就留给你去探索了。

@@ -1,0 +1,30 @@
+created: 20231007060411057
+modified: 20231007060421427
+tags: 折线图-模板使用
+title: 折线图-模板使用-addon
+type: text/vnd.tiddlywiki
+
+<$let 
+graphRootTiddler=<<currentTiddler>>
+>
+{
+  "xAxis": {
+    "type": "category",
+    "data": [<$list filter="[tag<graphRootTiddler>]">'<<currentTiddler>>', </$list>]
+  },
+  "yAxis": {
+    "type": "value"
+  },
+  "series": [
+    {
+      "data": [<$list filter="[tag<graphRootTiddler>]">'{{!!game-time}}', </$list>],
+      "type": "line",
+			 "type": "line",
+			 "label": {
+        "show": "true",
+        "position": 'top'
+      }
+    }
+  ]
+}
+</$let>

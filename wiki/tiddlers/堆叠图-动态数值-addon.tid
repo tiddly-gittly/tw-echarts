@@ -1,0 +1,120 @@
+created: 20231007082232946
+modified: 20231007082456654
+tags: 堆叠图-动态数值
+title: 堆叠图-动态数值-addon
+type: text/vnd.tiddlywiki
+
+{
+  "title": {
+    "text": "Stacked Area Chart"
+  },
+  "tooltip": {
+    "trigger": "axis",
+    "axisPointer": {
+      "type": "cross",
+      "label": {
+        "backgroundColor": "#6a7985"
+      }
+    }
+  },
+  "legend": {
+    "data": ['生活', '学习', '娱乐', '活动', '工作']
+  },
+  "toolbox": {
+    "feature": {
+      "saveAsImage": {}
+    }
+  },
+  "grid": {
+    "left": "3%",
+    "right": "4%",
+    "bottom": "3%",
+    "containLabel": "true"
+  },
+  "xAxis": [
+    {
+      "type": "category",
+      "boundaryGap": "false",
+      "data": [
+        <$list filter="[tag[周期测试示例]]">'{{!!title}}', </$list>
+        ]
+    }
+  ],
+  "yAxis": [
+    {
+      "type": "value"
+    }
+  ],
+  "series": [
+    {
+      "name": "生活",
+      "type": "line",
+      "stack": "Total",
+      "label": {
+        "show": "true",
+        "position": "top"
+      },
+      "areaStyle": {},
+      "emphasis": {
+        "focus": "series"
+      },
+      "data": [<$list filter="[tag[周期测试示例]]">'{{!!生活}}', </$list>]
+    },
+    {
+      "name": "学习",
+      "type": "line",
+      "stack": "Total",
+      "label": {
+        "show": "true",
+        "position": "top"
+      },
+      "areaStyle": {},
+      "emphasis": {
+        "focus": "series"
+      },
+      "data": [<$list filter="[tag[周期测试示例]]">'{{!!学习}}', </$list>]
+    },
+    {
+      "name": "娱乐",
+      "type": "line",
+      "stack": "Total",
+      "label": {
+        "show": "true",
+        "position": "top"
+      },
+      "areaStyle": {},
+      "emphasis": {
+        "focus": "series"
+      },
+      "data": [<$list filter="[tag[周期测试示例]]">'{{!!娱乐}}', </$list>]
+    },
+    {
+      "name": "活动",
+      "type": "line",
+      "stack": "Total",
+      "label": {
+        "show": "true",
+        "position": "top"
+      },
+      "areaStyle": {},
+      "emphasis": {
+        "focus": "series"
+      },
+      "data": [<$list filter="[tag[周期测试示例]]">'{{!!活动}}', </$list>]
+    },
+    {
+      "name": "工作",
+      "type": "line",
+      "stack": "Total",
+      "label": {
+        "show": "true",
+        "position": "top"
+      },
+      "areaStyle": {},
+      "emphasis": {
+        "focus": "series"
+      },
+      "data": [<$list filter="[tag[周期测试示例]]">'{{!!工作}}', </$list>]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+created: 20231007052934282
+modified: 20231007075916947
+tags: 基础折线图
+title: 折线图-动态数值
+type: text/vnd.tiddlywiki
+
+[[折线图-给定数值]]学会了吗？是不是很简单呢？
+
+但通常我们使用中，是把数据存储在各个条目里。比如我想展示[[国庆七天]]在家玩游戏的时长，那这些数据如何展示呢？玩游戏的时长存储在game-time字段里。
+
+首先我们需要通过筛选器构造出数据集，然后再放到微件里使用。
+
+而数据集我们则是独立成一个条目引用，不然因为引号太多，引号里的内容就会失效。而独立成另一个条目，则需要给原有的键值对都加上引号，并且删除最后一个分号，和删除开头的`option=`，具体可参看[[论坛|https://talk.tiddlywiki.org/t/echarts-bringing-amazing-visualization-tools-to-tiddlywiki/1944/11]]。
+
+因为给定数值中我们使用的是text，而这里我们使用的是tiddler。存在着细微的差异。
+
+ok，我们开始构造吧。构造数据集需要用到[[list微件|https://bramchen.github.io/tw5-docs/zh-Hans/#ListWidget]]。
+
+通过下面代码，我们就可以把七天的条目和相应的game-time字段给生成出来。
+
+<$macrocall $name=code src=```<$list filter="[tag[国庆七天]]">
+
+<$link><<currentTiddler>></$link> {{!!game-time}}
+
+</$list>
+```/>
+
+<$list filter="[tag[国庆七天]]">
+
+<$link><<currentTiddler>></$link> {{!!game-time}}
+
+</$list>
+
+而我们需要的数据集里关键的就是两个data数组。通过上面的方式我们可以生成下面这种data。
+
+<$macrocall $name=code src=```"data": [<$list filter="[tag[国庆七天]]">'<<currentTiddler>>', </$list>]
+```/>
+
+```
+data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+```
+
+"data": [<$list filter="[tag[国庆七天]]">'<<currentTiddler>>', </$list>]
+
+你看这两个是不是非常相似？而标题可以这样实现，game-time字段也肯定可以这样实现。
+
+"data": [<$list filter="[tag[国庆七天]]">'{{!!game-time}}', </$list>]
+
+获得了两个关键的数据数组，就可以大胆构造我们想要的数据集了。
+
+!!! 直接上代码！
+
+<$macrocall $name=code src=```{
+  "xAxis": {
+    "type": "category",
+    "data": [<$list filter="[tag[国庆七天]]">'<<currentTiddler>>', </$list>]
+  },
+  "yAxis": {
+    "type": "value"
+  },
+  "series": [
+    {
+      "data": [<$list filter="[tag[国庆七天]]">'{{!!game-time}}', </$list>],
+      "type": "line",
+			 "type": "line",
+			 "label": {
+        "show": "true",
+        "position": 'top'
+      }
+    }
+  ]
+}
+```/>
+
+接下来，我们把上面的代码保存到[[折线图-动态数值-addon]]中。然后通过echarts微件进行调用。
+
+<$macrocall $name=code src=```<$echarts $tiddler="折线图-动态数值-addon"  $height="500px"/>
+```/>
+
+<$echarts $tiddler="折线图-动态数值-addon"  $height="500px"/>
+
+可以看到这位同学假期开始时还是很疯狂地玩游戏的，但临到假期结束时还是收心了，哈哈。

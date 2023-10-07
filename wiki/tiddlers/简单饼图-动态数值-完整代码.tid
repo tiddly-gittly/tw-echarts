@@ -1,0 +1,58 @@
+created: 20231007072830872
+modified: 20231007073029725
+tags: 简单饼图-动态数值
+title: 简单饼图-动态数值-完整代码
+type: text/vnd.tiddlywiki
+
+\define pie-chart()
+option = {
+  title: {
+    text: '简单饼图',
+    subtext: '动态数据',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: '{b} : {c} ({d}%)'
+  },
+  legend: {
+    bottom: 10,
+    left: 'center',
+    data: ['国庆条目', '普通条目', '影子条目', '教程条目', 'ECharts条目']
+  },
+  series: [
+    {
+      type: 'pie',
+      radius: '65%',
+      center: ['50%', '50%'],
+      selectedMode: 'single',
+      data: [
+        {value: $(国庆条目)$,name: '国庆条目' },
+        { value: $(普通条目)$, name: '普通条目' },
+        { value: $(影子条目)$, name: '影子条目' },
+        { value: $(教程条目)$, name: '教程条目' },
+        { value: $(ECharts条目)$, name: 'ECharts条目' }
+      ],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+      }
+    }
+  ]
+};
+\end
+
+<$let
+	国庆条目={{{[!is[system]tag[国庆七天]sort[title]count[]]}}}
+    普通条目={{{[!is[system]sort[title]count[]]}}}
+    影子条目={{{[is[tiddler]is[shadow]sort[title]count[]]}}}
+    教程条目={{{[!is[system]!prefix[$:/]sameday:created[20231007]sort[title]count[]]}}}
+    ECharts条目={{{[!is[system]tag[ECharts]sort[title]count[]]}}}
+>
+
+<$echarts $text=<<pie-chart>> $height="500px"/>
+
+</$let>
