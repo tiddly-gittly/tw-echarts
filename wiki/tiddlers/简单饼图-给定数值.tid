@@ -1,0 +1,123 @@
+created: 20231007065406802
+modified: 20231007080211543
+tags: 简单饼图
+title: 简单饼图-给定数值
+type: text/vnd.tiddlywiki
+
+同样我们先看一下给定数值是如何实现的。有了前面的基础我们明白了直接把代码复制过来放到微件里调用就可以了。
+
+<$macrocall $name=code src=```<$echarts $text="""
+option = {
+  title: {
+    text: 'Weather Statistics',
+    subtext: 'Fake Data',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: '{b} : {c} ({d}%)'
+  },
+  legend: {
+    bottom: 10,
+    left: 'center',
+    data: ['CityA', 'CityB', 'CityD', 'CityC', 'CityE']
+  },
+  series: [
+    {
+      type: 'pie',
+      radius: '65%',
+      center: ['50%', '50%'],
+      selectedMode: 'single',
+      data: [
+        {value: 1548,name: 'CityE' },
+        { value: 735, name: 'CityC' },
+        { value: 510, name: 'CityD' },
+        { value: 434, name: 'CityB' },
+        { value: 335, name: 'CityA' }
+      ],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+      }
+    }
+  ]
+};
+"""/>
+```/>
+
+<$echarts $text="""
+option = {
+  title: {
+    text: 'Weather Statistics',
+    subtext: 'Fake Data',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: '{b} : {c} ({d}%)'
+  },
+  legend: {
+    bottom: 10,
+    left: 'center',
+    data: ['CityA', 'CityB', 'CityD', 'CityC', 'CityE']
+  },
+  series: [
+    {
+      type: 'pie',
+      radius: '65%',
+      center: ['50%', '50%'],
+      selectedMode: 'single',
+      data: [
+        {value: 1548,name: 'CityE' },
+        { value: 735, name: 'CityC' },
+        { value: 510, name: 'CityD' },
+        { value: 434, name: 'CityB' },
+        { value: 335, name: 'CityA' }
+      ],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+      }
+    }
+  ]
+};
+"""/>
+
+你还可以点击下面的按钮，然后只看四个部分的占比情况。
+
+解释一下里面关键几个部分代码。
+
+<$macrocall $name=code src=```title: {
+    text: 'Weather Statistics',
+    subtext: 'Fake Data',
+    left: 'center'
+  }
+```/>
+
+饼图的标题和副标题，然后居中。
+
+<$macrocall $name=code src=```tooltip: {
+    trigger: 'item',
+    formatter: '{b} : {c} ({d}%)'
+  },
+```/>
+
+上面内容表示点击浮动显示的内容。bcd分别代表名称，数值和占比。
+
+<$macrocall $name=code src=```data: [
+        {value: 1548,name: 'CityE' },
+        { value: 735, name: 'CityC' },
+        { value: 510, name: 'CityD' },
+        { value: 434, name: 'CityB' },
+        { value: 335, name: 'CityA' }
+],
+```/>
+
+
+这里表示的是五个数据。同时这五个数据的名字。

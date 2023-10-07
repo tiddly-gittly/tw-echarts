@@ -1,0 +1,37 @@
+created: 20231007080719211
+modified: 20231007083819527
+tags: 堆叠图
+title: 堆叠图-动态数值
+type: text/vnd.tiddlywiki
+
+这里和[[折线图-动态数值]]的思路是一样的。通过`<$list>`构造数据addon。这里用到的示例条目是[[周期测试示例]]标签下的七个条目，模仿一周的时间。里面有六个字段，分别是活动，生活，学习，娱乐，工作和总共。除了总共是500外，其他都是100，就单纯是数值。
+
+构造中同样有两处关键代码。
+
+<$macrocall $name=code src=```data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+```/>
+
+这里我们要构造成标题日期。
+
+<$macrocall $name=code src=```"data": [<$list filter="[tag[周期测试示例]]">'<<currentTiddler>>', </$list>]
+```/>
+
+"data": [<$list filter="[tag[周期测试示例]]">'<<currentTiddler>>', </$list>]
+
+然后是对对应的活动，生活，学习，娱乐，工作和总共进行同样的构造。
+
+"data": [<$list filter="[tag[周期测试示例]]">'{{!!生活}}', </$list>]
+
+这里是嵌入了生活，但因为每个数值都是100，所以看起来没有变化。
+
+然后接下来的就需要细心一一对应上就可以了。
+
+!!! 直接上代码！
+
+<<code src:"堆叠图-动态数值-addon">>
+
+接下来，我们把上面的代码保存到[[堆叠图-动态数值-addon]]中。然后通过echarts微件进行调用。
+
+<$echarts $tiddler="堆叠图-动态数值-addon"  $height="600px"/>
+
+非常工整，像彩虹糖一样。

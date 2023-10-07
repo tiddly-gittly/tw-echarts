@@ -1,6 +1,6 @@
 created: 20211225111332641
 icon: $:/favicon.ico
-modified: 20230921071025797
+modified: 20231007041835911
 page-cover: banner.png
 tags: ECharts Readme
 title: Index
@@ -53,6 +53,7 @@ type: text/vnd.tiddlywiki
 * [[什么是ECharts?]]
 * [[如何安装这款插件?]]
 * [[我该如何使用该插件?]]
+* [[教程向-Echarts插件简单使用]]
 * [[请与大家分享你的工作!]]
 
 ---

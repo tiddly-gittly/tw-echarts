@@ -1,0 +1,75 @@
+created: 20231007051852731
+modified: 20231007075714976
+tags: 基础折线图
+title: 折线图-给定数值
+type: text/vnd.tiddlywiki
+
+同样我们先从给定数值开始入门。把echarts官方里的[[示例|https://echarts.apache.org/examples/zh/editor.html?c=line-simple]]代码复制过来。放到微件里去调用。
+
+<$macrocall $name=code src=```<$echarts $text="""
+option = {
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      data: [150, 230, 224, 218, 135, 147, 260],
+      type: 'line'
+    }
+  ]
+};
+"""/>```/>
+
+<$echarts $text="""
+option = {
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      data: [150, 230, 224, 218, 135, 147, 260],
+      type: 'line'
+    }
+  ]
+};
+"""/>
+
+给定数值的好处就是可以直接复制代码，修改里面的数值，放到text里面去。这里如果想要展示数值也是可以的。在`type: 'line' `前面加上下面代码就可以了。
+
+<$macrocall $name=code src=```label: {
+        show: true,
+        position: 'top'
+      },
+```/>
+
+这个代码的意思就是展示标签，并且展示在顶端。
+
+<$echarts $text="""
+option = {
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      data: [150, 230, 224, 218, 135, 147, 260],
+      label: {
+      show: true,
+      position: 'top'
+      },
+      type: 'line'
+    }
+  ]
+};
+"""/>

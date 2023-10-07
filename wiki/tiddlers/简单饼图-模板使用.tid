@@ -1,0 +1,7 @@
+created: 20231007073725955
+modified: 20231007073856232
+tags: 简单饼图
+title: 简单饼图-模板使用
+type: text/vnd.tiddlywiki
+
+简单饼图的模板使用比较简单，这里就简单说一下。其实就是把筛选器替换成`[tag<currentTiddler>count[]]`，这样就做到了可以在当前条目下进行模板使用。

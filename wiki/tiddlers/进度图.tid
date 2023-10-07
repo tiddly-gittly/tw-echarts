@@ -1,0 +1,19 @@
+created: 20231007042817488
+list: 进度图-给定数值 进度图-动态数值
+modified: 20231007052758665
+tags: 教程向-Echarts插件简单使用
+title: 进度图
+type: text/vnd.tiddlywiki
+
+进度图实际上也是仪表图。这里就先把两者当成一种。后面有其他的例子再讨论。
+
+简单的进度图其实就是反映一个数值。论坛上有库克马做的简单饼图，可参考下面链接。
+
+* [[Tiddlywiki 中的圆环图与动画|https://talk.tiddlywiki.org/t/donut-chart-in-tiddlywiki-with-animation/535]]
+* [[TiddlyWiki 中的简单进度饼图|https://talk.tiddlywiki.org/t/simple-progress-pie-chart-in-tiddlywiki/505]]
+
+这两个图表比较简单，也挺好用。
+
+这里我们用echarts图谱也简单实现一个。用的是水滴动态形式，所以还需要安装`$:/plugins/Gk0Wk/echarts-liquidfill`插件。
+
+<<tabs "[tag[进度图]]" "进度图-给定数值" "$:/state/tab1" >>

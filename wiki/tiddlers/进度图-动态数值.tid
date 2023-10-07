@@ -1,0 +1,44 @@
+created: 20231007044943572
+modified: 20231007075614864
+tags: 进度图
+title: 进度图-动态数值
+type: text/vnd.tiddlywiki
+
+但通常这个数字是一个动态的。比如通过筛选器来计算已经完成的任务占总任务多少。
+
+那我们要实现这个功能，就需要把`data: [0.3]`里面的数值换成动态的数值。所以我们就需要用到宏来进行文本替换。这里思路的来源是林一二的[[最近一年熬夜的天数|https://onetwo.ren/wiki/#%E6%9C%80%E8%BF%91%E4%B8%80%E5%B9%B4%E7%86%AC%E5%A4%9C%E7%9A%84%E5%A4%A9%E6%95%B0]]。
+
+<$macrocall $name=code src=```\define liquid-fill-percentage()
+option = {
+    series: [{
+        type: 'liquidFill',
+        data: [$(test)$]
+    }]
+}
+\end```/>
+
+首先定义一个宏，这个宏就是要传入里面的test。然后下面我们用let进行赋值。
+
+<$macrocall $name=code src=```普通条目数量：<$text text={{{[!is[system]sort[title]count[]]}}}/>
+
+影子条目数量：<$text text={{{[is[tiddler]is[shadow]sort[title]count[]]}}}/>
+
+<$let
+	普通条目={{{[!is[system]sort[title]count[]]}}}
+	影子条目={{{ [is[tiddler]is[shadow]sort[title]count[]]}}}
+  test={{{[<影子条目>divide<普通条目>fixed[4]]}}}
+>
+
+<$echarts $text=<<liquid-fill-percentage>> />
+
+</$let>```/>
+
+在上面代码中，通过两个筛选器，分别展示了影子条目的数量和普通条目的数量。再计算相除的结果，然后保留四位数。
+
+不同的wiki有不同的影子条目和普通条目数量，所以这个数据在不同的wiki里呈现出来是完全不一样的。可以试一试放到你的wiki里测试一下。
+
+{{进度图-动态数值-完整代码}}
+
+大概可能会得到一个这样类似的数值。上面text会显示出相应的数值来。可以去[[进度图-动态数值-完整代码]]查看完整代码。
+
+这里用到了let进行赋值和divide进行相除，可以去官方文档中查看对应的条目，获取进一步的知识。

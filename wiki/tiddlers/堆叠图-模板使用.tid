@@ -1,0 +1,20 @@
+created: 20231007082759417
+modified: 20231007083846488
+tags: 堆叠图
+title: 堆叠图-模板使用
+type: text/vnd.tiddlywiki
+
+同[[折线图-模板使用]]一样，这里的思路，也是用`<$let>`微件把`<<currentTiddler>>`转换成`<<graphRootTiddler>>`，其他的基本保持不变。
+
+!!! 直接上代码！
+
+<<code src:"堆叠图-模板使用-addon">>
+
+上面代码可以去[[堆叠图-模板使用-addon]]查看。
+
+<$macrocall $name=code src=```<$echarts $tiddler="折线图-模板使用-addon" currentTiddler=<<currentTiddler>> $height="500px"/>
+```/>
+
+同样，结合echarts微件，就可以直接生成了。可以去[[周期测试示例]]看看效果。
+
+当然你还可以结合`detail`，做成可以点击展开的。然后还可以加上`$:/tags/ViewTemplate`标签和`<$list>`微件选择性的展示。这些就留给你去探索了。

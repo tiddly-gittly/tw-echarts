@@ -1,0 +1,26 @@
+created: 20231007055326874
+modified: 20231007055339721
+tags: 折线图-动态数值
+title: 折线图-动态数值-addon
+type: text/vnd.tiddlywiki
+
+{
+  "xAxis": {
+    "type": "category",
+    "data": [<$list filter="[tag[国庆七天]]">'<<currentTiddler>>', </$list>]
+  },
+  "yAxis": {
+    "type": "value"
+  },
+  "series": [
+    {
+      "data": [<$list filter="[tag[国庆七天]]">'{{!!game-time}}', </$list>],
+      "type": "line",
+			 "type": "line",
+			 "label": {
+        "show": "true",
+        "position": 'top'
+      }
+    }
+  ]
+}
