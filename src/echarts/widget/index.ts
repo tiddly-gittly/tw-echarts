@@ -90,7 +90,7 @@ class EChartsWidget extends Widget {
   state: any;
   class: string = 'gk0wk-echarts-body';
   fillSidebar: boolean = true;
-  theme?: 'dark';
+  theme?: 'light' | 'dark' | 'auto' | undefined;
   renderer: 'svg' | 'canvas' = 'canvas';
   resizeObserver?: ResizeObserver;
   echartsInstance?: ECharts.ECharts;
@@ -116,13 +116,19 @@ class EChartsWidget extends Widget {
     this.class = this.getAttribute('$class', 'gk0wk-echarts-body');
     this.fillSidebar =
       this.getAttribute('$fillSidebar', 'true').toLowerCase() === 'true';
-    switch (this.getAttribute('$theme', 'auto')) {
+    switch (this.getAttribute('$theme', '')) {
       case 'light': {
         this.theme = undefined;
         break;
       }
       case 'dark': {
         this.theme = 'dark';
+        break;
+      }
+      // NOTE: 如果你的tw主题支持自动切换dark/light,建议选择 auto
+      case 'auto': {
+        const theme = $tw.wiki.getTiddlerText('$:/info/darkmode') === 'yes' ? "dark" : undefined;
+        this.theme = theme;
         break;
       }
       default: {
@@ -190,6 +196,14 @@ class EChartsWidget extends Widget {
       this.containerDom.style.color = 'white';
       this.containerDom.style.background = 'red';
       this.containerDom.style.fontSize = '12px';
+    }
+    const mediaQuery = window.matchMedia?.('(prefers-color-scheme: dark)');
+    // tagpie not work, seven is work
+    if (this.theme === 'auto') {
+    mediaQuery.addEventListener('change', () => {
+      this.theme = mediaQuery.matches ? 'dark' : 'light';
+      this.rebuildInstance()
+    })
     }
   }
 
