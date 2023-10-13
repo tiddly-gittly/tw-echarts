@@ -198,7 +198,6 @@ class EChartsWidget extends Widget {
       this.containerDom.style.fontSize = '12px';
     }
     const mediaQuery = window.matchMedia?.('(prefers-color-scheme: dark)');
-    // tagpie not work, seven is work
     if (this.theme === 'auto') {
     mediaQuery.addEventListener('change', () => {
       this.theme = mediaQuery.matches ? 'dark' : 'light';
