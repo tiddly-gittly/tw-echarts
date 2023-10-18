@@ -231,7 +231,7 @@ class EChartsWidget extends Widget {
     this.refresh_(changedTiddlers);
     // 然后节流
     let count = 5;
-    this.timer = setTimeout(() => {
+    this.timer = setInterval(() => {
       if (count-- <= 0 && this.tmpChangedTiddlers === undefined) {
         clearInterval(this.timer);
         this.timer = undefined;
@@ -239,6 +239,7 @@ class EChartsWidget extends Widget {
       if (this.tmpChangedTiddlers !== undefined) {
         this.refresh_(this.tmpChangedTiddlers);
         this.tmpChangedTiddlers = undefined;
+        count = Math.min(5, count + 2);
       }
     }, this.throttle);
   }
