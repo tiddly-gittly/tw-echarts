@@ -1,5 +1,5 @@
 import type { ECharts } from 'echarts';
-import type { Widget } from 'tiddlywiki';
+import type { Widget, IChangedTiddlers } from 'tiddlywiki';
 
 export interface IScriptAddon<
   StateType = any,
@@ -22,17 +22,17 @@ export interface IScriptAddon<
    * @param {StateType} state 组件的状态，就是onMount返回的那个
    * @param {IChangedTiddlers} changedTiddlers 刷新是由TW系统监听到有条目发生变化才会触发的，这是一个包含所有变更条目标题的字符串数组
    * @param {Record<string, true>} changedAttributes 哪些参数被改变了，包括$开头的参数
+   * @param {AttributesType} addonAttributes <$echarts> 控件传入的所有参数
    * @return {boolean} 如果需要刷新就返回true，反之
    *
    * shouldRefresh 也可以是一个字符串，那就和 echarts-refresh-trigger 字段一样
    */
-  shouldUpdate?:
-    | ((
-        state: StateType,
-        changedTiddlers: IChangedTiddlers,
-        changedAttributes: Record<string, true>,
-      ) => boolean)
-    | boolean;
+  shouldUpdate?: (
+    state: StateType,
+    changedTiddlers: IChangedTiddlers,
+    changedAttributes: Record<keyof AttributesType, true>,
+    addonAttributes: AttributesType,
+  ) => boolean;
   /**
    * 当组件被更新时调用的函数
    * @param {ECharts} myChart echarts实例，详见echarts的API文档

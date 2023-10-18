@@ -56,15 +56,29 @@ const checkIfDarkMode = () =>
     'color-scheme'
   ] === 'dark';
 
-const GitHubHeatMapAddon: IScriptAddon<any> = {
-  shouldUpdate: (_, changedTiddlers) => $tw.utils.count(changedTiddlers) > 0,
-  onUpdate: (myChart, _state, addonAttributes) => {
+const GitHubHeatMapAddon: IScriptAddon<{ filter: string }> = {
+  onMount: (_, attr) => {
+    return {
+      filter: attr.subfilter || '[all[tiddlers]!is[shadow]!is[system]]',
+    };
+  },
+  shouldUpdate: (state, changedTiddlers, changedAttributes, attributes) => {
+    state.filter =
+      attributes.subfilter ||
+      state.filter ||
+      '[all[tiddlers]!is[shadow]!is[system]]';
+    const t = ($tw.wiki as any).makeTiddlerIterator(
+      Object.keys(changedTiddlers),
+    );
+    return (
+      $tw.utils.count($tw.wiki.filterTiddlers(state.filter, undefined, t)) > 0
+    );
+  },
+  onUpdate: (myChart, state, addonAttributes) => {
     const year = parseInt(addonAttributes.year, 10) || new Date().getFullYear();
-    const subfilter =
-      addonAttributes.subfilter || '[all[tiddlers]!is[shadow]!is[system]]';
     /** Use subfilter to narrow down tiddler pool before the array.map on dates */
     const tiddlerSourceIterator = ($tw.wiki as any).makeTiddlerIterator(
-      $tw.wiki.filterTiddlers(subfilter),
+      $tw.wiki.filterTiddlers(state.filter),
     );
     const [data, total] = getData(year, tiddlerSourceIterator);
     const tooltipFormatter = (dateValue: string, count: number) => {

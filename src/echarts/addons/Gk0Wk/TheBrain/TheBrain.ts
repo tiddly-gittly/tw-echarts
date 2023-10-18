@@ -107,7 +107,19 @@ interface ITheBrainState {
   unmount: () => void;
 }
 
-const TheBrainAddon: IScriptAddon<ITheBrainState> = {
+interface ITheBrainAttributes {
+  focussedTiddler?: string;
+  levels?: string;
+  graphTitle?: string;
+  aliasField?: string;
+  excludeFilter?: string;
+  previewDelay?: string;
+  focusBlur?: string;
+  previewTemplate?: string;
+  zoom?: string;
+}
+
+const TheBrainAddon: IScriptAddon<ITheBrainState, ITheBrainAttributes> = {
   onMount: (myChart, attributes) => {
     myChart.on('click', { dataType: 'node' }, (event: any) => {
       new $tw.Story().navigateTiddler(event.data.name);
@@ -202,35 +214,20 @@ const TheBrainAddon: IScriptAddon<ITheBrainState> = {
     );
   },
   // eslint-disable-next-line complexity
-  onUpdate: (
-    myCharts,
-    state,
-    addonAttributes: {
-      focussedTiddler?: string;
-      levels?: number;
-      graphTitle?: string;
-      aliasField?: string;
-      excludeFilter?: string;
-      previewDelay?: string;
-      focusBlur?: string;
-      previewTemplate?: string;
-      zoom?: string;
-    },
-  ) => {
+  onUpdate: (myCharts, state, addonAttributes) => {
     /** 参数：focussedTiddler 是图的中央节点 */
     let focussedTiddlers = new Set<string>();
-    if (addonAttributes.focussedTiddler) {
-      for (const title of $tw.wiki.filterTiddlers(
-        addonAttributes.focussedTiddler,
-      )) {
-        focussedTiddlers.add(title);
+    const titles = addonAttributes.focussedTiddler
+      ? $tw.wiki.filterTiddlers(addonAttributes.focussedTiddler)
+      : [$tw.wiki.getTiddlerText('$:/temp/focussedTiddler') ?? ''];
+    for (const title of titles) {
+      // 跳过正在编辑的条目
+      if ($tw.wiki.getTiddler(title)?.fields?.['draft.of']) {
+        continue;
       }
-    } else {
-      const t = $tw.wiki.getTiddlerText('$:/temp/focussedTiddler');
-      if (t) {
-        focussedTiddlers.add(t);
-      }
+      focussedTiddlers.add(title);
     }
+
     if (focussedTiddlers.size === 0) {
       return;
     }

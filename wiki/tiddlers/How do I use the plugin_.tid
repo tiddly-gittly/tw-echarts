@@ -25,6 +25,7 @@ Like other widgets, the `echarts` widget has a number of attributes.
 |$fillSidebar |Whether to automatically adjust the height to fill the sidebar when the wdiget is in the sidebar, default is `true` |
 |$theme |ECharts theme, `light` for bright theme, `dark` for dark theme, `auto` (default) for automatic judgment |
 |$renderer |Rendering method, `canvas` (default) or `svg` |
+|$throttle | Integer, in milliseconds, used to control the refresh rate, used to prevent the browser from lagging due to too frequent refreshes, default is `1000` |
 |Others |If `$tiddler` points to an tiddler of type JS, it will be used as an argument to its `onUpdate` function |
 
 !! <$text text="$text"/>: The most beginner-friendly way

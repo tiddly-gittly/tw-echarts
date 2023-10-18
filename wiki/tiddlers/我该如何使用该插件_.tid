@@ -25,6 +25,7 @@ type: text/vnd.tiddlywiki
 |$fillSidebar |当控件位于侧边栏时，是否自动调整高度以填满侧边栏，默认为`true` |
 |$theme |ECharts的主题，`light`为亮色主题，`dark`为暗色主题，`auto`(默认)为自动判断 |
 |$renderer |渲染方式，`canvas`(默认)或者`svg` |
+|$throttle | 整数，单位为毫秒，用于控制刷新频率，用于防止刷新过于频繁导致浏览器卡顿，默认为`1000` |
 |其他参数 |如果`$tiddler`指向JS类型的条目，将会作为其`onUpdate`函数的参数 |
 
 !! <$text text="$text"/>: 对初学者最友好的方式
@@ -117,7 +118,7 @@ macro 也有`width`等可选参数，这里就不赘述了。
   $tiddler="$:/plugins/Gk0Wk/echarts/addons/BrainMap"
   $height="500px"
   dblclick="(params, parentWidget) => { console.log(params); parentWidget.dispatchEvent({ type: 'tm-navigate', navigateTo: params.data.name }) }"
-/> 
+/>
 ```
 
 <$echarts

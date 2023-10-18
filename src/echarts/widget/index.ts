@@ -9,7 +9,6 @@ import type { IScriptAddon } from '../scriptAddon';
 import { widget as Widget } from '$:/core/modules/widgets/widget.js';
 import * as ECharts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
 
-const echartWidgets: Set<EChartsWidget> = new Set();
 const Function_ = Function;
 if ($tw.browser) {
   // 总算明白了，node启动时，这个会被调用一遍，在浏览器又会调用一遍
@@ -35,7 +34,16 @@ if ($tw.browser) {
   } catch (error) {
     console.error(error);
   }
-  setInterval(() => {
+}
+
+const echartWidgets: Set<EChartsWidget> = new Set();
+let eChartsInstanceUnmountCheckTimer: NodeJS.Timer | undefined;
+const registerInstance = (instance: EChartsWidget) => {
+  if (!$tw.browser || eChartsInstanceUnmountCheckTimer !== undefined) {
+    return;
+  }
+  echartWidgets.add(instance);
+  eChartsInstanceUnmountCheckTimer = setInterval(() => {
     const deletingWidget: EChartsWidget[] = [];
     for (const widget of echartWidgets) {
       if (!document.contains(widget.containerDom)) {
@@ -48,12 +56,15 @@ if ($tw.browser) {
         deletingWidget.push(widget);
       }
     }
-    const len = deletingWidget.length;
-    for (let i = 0; i < len; i++) {
-      echartWidgets.delete(deletingWidget[i]);
+    for (const echartWidget of echartWidgets) {
+      echartWidgets.delete(echartWidget);
+    }
+    if (echartWidgets.size < 1) {
+      eChartsInstanceUnmountCheckTimer = undefined;
+      clearInterval(eChartsInstanceUnmountCheckTimer);
     }
   }, 1000);
-}
+};
 
 const unmountAddon = (
   title: string | undefined,
@@ -95,7 +106,9 @@ class EChartsWidget extends Widget {
   resizeObserver?: ResizeObserver;
   echartsInstance?: ECharts.ECharts;
   timer?: NodeJS.Timeout;
+  tmpChangedTiddlers?: IChangedTiddlers;
   throttle!: number;
+  skipDraftTiddle: boolean = true;
 
   addon?: {
     init: () => void;
@@ -136,10 +149,18 @@ class EChartsWidget extends Widget {
     this.renderer =
       this.getAttribute('$renderer', 'canvas') === 'svg' ? 'svg' : 'canvas';
     this.text = this.getAttribute('$text', '').trim() || undefined;
-    this.throttle = Math.max(
-      ($tw.utils as any).getAnimationDuration() || 100,
-      100,
-    );
+
+    // 设置去抖
+    const throttleText = this.getAttribute('$throttle');
+    if (throttleText) {
+      const t = parseInt(throttleText, 10);
+      this.throttle = Number.isSafeInteger(t) ? Math.max(0, 10) : 1000;
+    } else {
+      this.throttle = 1000;
+    }
+
+    this.skipDraftTiddle =
+      this.getAttribute('$skipDraftTiddle', 'true') !== 'false';
   }
 
   render(parent: HTMLElement, nextSibling: HTMLElement) {
@@ -182,7 +203,7 @@ class EChartsWidget extends Widget {
           this.echartsInstance! as any
         ).renderToSVGString();
       } else {
-        echartWidgets.add(this);
+        registerInstance(this);
       }
     } catch (error) {
       console.error(error);
@@ -194,81 +215,102 @@ class EChartsWidget extends Widget {
   }
 
   refresh(changedTiddlers: IChangedTiddlers) {
-    // 去抖
-    if (this.timer) {
-      clearTimeout(this.timer);
+    if (this.timer !== undefined) {
+      // 说明已经有一个正在节流的定时器了，那么就把这次的变更合并进去
+      if (this.tmpChangedTiddlers !== undefined) {
+        this.tmpChangedTiddlers = {
+          ...this.tmpChangedTiddlers,
+          ...changedTiddlers,
+        };
+      } else {
+        this.tmpChangedTiddlers = changedTiddlers;
+      }
+      return;
     }
+    // 先做一次
+    this.refresh_(changedTiddlers);
+    // 然后节流
+    let count = 5;
     this.timer = setTimeout(() => {
-      this.timer = undefined;
-      const oldAddonTitle = this.tiddlerTitle;
-      const changedAttributes = this.computeAttributes();
-      let refreshFlag = 0; // 0: 不需要任何变更   1: 需要重新生成Option   2: 需要重新渲染
-      // 先看一下参数的变化，这里分为几种：
-      // $tiddler变化的，说明要重新生成Option
-      // $theme、$fillSidebar 和 $renderer需要重新初始化实例
-      // $class、$width 和 $height 只需要修改容器的尺寸就好了
-      // 剩下的就是传给插件的参数了
-      if ($tw.utils.count(changedAttributes) > 0) {
-        let counter = 0;
-        $tw.utils.each(['$theme', '$fillSidebar', '$renderer'], key => {
-          if (changedAttributes[key] !== undefined) {
-            counter++;
-          }
-        });
-        if (counter > 0) {
-          refreshFlag |= 2;
-        }
-        if (changedAttributes.$class) {
-          counter++;
-          this.class = this.getAttribute('$class', 'gk0wk-echarts-body');
-          this.containerDom.className = this.class;
-        }
-        if (changedAttributes.$width) {
-          counter++;
-          this.width = this.getAttribute('$width', '100%');
-          this.containerDom.style.width = this.width;
-        }
-        if (changedAttributes.$height) {
-          counter++;
-          this.height = this.getAttribute('$height', '300px');
-          this.containerDom.style.height = this.height;
-        }
-        if ($tw.utils.count(changedAttributes) > counter) {
-          refreshFlag |= 1;
-        }
+      if (count-- <= 0 && this.tmpChangedTiddlers === undefined) {
+        clearInterval(this.timer);
+        this.timer = undefined;
       }
-      if (
-        this.text === undefined &&
-        !(refreshFlag & 1) &&
-        ((this.tiddlerTitle && changedTiddlers[this.tiddlerTitle]) ||
-          this.askForAddonUpdate(changedTiddlers, changedAttributes))
-      ) {
-        refreshFlag |= 1;
-      }
-      // 检查自动主题时，黑暗模式是否切换了
-      const oldTheme = this.theme;
-      this.execute();
-      if (oldTheme !== this.theme) {
-        refreshFlag |= 2;
-      }
-      if (refreshFlag & 2) {
-        const oldOption = this.rebuildInstance();
-        if (!oldOption || refreshFlag & 1) {
-          unmountAddon(
-            this.text !== undefined ? undefined : oldAddonTitle,
-            this.state,
-            this.echartsInstance!,
-          );
-          this.initAddon();
-          this.renderAddon();
-        } else {
-          this.echartsInstance!.setOption(oldOption);
-        }
-      } else if (refreshFlag & 1) {
-        this.renderAddon();
+      if (this.tmpChangedTiddlers !== undefined) {
+        this.refresh_(this.tmpChangedTiddlers);
+        this.tmpChangedTiddlers = undefined;
       }
     }, this.throttle);
-    return false;
+  }
+
+  refresh_(changedTiddlers: IChangedTiddlers) {
+    const oldAddonTitle = this.tiddlerTitle;
+    const changedAttributes = this.computeAttributes();
+    let refreshFlag = 0; // 0: 不需要任何变更   1: 需要重新生成Option   2: 需要重新渲染
+    // 先看一下参数的变化，这里分为几种：
+    // $tiddler变化的，说明要重新生成Option
+    // $theme、$fillSidebar 和 $renderer需要重新初始化实例
+    // $class、$width 和 $height 只需要修改容器的尺寸就好了
+    // 剩下的就是传给插件的参数了
+    if ($tw.utils.count(changedAttributes) > 0) {
+      let counter = 0;
+      $tw.utils.each(['$theme', '$fillSidebar', '$renderer'], key => {
+        if (changedAttributes[key] !== undefined) {
+          counter++;
+        }
+      });
+      if (counter > 0) {
+        refreshFlag |= 2;
+      }
+      if (changedAttributes.$class) {
+        counter++;
+        this.class = this.getAttribute('$class', 'gk0wk-echarts-body');
+        this.containerDom.className = this.class;
+      }
+      if (changedAttributes.$width) {
+        counter++;
+        this.width = this.getAttribute('$width', '100%');
+        this.containerDom.style.width = this.width;
+      }
+      if (changedAttributes.$height) {
+        counter++;
+        this.height = this.getAttribute('$height', '300px');
+        this.containerDom.style.height = this.height;
+      }
+      if ($tw.utils.count(changedAttributes) > counter) {
+        refreshFlag |= 1;
+      }
+    }
+    if (
+      this.text === undefined &&
+      !(refreshFlag & 1) &&
+      ((this.tiddlerTitle && changedTiddlers[this.tiddlerTitle]) ||
+        this.askForAddonUpdate(changedTiddlers, changedAttributes))
+    ) {
+      refreshFlag |= 1;
+    }
+    // 检查自动主题时，黑暗模式是否切换了
+    const oldTheme = this.theme;
+    this.execute();
+    if (oldTheme !== this.theme) {
+      refreshFlag |= 2;
+    }
+    if (refreshFlag & 2) {
+      const oldOption = this.rebuildInstance();
+      if (!oldOption || refreshFlag & 1) {
+        unmountAddon(
+          this.text !== undefined ? undefined : oldAddonTitle,
+          this.state,
+          this.echartsInstance!,
+        );
+        this.initAddon();
+        this.renderAddon();
+      } else {
+        this.echartsInstance!.setOption(oldOption);
+      }
+    } else if (refreshFlag & 1) {
+      this.renderAddon();
+    }
   }
 
   askForAddonUpdate(
@@ -280,6 +322,10 @@ class EChartsWidget extends Widget {
         return false;
       }
       const tiddler = $tw.wiki.getTiddler(this.tiddlerTitle)!.fields;
+      // 忽略草稿
+      if (this.skipDraftTiddle && tiddler['draft.of']) {
+        return false;
+      }
       // 懒加载模式，还在加载，要等待
       if (
         '_is_skinny' in tiddler &&
@@ -288,22 +334,36 @@ class EChartsWidget extends Widget {
         return false;
       }
       const type = tiddler.type || 'text/vnd.tiddlywiki';
-      if (type === 'text/vnd.tiddlywiki' || type === 'application/json') {
+      const typeInfo = $tw.config.contentTypeInfo[type] ?? {};
+      const deserializerType = typeInfo.deserializerType ?? type;
+      if (
+        deserializerType === 'text/vnd.tiddlywiki' ||
+        deserializerType === 'application/json'
+      ) {
         this._state = JSON.stringify(
           $tw.wiki.filterTiddlers(tiddler['echarts-refresh-trigger'] as string),
         );
         return this._state !== this.state;
-      } else if (type === 'application/javascript') {
+      } else if (deserializerType === 'application/javascript') {
         const _addon = require(this.tiddlerTitle);
         const addon = (_addon.default ?? _addon) as IScriptAddon;
-        const shouldUpdate = addon.shouldUpdate ?? (addon as any).shouldRefresh;
+        const shouldUpdate =
+          addon.shouldUpdate ??
+          ((addon as any).shouldRefresh as
+            | IScriptAddon['shouldUpdate']
+            | undefined);
         if (shouldUpdate === undefined) {
           return true;
         } else if (typeof shouldUpdate === 'string') {
           this._state = JSON.stringify($tw.wiki.filterTiddlers(shouldUpdate));
           return this._state !== this.state;
         } else if (typeof shouldUpdate === 'function') {
-          return shouldUpdate(this.state, changedTiddlers, changedAttributes);
+          return shouldUpdate(
+            this.state,
+            changedTiddlers,
+            changedAttributes,
+            this.attributes,
+          );
         }
         return true;
       } else {
@@ -396,7 +456,12 @@ class EChartsWidget extends Widget {
           return;
         }
         const type = tiddler.type || 'text/vnd.tiddlywiki';
-        if (type === 'text/vnd.tiddlywiki' || type === 'application/json') {
+        const typeInfo = $tw.config.contentTypeInfo[type] ?? {};
+        const deserializerType = typeInfo.deserializerType ?? type;
+        if (
+          deserializerType === 'text/vnd.tiddlywiki' ||
+          deserializerType === 'application/json'
+        ) {
           this.state =
             this._state ??
             JSON.stringify(
@@ -405,7 +470,7 @@ class EChartsWidget extends Widget {
               ),
             );
           this._state = undefined;
-        } else if (type === 'application/javascript') {
+        } else if (deserializerType === 'application/javascript') {
           const _addon = require(this.tiddlerTitle);
           const addon = (_addon.default ?? _addon) as IScriptAddon;
           const onMount = addon.onMount ?? (addon as any).onInit;
@@ -444,7 +509,9 @@ class EChartsWidget extends Widget {
           return;
         }
         const type = tiddler.type || 'text/vnd.tiddlywiki';
-        if (type === 'text/vnd.tiddlywiki') {
+        const typeInfo = $tw.config.contentTypeInfo[type] ?? {};
+        const deserializerType = typeInfo.deserializerType ?? type;
+        if (deserializerType === 'text/vnd.tiddlywiki') {
           const plainTextContent = $tw.wiki.renderTiddler(
             'text/plain',
             this.tiddlerTitle,
@@ -457,11 +524,11 @@ class EChartsWidget extends Widget {
             `return (${plainTextContent})`,
           )();
           this.echartsInstance.setOption(executedJSContent);
-        } else if (type === 'application/json') {
+        } else if (deserializerType === 'application/json') {
           this.echartsInstance.setOption(
             JSON.parse($tw.wiki.getTiddlerText(this.tiddlerTitle)!),
           );
-        } else if (type === 'application/javascript') {
+        } else if (deserializerType === 'application/javascript') {
           const _addon = require(this.tiddlerTitle);
           const addon = (_addon.default ?? _addon) as IScriptAddon;
           addon.onUpdate(this.echartsInstance, this.state, this.attributes);
