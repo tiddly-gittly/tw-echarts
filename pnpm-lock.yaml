@@ -1,4 +1,8 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
 
 dependencies:
   npm-check-updates:
@@ -6196,7 +6200,7 @@ packages:
       sha256: 0.2.0
       simple-git: 3.15.1
       tailwindcss: 3.3.1(postcss@8.4.21)(ts-node@10.9.1)
-      tiddlywiki: 5.2.7
+      tiddlywiki: 5.3.1
       tw5-typed: 0.2.27
       uglify-js: 3.17.4
       ws: 8.12.0
@@ -6210,6 +6214,13 @@ packages:
 
   /tiddlywiki@5.2.7:
     resolution: {integrity: sha512-7Hi8IF/6iIdTWpX6tJ955isy6n0JShCh1fu27SX9jSa0JuP3JUg40Hgb9g/iNV5oK5dxstFZImjAeVaXOPSdiw==}
+    engines: {node: '>=0.8.2'}
+    hasBin: true
+    dev: false
+    bundledDependencies: []
+
+  /tiddlywiki@5.3.1:
+    resolution: {integrity: sha512-17uoTt8w3wvqaF1fqulHeeR86984N0eC8fgd0Ql1LIKgrHRu1+M3fBW8V/ikofU2s74xr6S1efREHaA2zyhe1w==}
     engines: {node: '>=0.8.2'}
     hasBin: true
     dev: false

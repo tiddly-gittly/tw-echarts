@@ -1,0 +1,10 @@
+created: 20231007065207832
+list: 简单饼图-给定数值 简单饼图-动态数值
+modified: 20231007070807406
+tags: 教程向-Echarts插件简单使用
+title: 简单饼图
+type: text/vnd.tiddlywiki
+
+饼图也是最常用的一种图谱。这里把[[官方示例|https://echarts.apache.org/examples/zh/editor.html?c=pie-rich-text]]简单改动了一下，去除了旁边的天气显示。
+
+<<tabs "[tag[简单饼图]]" "简单饼图-给定数值" "$:/state/tab3" >>

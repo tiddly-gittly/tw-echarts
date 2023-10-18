@@ -1,6 +1,6 @@
 created: 20210916060835982
-modified: 20211015005122099
+modified: 20231007041946163
 title: $:/config/EditorToolbarButtons/Visibility/$:/core/ui/EditorToolbar/linkify
 type: text/vnd.tiddlywiki
 
-hide
+show

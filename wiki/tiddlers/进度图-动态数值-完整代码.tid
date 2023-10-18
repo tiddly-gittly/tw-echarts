@@ -1,0 +1,32 @@
+created: 20231007045325609
+modified: 20231007051409408
+tags: 进度图-动态数值
+title: 进度图-动态数值-完整代码
+type: text/vnd.tiddlywiki
+
+\define liquid-fill-percentage()
+option = {
+    series: [{
+        type: 'liquidFill',
+        data: [$(test)$]
+    }]
+}
+\end
+
+
+<$text text={{{ [is[tiddler]is[shadow]sort[title]count[]] }}}/>
+
+---
+
+<$text text={{{[!is[system]sort[title]count[]]}}}/>
+
+
+<$let
+	普通条目={{{[!is[system]sort[title]count[]]}}}
+	影子条目={{{ [is[tiddler]is[shadow]sort[title]count[]] }}}
+  test={{{[<影子条目>divide<普通条目>fixed[4]]}}}
+>
+
+<$echarts $text=<<liquid-fill-percentage>> />
+
+</$let>
