@@ -30,10 +30,12 @@ const addon: IScriptAddon<void> = {
     // 采样
     const points = [];
     const step = (maxX - minX) / Math.min(resolution, 1e5);
-    for (let x = minX; x <= maxX; x += step) {
-      const y = func(x);
-      points.push([x, y]);
+    for (let i = 0, x = minX; i < resolution; i += 1, x += step) {
+      points.push([x, func(x)]);
     }
+    points.push([maxX, func(maxX)]);
+
+    // 画图
     myChart.setOption({
       animation: false,
       grid: {
