@@ -1,0 +1,15 @@
+title: $:/plugins/Gk0Wk/echarts/addons/Function-readme
+
+```html
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/Function.js" func="x**2" min="-3" max="3" />
+```
+
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/Function.js" func="x**2" min="-3" max="3" />
+
+Attributes:
+
+* func: function expression, default: x
+* min: min value, default: -1
+* max: max value, default: 1
+* res: resolution, default: 200
+* yaxis: name of y axis, default: f(x)
