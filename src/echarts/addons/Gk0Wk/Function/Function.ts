@@ -22,10 +22,11 @@ const addon: IScriptAddon<void> = {
       [maxX, minX] = [minX, maxX];
     }
     // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-    const func = new Function(
+    const func_ = new Function(
       'x',
       `return ${addonAttributes.func};` || 'return x;',
     );
+    const func = (x: number) => Math.max(-9e8, Math.min(9e8, func_(x)));
 
     // 采样
     const points = [];
