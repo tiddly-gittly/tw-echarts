@@ -113,6 +113,7 @@ interface ITheBrainAttributes {
   graphTitle?: string;
   aliasField?: string;
   excludeFilter?: string;
+  excludeTitles?: string;
   previewDelay?: string;
   focusBlur?: string;
   previewTemplate?: string;
@@ -273,6 +274,7 @@ const TheBrainAddon: IScriptAddon<ITheBrainState, ITheBrainAttributes> = {
         : $tw.wiki.compileFilter(
             addonAttributes.excludeFilter ?? '[prefix[$:/]] [is[draft]]',
           );
+    const excludeTitles = $tw.utils.parseStringArray(addonAttributes.excludeTitles ?? '') ?? [];
     const nodeMap: Map<string, boolean> = new Map();
 
     // 聚焦点
@@ -317,6 +319,13 @@ const TheBrainAddon: IScriptAddon<ITheBrainState, ITheBrainAttributes> = {
       }
       tiddlerQueue = Array.from(tiddlers);
     }
+    if (excludeTitles.length) {
+      const tiddlers = new Set<string>(tiddlerQueue);
+      for (const excluded of excludeTitles) {
+        tiddlers.delete(excluded);
+      }
+      tiddlerQueue = Array.from(tiddlers);
+    }
 
     const tryPush = (
       title: string,
@@ -324,6 +333,9 @@ const TheBrainAddon: IScriptAddon<ITheBrainState, ITheBrainAttributes> = {
       edge: (exist: boolean) => any,
     ) => {
       if (excludeFilter && excludeFilter.call($tw.wiki, [title]).length > 0) {
+        return false;
+      }
+      if (excludeTitles.includes(title)) {
         return false;
       }
       const nodeState = nodeMap.get(title);

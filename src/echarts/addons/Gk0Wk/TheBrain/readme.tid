@@ -22,7 +22,10 @@ title: $:/plugins/Gk0Wk/echarts/addons/TheBrain-readme
 * `levels` 用于设定图的层级，即从当前条目开始，向外扩展几层。默认为 `1`，`Infinity`为无限扩展直到遍历所有关系，@@color:red; 层级越多就越有可能卡死页面，自己当心 @@；
 * `graphTitle` 用于设定图的标题，即侧边栏的标题。默认为 `聚焦`；
 * `aliasField` 用于设定别名字段，即在聚焦图中，显示的是别名字段的内容。默认为 `caption`；
-* `excludeFilter` 用于设定排除的过滤器，即在聚焦图中，排除哪些条目。默认为 `[prefix[$:/]] [is[draft]]`，即排除所有系统条目和被编辑的条目；
+* `excludeFilter` 用于设定排除的过滤器，即在聚焦图中，排除哪些条目，多个筛选器之间用空格隔开即可。默认为 `[prefix[$:/]] [is[draft]]`，即排除所有系统条目和被编辑的条目；
+* `excludeTitles` 用于设定排除的标题，即在聚焦图中，直接排除哪些标题。可以直接填写标题 `任务` 或使用太微的列表标题格式如 `[[任务]]`
+** 上面的例子等价于在 `excludeFilter` 中加上 `[field:title[任务]]` 这样的筛选器，但更加简练。默认为空；
+** `excludeTitles` 与 `excludeFilter` 可以同时存在，会排除所有满足条件的条目；
 * `previewDelay` 用于设定预览延迟，即鼠标悬停在节点上多久后显示预览。默认为 `1000`，即 1000ms，`-1` 表示不显示预览；
 * `focusBlur` 在鼠标悬浮在某个节点上时，其他节点是否变淡。默认为 `true`，即变淡；
 * `previewTemplate` 用于设定预览模板，渲染预览内容。默认为 `$:/plugins/Gk0Wk/echarts/addons/TheBrainPopup`；
@@ -48,7 +51,10 @@ The focus map provides some parameters, which can be used to set its behavior:
 * `levels` is used to set the level of the graph, that is, expand several levels from the current tiddler. The default is `1`, `Infinity` means unlimited expansion until all relationships are traversed, @@color:red; the more levels, the more likely it is to freeze the page, be careful @@;
 * `graphTitle` is used to set the title of the graph, that is, the title of the sidebar. The default is `Focusing Map`;
 * `aliasField` is used to set the alias field, that is, the content of the alias field is displayed in the focus map. The default is `caption`;
-* `excludeFilter` is used to set the exclude filter, that is, which tiddlers are excluded in the focus map. The default is `[prefix[$:/]] [is[draft]]`, that is, exclude all system tiddlers and editing tiddlers;
+* `excludeFilter` is used to set the filters for exclusion, i.e. which tiddlers to exclude in the focus map, multiple filters separated by spaces is sufficient. Default is `[prefix[$:/]] [is[draft]]`, i.e. exclude all system tiddlers and edited tiddlers;
+* `excludeTitles` is used to set excluded titles, i.e. which titles are directly excluded in the focus map. This can be done by filling in the title `tasks` directly or by using a list title format such as `[[task]]`.
+** The above example is equivalent to adding a filter like `[field:title[task]]` to `excludeFilter`, but more concise. Defaults to empty;
+** `excludeTitles` and `excludeFilter` can co-exist and will exclude all tiddlers that fulfill the conditions;
 * `previewDelay` is used to set the preview delay, that is, how long the preview is displayed after the mouse hovers over the node. The default is `1000`, that is, 1000ms, `-1` means no preview;
 * `focusBlur` is used to set whether other nodes become lighter when the mouse hovers over a node. The default is `true`, that is, lighter;
 * `previewTemplate` is used to set the preview template to render the preview content. The default is `$:/plugins/Gk0Wk/echarts/addons/TheBrainPopup`;
