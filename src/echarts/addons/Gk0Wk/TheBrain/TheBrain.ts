@@ -436,51 +436,26 @@ const TheBrainAddon: IScriptAddon<ITheBrainState, ITheBrainAttributes> = {
           );
         }
         // 嵌入
-        const tiddler_ = $tw.wiki.getTiddler(tiddler);
-        if (tiddler_) {
-          const type = tiddler_.fields.type || 'text/vnd.tiddlywiki';
-          if (type === 'text/vnd.tiddlywiki' || type === 'text/x-markdown') {
-            const transcluded: Set<string> = new Set();
-            const findTransclude = (children: IParseTreeNode[]) => {
-              const { length } = children;
-              for (let i = 0; i < length; i++) {
-                const node = children[i];
-                if (node.type === 'tiddler') {
-                  const title = node.attributes!.tiddler?.value as
-                    | string
-                    | undefined;
-                  if (title) {
-                    transcluded.add(title);
-                  }
-                } else if (Array.isArray((node as any).children)) {
-                  findTransclude((node as any).children);
-                }
-              }
-            };
-            findTransclude($tw.wiki.parseTiddler(tiddler).tree);
-            // eslint-disable-next-line max-depth
-            for (const transcludeTiddler of transcluded) {
-              tryPush(
-                transcludeTiddler,
-                (label, exist) => ({
-                  name: transcludeTiddler,
-                  label: { formatter: label },
-                  itemStyle: { opacity: exist ? 1 : 0.5 },
-                  symbol: findIcon(transcludeTiddler),
-                  category: 6,
-                  isTag: false,
-                }),
-                exist => ({
-                  source: tiddler,
-                  target: transcludeTiddler,
-                  lineStyle: {
-                    color: colors[6],
-                    type: exist ? 'solid' : 'dashed',
-                  },
-                }),
-              );
-            }
-          }
+        for (const transcludeTiddler of $tw.wiki.getTiddlerBacktranscludes(tiddler)) {
+          tryPush(
+            transcludeTiddler,
+            (label, exist) => ({
+              name: transcludeTiddler,
+              label: { formatter: label },
+              itemStyle: { opacity: exist ? 1 : 0.5 },
+              symbol: findIcon(transcludeTiddler),
+              category: 6,
+              isTag: false,
+            }),
+            exist => ({
+              source: transcludeTiddler,
+              target: tiddler,
+              lineStyle: {
+                color: colors[6],
+                type: exist ? 'solid' : 'dashed',
+              },
+            }),
+          );
         }
       }
     }
