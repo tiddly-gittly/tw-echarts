@@ -18,15 +18,17 @@
   "homepage": "https://tiddly-gittly.github.io/tw-echarts",
   "version": "0.0.2",
   "scripts": {
+    "dev": "tiddlywiki-plugin-dev dev",
+    "dev:wiki": "tiddlywiki-plugin-dev dev --write-wiki",
+    "test": "tiddlywiki-plugin-dev test",
+    "build": "npm run clean && tiddlywiki-plugin-dev build",
+    "publish": "npm run clean && tiddlywiki-plugin-dev publish",
     "reset": "rimraf ./**/node_modules",
     "clean": "rimraf dist",
     "prepare": "husky install",
-    "update": "npm-check-updates -u",
+    "update": "npm-check-updates -u && dprint config update",
     "new": "tiddlywiki-plugin-dev new",
-    "dev": "tiddlywiki-plugin-dev dev",
-    "build": "npm run clean && tiddlywiki-plugin-dev build",
     "build:library": "npm run clean && tiddlywiki-plugin-dev build --library --output dist/library",
-    "publish": "npm run clean && tiddlywiki-plugin-dev publish",
     "publish:offline": "npm run clean && tiddlywiki-plugin-dev publish --offline"
   },
   "engines": {
@@ -46,20 +48,21 @@
     ]
   },
   "devDependencies": {
-    "@modern-js/eslint-config": "^2.13.1",
-    "@modern-js/tsconfig": "^2.13.1",
-    "@types/echarts": "^4.9.16",
-    "@types/node": "^18.15.11",
-    "husky": "^8.0.3",
-    "lint-staged": "^13.2.1",
-    "rimraf": "^5.0.0",
-    "ts-node": "^10.9.1",
-    "tw5-typed": "^0.2.27",
-    "typescript": "^5.0.4"
+    "@modern-js/eslint-config": "^2.59.0",
+    "@modern-js/tsconfig": "^2.63.4",
+    "@types/echarts": "^4.9.22",
+    "@types/node": "^22.10.2",
+    "dprint": "^0.48.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.3.0",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "tw5-typed": "^0.5.14",
+    "typescript": "^5.7.2"
   },
   "dependencies": {
-    "npm-check-updates": "^16.10.8",
-    "tiddlywiki": "^5.2.7",
-    "tiddlywiki-plugin-dev": "^0.0.35"
+    "npm-check-updates": "^17.1.13",
+    "tiddlywiki": "^5.3.6",
+    "tiddlywiki-plugin-dev": "^0.3.2"
   }
 }
