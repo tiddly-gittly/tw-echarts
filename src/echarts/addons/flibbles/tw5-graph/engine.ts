@@ -104,18 +104,23 @@ export const properties = {
   },
 };
 
-let chartInstance: Echarts.ECharts | null = null;
-let onevent: ((event: any, variables?: any) => void) | null = null;
-
-export function init(element: HTMLDivElement, objects: GraphObjects, eventHandler?: (event: any, variables?: any) => void): void {
-  element.classList.add('tw5-graph-echarts');
-  chartInstance = Echarts.init(element);
-  if (eventHandler) onevent = eventHandler;
-  setupEvents();
-  render(objects);
+/**
+ * Class created by `$tw.modules.createClassesFromModules("graphengine")`
+ */
+interface EChartsEngineInstance {
+  chartInstance: Echarts.ECharts | null;
+  eventHandler?: (event: any, variables?: any) => void;
 }
 
-export function update(objects: GraphObjects): void {
+export function init(this: EChartsEngineInstance, element: HTMLDivElement, objects: GraphObjects, eventHandler?: (event: any, variables?: any) => void): void {
+  element.classList.add('tw5-graph-echarts');
+  this.chartInstance = Echarts.init(element);
+  this.eventHandler = eventHandler;
+  setupEvents.call(this);
+  render.call(this, objects);
+}
+
+export function update(this: EChartsEngineInstance, objects: GraphObjects): void {
   const option: EChartOption = {
     backgroundColor: undefined,
     series: []
@@ -153,7 +158,7 @@ export function update(objects: GraphObjects): void {
       y: node.y,
       itemStyle: { color: node.color },
       symbolSize: node.size ?? 40,
-      category: node.hidden ? 1 : 0, // 0: default, 1: hidden
+      category: node.hidden ? 1 : 0,
       label: { color: node.fontColor },
       symbol: node.shape ? node.shape : 'circle',
       ...(node.image ? { symbol: `image://${node.image}` } : {}),
@@ -169,65 +174,76 @@ export function update(objects: GraphObjects): void {
     }));
   }
   option.series = [graphSeries];
-  chartInstance?.setOption(option, false);
-}
-
-export function destroy(): void {
-  if (chartInstance) {
-    chartInstance.dispose();
-    chartInstance = null;
-    onevent = null;
+  if (this.chartInstance) {
+    this.chartInstance.setOption(option, false);
   }
 }
 
-function setupEvents() {
+export function destroy(this: EChartsEngineInstance): void {
+  if (this.chartInstance) {
+    this.chartInstance.dispose();
+    this.chartInstance = null;
+    this.eventHandler = undefined;
+  }
+}
+
+function setupEvents(this: EChartsEngineInstance): void {
+  const chartInstance = this.chartInstance;
+  const eventHandler = this.eventHandler;
   if (!chartInstance) return;
   chartInstance.on('click', (params: any) => {
-    if (onevent) {
-      onevent({ type: 'click', objectType: params.dataType, id: params.data?.name }, params);
-    }
+    eventHandler?.({ type: 'click', objectType: params.dataType, id: params.data?.name }, params);
   });
   chartInstance.on('dblclick', (params: any) => {
-    if (onevent) {
-      onevent({ type: 'doubleclick', objectType: params.dataType, id: params.data?.name }, params);
+    // DEBUG: console params
+    console.log(`params`, params);
+    if (params.dataType === 'node' && params.data?.name) {
+      const node = params.data;
+      const variables = {
+        x: node.x,
+        y: node.y,
+        xView: params.event?.offsetX ?? 0,
+        yView: params.event?.offsetY ?? 0
+      };
+      if (typeof node.doubleclick === 'function') {
+        node.doubleclick(variables);
+      }
+      eventHandler?.({ type: 'doubleclick', objectType: 'nodes', id: node.name }, variables);
+    } else {
+      eventHandler?.({ type: 'doubleclick', objectType: params.dataType, id: params.data?.name }, params);
     }
   });
   chartInstance.on('mouseover', (params: any) => {
-    if (onevent) {
-      onevent({ type: 'hover', objectType: params.dataType, id: params.data?.name }, params);
-    }
+    eventHandler?.({ type: 'hover', objectType: params.dataType, id: params.data?.name }, params);
   });
   chartInstance.on('mouseout', (params: any) => {
-    if (onevent) {
-      onevent({ type: 'blur', objectType: params.dataType, id: params.data?.name }, params);
-    }
+    eventHandler?.({ type: 'blur', objectType: params.dataType, id: params.data?.name }, params);
   });
   // @ts-ignore
-  (chartInstance as any).getZr().on('mousedown', (params: any) => {
-    if (onevent && params.target) {
-      onevent({ type: 'drag', objectType: params.target.dataType, id: params.target.name }, params);
-    }
-  });
-  // @ts-ignore
-  (chartInstance as any).getZr().on('mouseup', (params: any) => {
-    if (onevent && params.target) {
-      onevent({ type: 'free', objectType: params.target.dataType, id: params.target.name }, params);
-    }
-  });
-  // focus/blur 事件模拟
-  if (chartInstance.getDom()) {
+  if ((chartInstance as any).getZr) {
+    (chartInstance as any).getZr().on('mousedown', (params: any) => {
+      if (params.target) {
+        eventHandler?.({ type: 'drag', objectType: params.target.dataType, id: params.target.name }, params);
+      }
+    });
+    (chartInstance as any).getZr().on('mouseup', (params: any) => {
+      if (params.target) {
+        eventHandler?.({ type: 'free', objectType: params.target.dataType, id: params.target.name }, params);
+      }
+    });
+  }
+  if (chartInstance.getDom && chartInstance.getDom()) {
     chartInstance.getDom().addEventListener('focus', () => {
-      if (onevent) onevent({ type: 'focus', objectType: 'graph' });
+      eventHandler?.({ type: 'focus', objectType: 'graph' });
     });
     chartInstance.getDom().addEventListener('blur', () => {
-      if (onevent) onevent({ type: 'blur', objectType: 'graph' });
+      eventHandler?.({ type: 'blur', objectType: 'graph' });
     });
   }
 }
 
 function getEChartsPaletteColor(name: string, fallback: string = "#ffffff"): string {
   if (typeof $tw !== "undefined" && $tw.wiki && $tw.wiki.getTiddlerText) {
-    // 优先查找 ECharts 专用调色板字段
     const tiddler = $tw.wiki.getTiddlerText(`$:/config/DefaultColourMappings/echarts-${name}`)
       || $tw.wiki.getTiddlerText(`$:/palette/${name}`);
     if (tiddler) return tiddler.trim();
@@ -235,8 +251,8 @@ function getEChartsPaletteColor(name: string, fallback: string = "#ffffff"): str
   return fallback;
 }
 
-function render(objects: GraphObjects): void {
-  // 背景色设为透明，交由外部 CSS 控制
+function render(this: EChartsEngineInstance, objects: GraphObjects): void {
+  const chartInstance = this.chartInstance;
   const backgroundColor = 'rgba(0,0,0,0)';
   const nodeColor = (objects.graph?.nodeColor as string)
     || getEChartsPaletteColor("node", "#D2E5FF");
@@ -262,7 +278,7 @@ function render(objects: GraphObjects): void {
           symbolSize: node.size ?? 40,
           category: node.hidden ? 'hidden' : 'default',
           label: { color: node.fontColor ?? fontColor },
-          symbol: node.shape ? node.shape : "circle", // 支持 shape
+          symbol: node.shape ? node.shape : "circle",
           ...(node.image ? { symbol: `image://${node.image}` } : {}),
           ...(node.physics === false ? { fixed: true } : {}),
         })),
@@ -288,13 +304,14 @@ function render(objects: GraphObjects): void {
     ],
   };
 
-  chartInstance?.setOption(option, true);
-
-  // focus/blur 事件
-  if (objects.graph?.focus && chartInstance) {
-    chartInstance.dispatchAction({ type: 'focusNodeAdjacency', seriesIndex: 0 });
-  }
-  if (objects.graph?.blur && chartInstance) {
-    chartInstance.dispatchAction({ type: 'unfocusNodeAdjacency', seriesIndex: 0 });
+  if (chartInstance) {
+    chartInstance.setOption(option, true);
+    // focus/blur 事件
+    if (objects.graph?.focus) {
+      chartInstance.dispatchAction({ type: 'focusNodeAdjacency', seriesIndex: 0 });
+    }
+    if (objects.graph?.blur) {
+      chartInstance.dispatchAction({ type: 'unfocusNodeAdjacency', seriesIndex: 0 });
+    }
   }
 }
