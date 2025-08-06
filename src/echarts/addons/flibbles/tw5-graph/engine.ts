@@ -4,6 +4,7 @@
  */
 
 import * as Echarts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
+import type { EChartOption } from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
 
 interface GraphObjects {
   graph?: {
@@ -115,9 +116,60 @@ export function init(element: HTMLDivElement, objects: GraphObjects, eventHandle
 }
 
 export function update(objects: GraphObjects): void {
-  // DEBUG: console objects
-  console.log(`update objects`, objects);
-  render(objects);
+  const option: EChartOption = {
+    backgroundColor: undefined,
+    series: []
+  };
+  const fontColor = (objects.graph?.fontColor as string) || getEChartsPaletteColor("font", "#343434");
+  let graphSeries: EChartOption.SeriesGraph = {
+    type: "graph",
+    layout: undefined,
+    roam: undefined,
+    focusNodeAdjacency: undefined,
+    force: undefined,
+    data: undefined,
+    links: undefined,
+    categories: [
+      { name: 'default' },
+      { name: 'hidden', itemStyle: { opacity: 0.1 } },
+    ],
+    draggable: true,
+  };
+  if (objects.graph) {
+    graphSeries.layout = objects.graph.hierarchy ? 'circular' : (objects.graph.layout || 'force');
+    graphSeries.roam = objects.graph.zoom ?? true;
+    graphSeries.focusNodeAdjacency = objects.graph.navigation ?? true;
+    graphSeries.force = (objects.graph.layout === 'force' && objects.graph.physics !== false) ? {
+      repulsion: objects.graph.repulsion ?? 200,
+      edgeLength: objects.graph.springLength ?? 120,
+      gravity: objects.graph.centralGravity ?? 0.1,
+    } : undefined;
+    option.backgroundColor = 'rgba(0,0,0,0)';
+  }
+  if (objects.nodes) {
+    graphSeries.data = Object.values(objects.nodes).map(node => ({
+      name: node.label,
+      x: node.x,
+      y: node.y,
+      itemStyle: { color: node.color },
+      symbolSize: node.size ?? 40,
+      category: node.hidden ? 1 : 0, // 0: default, 1: hidden
+      label: { color: node.fontColor },
+      symbol: node.shape ? node.shape : 'circle',
+      ...(node.image ? { symbol: `image://${node.image}` } : {}),
+      ...(node.physics === false ? { fixed: true } : {}),
+    }));
+  }
+  if (objects.edges) {
+    graphSeries.links = Object.values(objects.edges).map(edge => ({
+      source: edge.from,
+      target: edge.to,
+      label: { show: !!edge.label, formatter: edge.label, color: fontColor },
+      lineStyle: { color: edge.color },
+    }));
+  }
+  option.series = [graphSeries];
+  chartInstance?.setOption(option, false);
 }
 
 export function destroy(): void {
