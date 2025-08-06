@@ -107,6 +107,7 @@ let chartInstance: Echarts.ECharts | null = null;
 let onevent: ((event: any, variables?: any) => void) | null = null;
 
 export function init(element: HTMLDivElement, objects: GraphObjects, eventHandler?: (event: any, variables?: any) => void): void {
+  element.classList.add('tw5-graph-echarts');
   chartInstance = Echarts.init(element);
   if (eventHandler) onevent = eventHandler;
   setupEvents();
@@ -114,6 +115,8 @@ export function init(element: HTMLDivElement, objects: GraphObjects, eventHandle
 }
 
 export function update(objects: GraphObjects): void {
+  // DEBUG: console objects
+  console.log(`update objects`, objects);
   render(objects);
 }
 
@@ -181,10 +184,8 @@ function getEChartsPaletteColor(name: string, fallback: string = "#ffffff"): str
 }
 
 function render(objects: GraphObjects): void {
-  // 优先使用 graph.nodeColor、fontColor、graphColor，否则自动获取 ECharts 专用调色板
-  const backgroundColor = objects.graph?.background
-    || objects.graph?.graphColor
-    || getEChartsPaletteColor("background", "#ffffff");
+  // 背景色设为透明，交由外部 CSS 控制
+  const backgroundColor = 'rgba(0,0,0,0)';
   const nodeColor = (objects.graph?.nodeColor as string)
     || getEChartsPaletteColor("node", "#D2E5FF");
   const fontColor = (objects.graph?.fontColor as string)
@@ -244,14 +245,4 @@ function render(objects: GraphObjects): void {
   if (objects.graph?.blur && chartInstance) {
     chartInstance.dispatchAction({ type: 'unfocusNodeAdjacency', seriesIndex: 0 });
   }
-
-  // addNode/addEdge 仅做演示，ECharts 不支持直接动态添加节点/边，需外部数据驱动
-  // if (objects.graph?.addNode && chartInstance) {
-  //   // chartInstance.dispatchAction({ type: 'addNode', ...objects.graph.addNode });
-  // }
-  // if (objects.graph?.addEdge && chartInstance) {
-  //   // chartInstance.dispatchAction({ type: 'addEdge', ...objects.graph.addEdge });
-  // }
-  // delete 由外部数据驱动
-  // doubleclick/drag/free/hover 由 setupEvents 处理
 }

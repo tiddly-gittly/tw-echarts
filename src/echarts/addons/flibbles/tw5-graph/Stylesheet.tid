@@ -1,0 +1,6 @@
+title: $:/plugins/Gk0Wk/echarts/addons/flibbles/tw5-graph/Stylesheet
+tags: $:/tags/Stylesheet
+
+.tw5-graph-echarts {
+  background: var(--tw-background, #fff) !important;
+}
