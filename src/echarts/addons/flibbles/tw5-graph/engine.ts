@@ -17,6 +17,9 @@ interface GraphObjects {
     hierarchy?: boolean;
     addNode?: any;
     addEdge?: any;
+    graphColor?: string;
+    nodeColor?: string;
+    fontColor?: string;
   };
   nodes?: Record<string, {
     x?: number;
@@ -33,6 +36,7 @@ interface GraphObjects {
     blur?: any;
     drag?: any;
     free?: any;
+    fontColor?: string;
   }>;
   edges?: Record<string, {
     from: string;
@@ -161,9 +165,29 @@ function setupEvents() {
   }
 }
 
+function getEChartsPaletteColor(name: string, fallback: string = "#ffffff"): string {
+  if (typeof $tw !== "undefined" && $tw.wiki && $tw.wiki.getTiddlerText) {
+    // 优先查找 ECharts 专用调色板字段
+    const tiddler = $tw.wiki.getTiddlerText(`$:/config/DefaultColourMappings/echarts-${name}`)
+      || $tw.wiki.getTiddlerText(`$:/palette/${name}`);
+    if (tiddler) return tiddler.trim();
+  }
+  return fallback;
+}
+
 function render(objects: GraphObjects): void {
+  // 优先使用 graph.nodeColor、fontColor、graphColor，否则自动获取 ECharts 专用调色板
+  const backgroundColor = objects.graph?.background
+    || objects.graph?.graphColor
+    || getEChartsPaletteColor("background", "#ffffff");
+  const nodeColor = (objects.graph?.nodeColor as string)
+    || getEChartsPaletteColor("node", "#D2E5FF");
+  const fontColor = (objects.graph?.fontColor as string)
+    || getEChartsPaletteColor("font", "#343434");
+  const edgeColor = getEChartsPaletteColor("edge", nodeColor);
+
   const option = {
-    backgroundColor: objects.graph?.background || "#ffffff",
+    backgroundColor,
     series: [
       {
         type: "graph",
@@ -172,17 +196,18 @@ function render(objects: GraphObjects): void {
           name: node.label,
           x: node.x,
           y: node.y,
-          itemStyle: { color: node.color },
+          itemStyle: { color: node.color || nodeColor },
           symbolSize: node.size,
           category: node.hidden ? 'hidden' : 'default',
+          label: { color: node.fontColor || fontColor },
           ...(node.image ? { symbol: `image://${node.image}` } : {}),
           ...(node.physics === false ? { fixed: true } : {}),
         })),
         links: Object.values(objects.edges || {}).map(edge => ({
           source: edge.from,
           target: edge.to,
-          label: { show: !!edge.label, formatter: edge.label },
-          lineStyle: { color: edge.color },
+          label: { show: !!edge.label, formatter: edge.label, color: fontColor },
+          lineStyle: { color: edge.color || edgeColor },
         })),
         roam: objects.graph?.zoom,
         focusNodeAdjacency: objects.graph?.navigation || false,

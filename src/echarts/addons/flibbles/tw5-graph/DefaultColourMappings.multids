@@ -1,0 +1,6 @@
+title: $:/config/DefaultColourMappings/
+
+echarts-background: <<colour page-background>>
+echarts-node: <<colour dropdown-background>>
+echarts-font: <<colour foreground>>
+echarts-edge: <<colour dropdown-border>>
