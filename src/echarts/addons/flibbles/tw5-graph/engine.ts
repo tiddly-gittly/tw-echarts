@@ -20,6 +20,9 @@ interface GraphObjects {
     graphColor?: string;
     nodeColor?: string;
     fontColor?: string;
+    repulsion?: number;
+    springLength?: number;
+    centralGravity?: number;
   };
   nodes?: Record<string, {
     x?: number;
@@ -37,6 +40,7 @@ interface GraphObjects {
     drag?: any;
     free?: any;
     fontColor?: string;
+    shape?: string;
   }>;
   edges?: Record<string, {
     from: string;
@@ -83,6 +87,7 @@ export const properties = {
     blur: { type: "actions" },
     drag: { type: "actions", variables: ["x", "y"] },
     free: { type: "actions", variables: ["x", "y"] },
+    shape: { type: "enum", values: ["circle", "rect", "roundRect", "triangle", "diamond", "pin", "arrow"] }, // ECharts 支持的 symbol
   },
   edges: {
     from: { type: "string" },
@@ -186,20 +191,25 @@ function render(objects: GraphObjects): void {
     || getEChartsPaletteColor("font", "#343434");
   const edgeColor = getEChartsPaletteColor("edge", nodeColor);
 
+  // 力导向布局开关
+  const isForce = objects.graph?.layout === "force" && objects.graph?.physics !== false;
+  const layoutType = objects.graph?.hierarchy ? 'circular' : (isForce ? "force" : "none");
+
   const option = {
     backgroundColor,
     series: [
       {
         type: "graph",
-        layout: objects.graph?.hierarchy ? 'circular' : (objects.graph?.layout || "force"),
+        layout: layoutType,
         data: Object.values(objects.nodes || {}).map(node => ({
           name: node.label,
           x: node.x,
           y: node.y,
-          itemStyle: { color: node.color || nodeColor },
-          symbolSize: node.size,
+          itemStyle: { color: node.color ?? nodeColor },
+          symbolSize: node.size ?? 40,
           category: node.hidden ? 'hidden' : 'default',
-          label: { color: node.fontColor || fontColor },
+          label: { color: node.fontColor ?? fontColor },
+          symbol: node.shape ? node.shape : "circle", // 支持 shape
           ...(node.image ? { symbol: `image://${node.image}` } : {}),
           ...(node.physics === false ? { fixed: true } : {}),
         })),
@@ -207,13 +217,16 @@ function render(objects: GraphObjects): void {
           source: edge.from,
           target: edge.to,
           label: { show: !!edge.label, formatter: edge.label, color: fontColor },
-          lineStyle: { color: edge.color || edgeColor },
+          lineStyle: { color: edge.color ?? edgeColor },
         })),
-        roam: objects.graph?.zoom,
-        focusNodeAdjacency: objects.graph?.navigation || false,
-        force: {
-          repulsion: objects.graph?.physics === false ? 0 : 100,
-        },
+        roam: objects.graph?.zoom ?? true,
+        focusNodeAdjacency: objects.graph?.navigation ?? true,
+        force: isForce ? {
+          repulsion: objects.graph?.repulsion ?? 200,
+          edgeLength: objects.graph?.springLength ?? 120,
+          gravity: objects.graph?.centralGravity ?? 0.1,
+        } : undefined,
+        draggable: true,
         categories: [
           { name: 'default' },
           { name: 'hidden', itemStyle: { opacity: 0.1 } },
@@ -222,7 +235,7 @@ function render(objects: GraphObjects): void {
     ],
   };
 
-  chartInstance?.setOption(option);
+  chartInstance?.setOption(option, true);
 
   // focus/blur 事件
   if (objects.graph?.focus && chartInstance) {
