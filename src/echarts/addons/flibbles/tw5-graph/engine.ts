@@ -9,6 +9,8 @@ import * as Echarts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
 
 export { properties };
 
+export const name = 'ECharts';
+
 /**
  * Class created by `$tw.modules.createClassesFromModules("graphengine")`
  */
