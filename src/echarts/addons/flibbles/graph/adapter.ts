@@ -11,12 +11,14 @@ interface GraphObjects {
 export const name = "ECharts";
 
 export const properties = {
-	graph: {},
+	graph: {
+		physics: {type: "boolean", default: true}
+	},
 	nodes: {
-		value: {type: "number"},
 		x: {type: "number"},
 		y: {type: "number"},
-		label: {type: "string"}
+		label: {type: "string"},
+		color: {type: "color"}
 	},
 	edges: {
 		label: {type: "string"}
@@ -34,14 +36,21 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 	this.window.addEventListener("resize", function() {
 		echarts.resize();
 	});
+	objects.graph = objects.graph || {};
+	if (objects.graph.physics === undefined) {
+		objects.graph.physics = true;
+	}
 	this.update(objects);
 };
 
 export function update(objects: GraphObjects) {
-	var config = {
+	let config = {
 		//title: { text: "ECharts hello world" },
 		//legend: { data: ['Legend here'] },
 	};
+	const series = {};
+	let resubmitSeries = false;
+	let type = "graph";
 	if (objects.graph) {
 		var graph = objects.graph;
 		if (graph.nodeColor) {
@@ -53,24 +62,34 @@ export function update(objects: GraphObjects) {
 		}
 		if (graph.type) {
 			this.type = graph.type;
+			series.
 			// Force a refresh of nodes
-			objects.nodes = objects.nodes || {};
+			resubmitSeries = true;
+		}
+		if (graph.physics !== undefined) {
+			series.layout = graph.physics? "force": "none";
+			resubmitSeries = true;
 		}
 	}
 	if (objects.nodes || objects.edges) {
-		var series = {
-			type: this.type || "graph",
-			layout: "none"
-		};
+		resubmitSeries = true;
+		series.type = "graph";
 		if (objects.nodes) {
 			var data = merge(this.entries, objects.nodes);
 			var nodes = this.entries;
 			series.data = data.map(function(n) {
-				return {
-					name: n.label,
-					x: n.x/10,
-					y: n.y/10
+				var cleaned = { id: n.id };
+				if (n.x !== undefined) {
+					cleaned.x = n.x/10;
+				} else {
+					cleaned.x = 0;
 				}
+				if (n.y !== undefined) {
+					cleaned.y = n.y/10;
+				} else {
+					cleaned.y = 0;
+				}
+				return cleaned;
 			});
 		}
 		if (objects.edges) {
@@ -80,14 +99,17 @@ export function update(objects: GraphObjects) {
 				series.links.push({source: edge.from, target: edge.to});
 			}
 		}
+	}
+	if (resubmitSeries) {
 		config.series = [series];
 	}
 	this.echarts.setOption(config);
 };
 
-export function destroy() {
-	if (!this.echarts.isDisposed()) {
+export function destroy(): void {
+	if (this.echarts && !this.echarts.isDisposed()) {
 		this.echarts.dispose();
+		this.echarts = undefined;
 	}
 };
 

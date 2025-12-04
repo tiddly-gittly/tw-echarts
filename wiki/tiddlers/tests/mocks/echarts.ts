@@ -16,8 +16,7 @@ class MockECharts {
 		this.element = element;
 	}
 
-	setOption(options) {
-		this.options = options;
-		console.log("The update was called");
+	setOption(option) {
+		this.lastOption = option;
 	}
 };

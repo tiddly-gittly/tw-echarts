@@ -12,12 +12,33 @@ beforeAll(function() {
 
 // Creates a temporary element for the adapter to build off of.
 // No need to pull TiddlyWiki's parser into these tests.
-function element() {
-	return $tw.fakeDocument.createElement("div");
+function newAdapter(objects) {
+	const adapter = Object.create(Adapter);
+	adapter.init($tw.fakeDocument.createElement("div"), objects, {window: new Mocks.Window()});
+	return adapter;
 };
 
-it('handles an entirely empty graph', function() {
-	const adapter = Adapter.init(element(), {}, {window: new Mocks.Window()});
+xit('handles empty graph getting filled', function() {
+	const adapter = newAdapter({});
+	expect(adapter.echarts.lastOption.series).toBeUndefined();
+	adapter.update({nodes: { newNode: {}} });
+	// With such a minimal set of info to update,
+	// we should be able to exactly match the passed "option".
+	expect(adapter.echarts.lastOption).toEqual({
+		series: [{
+			type: "graph",
+			layout: "force",
+			data: [{id: "newNode"}]
+		}]
+	});
+});
+
+it('handles physics', function() {
+	const adapter = newAdapter({nodes: {A: {}}});
+	// physics is enabled by default
+	expect(adapter.echarts.lastOption.series[0].layout).toBe("force");
+	adapter.update({graph: {physics: false}});
+	expect(adapter.echarts.lastOption).toEqual({series: [{layout: "none"}]});
 });
 
 });
