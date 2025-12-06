@@ -12,7 +12,10 @@ export const name = "ECharts";
 
 export const properties = {
 	graph: {
-		physics: {type: "boolean", default: true}
+		physics: {type: "boolean", default: true},
+		zoom: {type: "boolean", default: true},
+		focus: {type: "actions"},
+		blur: {type: "actions"}
 	},
 	nodes: {
 		x: {type: "number"},
@@ -30,6 +33,9 @@ export const messages = Object.create(null);
 export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 	element.style.height = "400px";
 	var echarts = ECharts.init(element);
+	this.echartsElement = echarts.getDom();
+	this.echartsElement.addEventListener("focus", this);
+	this.echartsElement.addEventListener("blur", this);
 	this.window = options.window || window;
 	this.echarts = echarts;
 	this.entries = Object.create(null);
@@ -52,6 +58,8 @@ export function update(objects: GraphObjects) {
 	let resubmitSeries = false;
 	let type = "graph";
 	if (objects.graph) {
+		// Force a refresh of nodes
+		resubmitSeries = true;
 		var graph = objects.graph;
 		if (graph.nodeColor) {
 			config.color = [
@@ -62,14 +70,19 @@ export function update(objects: GraphObjects) {
 		}
 		if (graph.type) {
 			this.type = graph.type;
-			series.
-			// Force a refresh of nodes
-			resubmitSeries = true;
 		}
-		if (graph.physics !== undefined) {
-			series.layout = graph.physics? "force": "none";
-			resubmitSeries = true;
-		}
+		// We need to set this manually in all cases because we
+		// use a different default from what echarts would use.
+		// Physics defaults to "on", because vis-network did.
+		series.layout = graph.physics === false? "none": "force";
+		series.force = {
+			repulsion: 60,
+			edgeLength: 2,
+			gravity: 0.1
+		};
+		// zoom <=> roam is another option where we have a different
+		// default
+		series.roam = graph.zoom !== false;
 	}
 	if (objects.nodes || objects.edges) {
 		resubmitSeries = true;
@@ -104,10 +117,13 @@ export function update(objects: GraphObjects) {
 		config.series = [series];
 	}
 	this.echarts.setOption(config);
+	this.config = config;
 };
 
 export function destroy(): void {
 	if (this.echarts && !this.echarts.isDisposed()) {
+		this.echartsElement.removeEventListener("focus", this);
+		this.echartsElement.removeEventListener("blur", this);
 		this.echarts.dispose();
 		this.echarts = undefined;
 	}
@@ -133,3 +149,10 @@ function merge(entries, updates) {
 	return output;
 };
 
+export function handleEvent(event: Event) {
+	this.onevent({
+		type: event.type,
+		objectType: "graph",
+		event: event
+	});
+};

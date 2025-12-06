@@ -19,4 +19,19 @@ class MockECharts {
 	setOption(option) {
 		this.lastOption = option;
 	}
+
+	getDom() {
+		return this.element;
+	}
+
+	dispose() {
+		if (this.isDisposed()) {
+			throw new Exception("Trying to dispose of a mock echarts that was either already disposed of, or never initialized.");
+		}
+		this.element = undefined;
+	}
+
+	isDisposed() {
+		return this.element === undefined;
+	}
 };
