@@ -1,14 +1,6 @@
-const Mocks = $tw.modules.applyMethods("testmock");
-const ECharts = require('$:/plugins/Gk0Wk/echarts/echarts.min.js');
-const Adapter = $tw.modules.getModulesByTypeAsHashmap("graphengine")["ECharts"];
-
 describe('graphengine tests', function() {
 
-beforeAll(function() {
-	spyOn(ECharts, "init").and.callFake(function(element) {
-		return Mocks.ECharts.init(element);
-	});
-});
+beforeAll(() => $tw.test.startTestMode() );
 
 xit('handles empty graph getting filled', function() {
 	const adapter = new $tw.test.GraphEngine({});

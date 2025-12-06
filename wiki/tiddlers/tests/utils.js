@@ -1,7 +1,19 @@
 const Mocks = $tw.modules.applyMethods("testmock");
+const ECharts = require('$:/plugins/Gk0Wk/echarts/echarts.min.js');
 const GraphEngineModule = $tw.modules.getModulesByTypeAsHashmap("graphengine")["ECharts"];
 
 var test = $tw.test = Object.create(null);
+
+/* Puts ECharts into test mode, such that calls to initialize it will return
+ * a mock test object rather than the actual ECharts library.
+ * Annoyingly, this can't be passed directly to beforeAll, because Jasmin
+ * reads other test suites before it reads the utils.
+ */
+test.startTestMode = function() {
+	spyOn(ECharts, "init").and.callFake(function(element) {
+		return Mocks.ECharts.init(element);
+	});
+};
 
 /* This creates a special test version of the `graphengine` module intended
  * for testing. Tests should access its internals through the getters.
