@@ -7,7 +7,7 @@
 			"fields": {
 				"title": {
 					"source": "filename",
-					"prefix": "test/"
+					"prefix": "$:/test/"
 				},
 				"type": "application/javascript",
 				"tags": "$:/tags/test-spec"
@@ -20,7 +20,7 @@
 			"fields": {
 				"title": {
 					"source": "filename",
-					"prefix": "test/mocks/"
+					"prefix": "$:/test/mocks/"
 				},
 				"type": "application/javascript",
 				"module-type": "testmock"
