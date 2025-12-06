@@ -1,10 +1,3 @@
-/*\
-title: test/mocks/eventhandler.js
-type: application/javascript
-module-type: testmock
-
-\*/
-
 exports.EventTarget = Object.create(null);
 
 exports.EventTarget.addEventListener = function(type, method) {
