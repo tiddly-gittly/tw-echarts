@@ -1,0 +1,17 @@
+{
+	"directories": [
+		{
+			"path": ".",
+			"filesRegExp": "^.*\\.js$",
+			"isTiddlerFile": true,
+			"fields": {
+				"title": {
+					"source": "filename",
+					"prefix": "test/mocks/"
+				},
+				"type": "application/javascript",
+				"module-type": "testmock"
+			}
+		}
+	]
+}
