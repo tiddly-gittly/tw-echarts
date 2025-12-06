@@ -10,50 +10,8 @@ beforeAll(function() {
 	});
 });
 
-// Creates a temporary element for the adapter to build off of.
-// No need to pull TiddlyWiki's parser into these tests.
-function newAdapter(objects) {
-	const adapter = Object.create(Adapter);
-	var element = $tw.fakeDocument.createElement("div");
-	$tw.utils.extend(element, Mocks.EventTarget);
-	adapter.init(element, objects, {window: new Mocks.Window()});
-	return adapter;
-};
-
-// This ensure that the called event matches up with what the adapter says it
-// invokes.
-function spyOnevent(adapter, fake) {
-	var properties = adapter.properties;
-	// First, we need to make an onevent to spy on.
-	adapter.onevent = function() {};
-	var spy = spyOn(adapter, "onevent").and.callFake(function(graphEvent, variables) {
-		// Make sure we have a category for this object type
-		var category = properties[graphEvent.objectType];
-		expect(category).not.toBeUndefined("ObjectType: " + graphEvent.objectType);
-		// If it's not a graph objectType, it must have an Id
-		if (graphEvent.objectType !== "graph") {
-			expect(graphEvent.id).not.toBeUndefined("Id");
-		}
-		// Make sure the specific action is listed
-		var property = category[graphEvent.type];
-		expect(property).not.toBeUndefined(`Vis does not define action property '${graphEvent.type}'`);
-		// Compare listed variables with actually passed variables
-		var expectedVars = property.variables || [];
-		var actualVars = Object.keys(variables || {});
-		expect($tw.utils.count(variables)).toBe(expectedVars.length, "Unexpected number of event arguments.");
-		$tw.utils.each(expectedVars, function(name) {
-			expect(actualVars).toContain(name);
-		});
-		// Now that everything is kosher, we can actually call our passed method
-		if (fake) {
-			fake(graphEvent, variables);
-		}
-	});
-	return spy;
-};
-
 xit('handles empty graph getting filled', function() {
-	const adapter = newAdapter({});
+	const adapter = new $tw.test.GraphEngine({});
 	expect(adapter.echarts.lastOption.series).toBeUndefined();
 	adapter.update({nodes: { newNode: {}} });
 	// With such a minimal set of info to update,
@@ -68,7 +26,7 @@ xit('handles empty graph getting filled', function() {
 });
 
 it('handles physics', function() {
-	const adapter = newAdapter({nodes: {A: {}}});
+	const adapter = new $tw.test.GraphEngine({nodes: {A: {}}});
 	// physics is enabled by default
 	expect(adapter.echarts.lastOption.series[0].layout).toBe("force");
 	// disable the physics and make sure it takes
@@ -86,7 +44,7 @@ it('handles physics', function() {
 });
 
 it('handles zoom', function() {
-	const adapter = newAdapter({nodes: {A: {}}});
+	const adapter = new $tw.test.GraphEngine({nodes: {A: {}}});
 	// zooming, or as echarts calls it, zooming, is enabled by default
 	expect(adapter.echarts.lastOption.series[0].roam).toBe(true);
 	// disable zooming
@@ -97,8 +55,8 @@ it('handles zoom', function() {
 // Make sure the graph can emit both focus and blur on the whole graph itself
 $tw.utils.each(["focus", "blur"], function(type) {
 	it(`handles graph ${type} event`, function() {
-		const adapter = newAdapter({graph: {[type]: true}});
-		var onevent = spyOnevent(adapter, function(graphEvent, variables) {
+		const adapter = new $tw.test.GraphEngine({graph: {[type]: true}});
+		var onevent = $tw.test.spyOnEvent(adapter, function(graphEvent, variables) {
 			expect(graphEvent.type).toBe(type);
 			expect(graphEvent.objectType).toBe("graph");
 		});

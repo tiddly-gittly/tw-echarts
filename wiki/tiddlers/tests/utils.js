@@ -1,0 +1,50 @@
+const Mocks = $tw.modules.applyMethods("testmock");
+const GraphEngineModule = $tw.modules.getModulesByTypeAsHashmap("graphengine")["ECharts"];
+
+var test = $tw.test = Object.create(null);
+
+/* This creates a special test version of the `graphengine` module intended
+ * for testing. Tests should access its internals through the getters.
+ */
+test.GraphEngine = function(initialObjects) {
+	this.testElement = $tw.fakeDocument.createElement("div");
+	$tw.utils.extend(this.testElement, Mocks.EventTarget);
+	this.init(this.testElement, initialObjects, {window: new Mocks.Window()});
+};
+
+test.GraphEngine.prototype = Object.create(GraphEngineModule);
+
+/* This registers a method with an adapter to be called for events.
+ * It also ensures that events match what the adapter's properties describe.
+ * Returns a spy which can be used to track onevent calls.
+ */
+test.spyOnEvent = function(adapter, method) {
+	var properties = adapter.properties;
+	// First, we need to make an onevent to spy on.
+	adapter.onevent = function() {};
+	var spy = spyOn(adapter, "onevent").and.callFake(function(graphEvent, variables) {
+		// Make sure we have a category for this object type
+		var category = properties[graphEvent.objectType];
+		expect(category).not.toBeUndefined("ObjectType: " + graphEvent.objectType);
+		// If it's not a graph objectType, it must have an Id
+		if (graphEvent.objectType !== "graph") {
+			expect(graphEvent.id).not.toBeUndefined("Id");
+		}
+		// Make sure the specific action is listed
+		var property = category[graphEvent.type];
+		expect(property).not.toBeUndefined(`Vis does not define action property '${graphEvent.type}'`);
+		// Compare listed variables with actually passed variables
+		var expectedVars = property.variables || [];
+		var actualVars = Object.keys(variables || {});
+		expect($tw.utils.count(variables)).toBe(expectedVars.length, "Unexpected number of event arguments.");
+		$tw.utils.each(expectedVars, function(name) {
+			expect(actualVars).toContain(name);
+		});
+		// Now that everything is kosher, we can actually call our passed method
+		if (method) {
+			method(graphEvent, variables);
+		}
+	});
+	return spy;
+};
+
