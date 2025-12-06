@@ -7,6 +7,19 @@
 			"fields": {
 				"title": {
 					"source": "filename",
+					"prefix": "test/"
+				},
+				"type": "application/javascript",
+				"tags": "$:/tags/test-spec"
+			}
+		},
+		{
+			"path": "./mocks",
+			"filesRegExp": "^.*\\.js$",
+			"isTiddlerFile": true,
+			"fields": {
+				"title": {
+					"source": "filename",
 					"prefix": "test/mocks/"
 				},
 				"type": "application/javascript",
