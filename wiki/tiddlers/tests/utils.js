@@ -1,6 +1,7 @@
 const Mocks = $tw.modules.applyMethods("testmock");
 const ECharts = require('$:/plugins/Gk0Wk/echarts/echarts.min.js');
-const GraphEngineModule = $tw.modules.getModulesByTypeAsHashmap("graphengine")["ECharts"];
+const GraphEngineModule = function() {};
+GraphEngineModule.prototype = $tw.modules.getModulesByTypeAsHashmap("graphengine")["ECharts"];
 
 var test = $tw.test = Object.create(null);
 
@@ -18,13 +19,19 @@ test.startTestMode = function() {
 /* This creates a special test version of the `graphengine` module intended
  * for testing. Tests should access its internals through the getters.
  */
-test.GraphEngine = function(initialObjects) {
-	this.testElement = $tw.fakeDocument.createElement("div");
-	$tw.utils.extend(this.testElement, Mocks.EventTarget);
-	this.init(this.testElement, initialObjects, {window: new Mocks.Window()});
-};
+test.GraphEngine = class GraphEngine extends GraphEngineModule {
+	constructor(initialObjects) {
+		super();
+		this.testElement = $tw.fakeDocument.createElement("div");
+		$tw.utils.extend(this.testElement, Mocks.EventTarget);
+		var options = {window: new Mocks.Window()};
+		this.init(this.testElement, initialObjects, options);
+	}
 
-test.GraphEngine.prototype = Object.create(GraphEngineModule);
+	get testLast() {
+		return this.echarts.lastOption;
+	}
+};
 
 /* This registers a method with an adapter to be called for events.
  * It also ensures that events match what the adapter's properties describe.

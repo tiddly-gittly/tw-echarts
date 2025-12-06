@@ -4,11 +4,11 @@ beforeAll(() => $tw.test.startTestMode() );
 
 xit('handles empty graph getting filled', function() {
 	const adapter = new $tw.test.GraphEngine({});
-	expect(adapter.echarts.lastOption.series).toBeUndefined();
+	expect(adapter.testLast.series).toBeUndefined();
 	adapter.update({nodes: { newNode: {}} });
 	// With such a minimal set of info to update,
 	// we should be able to exactly match the passed "option".
-	expect(adapter.echarts.lastOption).toEqual({
+	expect(adapter.testLast).toEqual({
 		series: [{
 			type: "graph",
 			layout: "force",
@@ -20,28 +20,28 @@ xit('handles empty graph getting filled', function() {
 it('handles physics', function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {A: {}}});
 	// physics is enabled by default
-	expect(adapter.echarts.lastOption.series[0].layout).toBe("force");
+	expect(adapter.testLast.series[0].layout).toBe("force");
 	// disable the physics and make sure it takes
 	adapter.update({graph: {physics: false}});
-	expect(adapter.echarts.lastOption.series[0].layout).toBe("none");
+	expect(adapter.testLast.series[0].layout).toBe("none");
 	// unset it and make sure that resets the physics to ON
 	adapter.update({graph: {}});
-	expect(adapter.echarts.lastOption.series[0].layout).toBe("force");
+	expect(adapter.testLast.series[0].layout).toBe("force");
 	// re-enable it and make sure that takes too
 	// I might want to change this later to not expect a new update.
 	// That would prevent the hiccup that echarts shows, but that kind
 	// of smoothness might require too complicated an interface.
 	adapter.update({graph: {physics: true}});
-	expect(adapter.echarts.lastOption.series[0].layout).toBe("force");
+	expect(adapter.testLast.series[0].layout).toBe("force");
 });
 
 it('handles zoom', function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {A: {}}});
 	// zooming, or as echarts calls it, zooming, is enabled by default
-	expect(adapter.echarts.lastOption.series[0].roam).toBe(true);
+	expect(adapter.testLast.series[0].roam).toBe(true);
 	// disable zooming
 	adapter.update({graph: {zoom: false}});
-	expect(adapter.echarts.lastOption.series[0].roam).toBe(false);
+	expect(adapter.testLast.series[0].roam).toBe(false);
 });
 
 // Make sure the graph can emit both focus and blur on the whole graph itself
@@ -52,7 +52,7 @@ $tw.utils.each(["focus", "blur"], function(type) {
 			expect(graphEvent.type).toBe(type);
 			expect(graphEvent.objectType).toBe("graph");
 		});
-		var element = adapter.echarts.getDom();
+		var element = adapter.testElement;
 		element.dispatchEvent({type: type});
 		expect(onevent).toHaveBeenCalledTimes(1);
 		// Now we make sure that event is de-registered on destroy
