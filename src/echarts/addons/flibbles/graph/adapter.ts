@@ -41,7 +41,8 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 	this.echartsElement.addEventListener("blur", this);
 	this.window = options.window || window;
 	this.echarts = echarts;
-	this.entries = Object.create(null);
+	this.data = Object.create(null);
+	this.links = Object.create(null);
 	this.window.addEventListener("resize", function() {
 		echarts.resize();
 	});
@@ -61,6 +62,7 @@ export function update(objects: GraphObjects) {
 	let resubmitSeries = false;
 	let type = "graph";
 	if (objects.graph) {
+		series.type = "graph";
 		// Force a refresh of nodes
 		resubmitSeries = true;
 		var graph = objects.graph;
@@ -89,10 +91,9 @@ export function update(objects: GraphObjects) {
 	}
 	if (objects.nodes || objects.edges) {
 		resubmitSeries = true;
-		series.type = "graph";
 		if (objects.nodes) {
-			var data = merge(this.entries, objects.nodes);
-			var nodes = this.entries;
+			var data = merge(this.data, objects.nodes);
+			data.sort((a,b) => a.x - b.x);
 			series.data = data.map(function(n) {
 				var cleaned = { id: n.id };
 				if (n.x !== undefined) {
@@ -109,17 +110,16 @@ export function update(objects: GraphObjects) {
 			});
 		}
 		if (objects.edges) {
-			series.links = [];
-			for (var id in objects.edges) {
-				var edge = objects.edges[id];
-				series.links.push({source: edge.from, target: edge.to});
-			}
+			var links = merge(this.links, objects.edges);
+			series.links = links.map(function(l) {
+				return {source: l.from, target: l.to};
+			});
 		}
 	}
 	if (resubmitSeries) {
 		config.series = [series];
 	}
-	this.echarts.setOption(config);
+	this.echarts.setOption(config, false);
 	this.config = config;
 };
 
@@ -148,7 +148,6 @@ function merge(entries, updates) {
 			output.push(entries[id]);
 		}
 	}
-	output.sort((a,b) => a.x - b.x);
 	return output;
 };
 

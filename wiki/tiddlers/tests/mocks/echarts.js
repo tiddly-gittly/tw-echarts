@@ -20,7 +20,7 @@ class MockECharts {
 		this.element.appendChild(this.eventElement);
 	}
 
-	setOption(option) {
+	setOption(option, notMerge) {
 		this.lastOption = option;
 	}
 

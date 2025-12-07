@@ -67,4 +67,24 @@ $tw.utils.each(["focus", "blur"], function(type) {
 	});
 });
 
+// The only way to remove edges from an eCharts graph is to either do
+// a "notMerge" or a "replaceMerge", both of which require fully
+// resubmitting the edge list.
+it('can add and remove edges', function() {
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {}, B: {}, C:{}},
+		edges: {AB: {from: "A", to: "B"}, AC: {from: "A", to: "C"}}});
+	// Let's add an edge
+	adapter.update({edges: {BC: {from: "B", to: "C"}}});
+	expect(adapter.testLast.series[0].links).toEqual([
+		{source: "A", target: "B"},
+		{source: "A", target: "C"},
+		{source: "B", target: "C"}]);
+	// Now let's remove an edge
+	adapter.update({edges: {AB: null}});
+	expect(adapter.testLast.series[0].links).toEqual([
+		{source: "A", target: "C"},
+		{source: "B", target: "C"}]);
+});
+
 });
