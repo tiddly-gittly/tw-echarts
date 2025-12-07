@@ -14,6 +14,10 @@ exports.ECharts = {
 class MockECharts {
 	constructor(element) {
 		this.element = element;
+		// The eventElement is the nested element we send focus and blur
+		// events to.
+		this.eventElement = $tw.test.createElement("div");
+		this.element.appendChild(this.eventElement);
 	}
 
 	setOption(option) {

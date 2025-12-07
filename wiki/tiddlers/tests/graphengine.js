@@ -52,7 +52,11 @@ $tw.utils.each(["focus", "blur"], function(type) {
 			expect(graphEvent.type).toBe(type);
 			expect(graphEvent.objectType).toBe("graph");
 		});
-		var element = adapter.testElement;
+		// The event handlers are attached to the elemetn BELOW the one
+		// we passed to eCharts. Gotta grab that one.
+		var element = adapter.echarts.eventElement;
+		// Ensure it's "focus" and "blur" enabled by the magic attribute
+		expect(element.attributes.tabindex).toBe("0");
 		element.dispatchEvent({type: type});
 		expect(onevent).toHaveBeenCalledTimes(1);
 		// Now we make sure that event is de-registered on destroy

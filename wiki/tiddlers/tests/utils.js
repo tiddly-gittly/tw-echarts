@@ -22,8 +22,7 @@ test.startTestMode = function() {
 test.GraphEngine = class GraphEngine extends GraphEngineModule {
 	constructor(initialObjects) {
 		super();
-		this.testElement = $tw.fakeDocument.createElement("div");
-		$tw.utils.extend(this.testElement, Mocks.EventTarget);
+		this.testElement = test.createElement("div");
 		var options = {window: new Mocks.Window()};
 		this.init(this.testElement, initialObjects, options);
 	}
@@ -31,6 +30,14 @@ test.GraphEngine = class GraphEngine extends GraphEngineModule {
 	get testLast() {
 		return this.echarts.lastOption;
 	}
+};
+
+/* This creates an element from the fakeDom, but jazzes it up a little
+ * with some extra methods and event handling.
+ */
+test.createElement = function(tag) {
+	var element = $tw.fakeDocument.createElement(tag);
+	return $tw.utils.extend(element, Mocks.EventTarget);
 };
 
 /* This registers a method with an adapter to be called for events.
