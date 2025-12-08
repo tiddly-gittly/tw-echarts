@@ -21,12 +21,26 @@ export const properties = {
 		x: {type: "number"},
 		y: {type: "number"},
 		label: {type: "string"},
-		color: {type: "color"}
+		color: {type: "color"},
+		shape: {type: "enum"},
 	},
 	edges: {
 		label: {type: "string"}
 	}
 };
+
+const shape2symbol = {
+	"circle": "circle",
+	"square": "rect",
+	"rounded": "roundRect",
+	"triangle": "triangle",
+	"diamond": "diamond",
+	"pin": "pin",
+	"arrow": "arrow",
+	"no": "none"
+};
+
+properties.nodes.shape.values = Object.keys(shape2symbol);
 
 export const messages = Object.create(null);
 
@@ -98,13 +112,12 @@ export function update(objects: GraphObjects) {
 				var cleaned = { id: n.id };
 				if (n.x !== undefined) {
 					cleaned.x = n.x/10;
-				} else {
-					cleaned.x = 0;
 				}
 				if (n.y !== undefined) {
 					cleaned.y = n.y/10;
-				} else {
-					cleaned.y = 0;
+				}
+				if (shape2symbol[n.shape]) {
+					cleaned.symbol = shape2symbol[n.shape];
 				}
 				return cleaned;
 			});

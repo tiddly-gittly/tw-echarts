@@ -67,6 +67,35 @@ $tw.utils.each(["focus", "blur"], function(type) {
 	});
 });
 
+it('can manipulate node shapes', function() {
+	const adapter = new $tw.test.GraphEngine({ nodes: {
+		unspecified: {},
+		circle: {shape: "circle"},
+		square: {shape: "square"},
+		rounded: {shape: "rounded"},
+		no: {shape: "no"},
+		nonexistent: {shape: "nonexistent"}}});
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "unspecified"},
+		{id: "circle", symbol: "circle"},
+		{id: "square", symbol: "rect"},
+		{id: "rounded", symbol: "roundRect"},
+		{id: "no", symbol: "none"},
+		{id: "nonexistent"}]);
+	// Now to change some of the shapes
+	adapter.update({ nodes: {
+		circle: {shape: "triangle"},           // change
+		square: {shape: "notAChoice"},         // set to non-choice
+		nonexistent: {shape: "arrow"}}}); // set
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "unspecified"},
+		{id: "circle", symbol: "triangle"},
+		{id: "square"},
+		{id: "rounded", symbol: "roundRect"},
+		{id: "no", symbol: "none"},
+		{id: "nonexistent", symbol: "arrow"}]);
+});
+
 // The only way to remove edges from an eCharts graph is to either do
 // a "notMerge" or a "replaceMerge", both of which require fully
 // resubmitting the edge list.
