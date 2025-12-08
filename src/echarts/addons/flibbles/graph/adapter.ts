@@ -1,6 +1,6 @@
 //var ECharts = require("$:/plugins/Gk0Wk/echarts/echarts.min.js");
 
-import ECharts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
+import * as ECharts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
 
 interface GraphObjects {
 	graph?: any;
@@ -107,6 +107,9 @@ export function update(objects: GraphObjects) {
 		// zoom <=> roam is another option where we have a different
 		// default
 		series.roam = graph.zoom !== false;
+		// If we don't have this, then mouse events on the graph outside
+		// of a hypothetical bounding-box around the nodes won't work.
+		series.roamTrigger = "global";
 	}
 	if (objects.nodes || objects.edges) {
 		resubmitSeries = true;
