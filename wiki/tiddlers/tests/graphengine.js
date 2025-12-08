@@ -98,6 +98,29 @@ it('can manipulate node shapes', function() {
 		{id: "nonexistent", symbol: "arrow"}]);
 });
 
+it('can manipulate node image', function() {
+	var imageTiddler = "$:/plugins/Gk0Wk/echarts/icon";
+	var parser = $tw.wiki.parseTiddler(imageTiddler);
+	embeddedUrl = parser.tree[0].attributes.src.value;
+	const adapter = new $tw.test.GraphEngine({nodes: {
+		image: {image: embeddedUrl},
+		shape: {shape: "arrow"},
+		// When mixed, image takes priority
+		mixed: {shape: "arrow", image: embeddedUrl}}});
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "image", symbol: "image://" + embeddedUrl},
+		{id: "shape", symbol: "arrow"},
+		{id: "mixed", symbol: "image://" + embeddedUrl}]);
+	// Let's make sure changing things works correctly
+	adapter.update({nodes: {
+		image: {image: embeddedUrl, shape: "triangle"},
+		mixed: {shape: "triangle"}}});
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "image", symbol: "image://" + embeddedUrl},
+		{id: "shape", symbol: "arrow"},
+		{id: "mixed", symbol: "triangle"}]);
+});
+
 it('can manipulate node physics', function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {
 		yes: {physics: true},

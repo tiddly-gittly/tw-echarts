@@ -22,6 +22,7 @@ export const properties = {
 		y: {type: "number"},
 		label: {type: "string"},
 		physics: {type: "boolean", default: true},
+		image: {type: "image"},
 		color: {type: "color"},
 		shape: {type: "enum", default: "circle"}
 	},
@@ -122,6 +123,9 @@ export function update(objects: GraphObjects) {
 				}
 				if (shape2symbol[n.shape]) {
 					cleaned.symbol = shape2symbol[n.shape];
+				}
+				if (n.image) {
+					cleaned.symbol = `image://${n.image}`;
 				}
 				if (n.physics !== undefined) {
 					cleaned.fixed = n.physics !== true;
