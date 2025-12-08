@@ -17,10 +17,12 @@ xit('handles empty graph getting filled', function() {
 	});
 });
 
-it('handles physics', function() {
+it('handles graph physics', function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {A: {}}});
 	// physics is enabled by default
 	expect(adapter.testLast.series[0].layout).toBe("force");
+	// graph must be set to draggable if it's to be manipulated at all
+	expect(adapter.testLast.series[0].draggable).toBe(true);
 	// disable the physics and make sure it takes
 	adapter.update({graph: {physics: false}});
 	expect(adapter.testLast.series[0].layout).toBe("none");

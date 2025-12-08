@@ -100,6 +100,9 @@ export function update(objects: GraphObjects) {
 			edgeLength: 2,
 			gravity: 0.1
 		};
+		if (series.layout === "force") {
+			series.draggable = true;
+		}
 		// zoom <=> roam is another option where we have a different
 		// default
 		series.roam = graph.zoom !== false;
@@ -112,10 +115,10 @@ export function update(objects: GraphObjects) {
 			series.data = data.map(function(n) {
 				var cleaned = { id: n.id };
 				if (n.x !== undefined) {
-					cleaned.x = n.x/10;
+					cleaned.x = n.x;
 				}
 				if (n.y !== undefined) {
-					cleaned.y = n.y/10;
+					cleaned.y = n.y;
 				}
 				if (shape2symbol[n.shape]) {
 					cleaned.symbol = shape2symbol[n.shape];
