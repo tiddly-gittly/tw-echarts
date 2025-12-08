@@ -96,6 +96,24 @@ it('can manipulate node shapes', function() {
 		{id: "nonexistent", symbol: "arrow"}]);
 });
 
+it('can manipulate node physics', function() {
+	const adapter = new $tw.test.GraphEngine({nodes: {
+		yes: {physics: true},
+		no: {physics: false},
+		unspecified: {}}});
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "yes", fixed: false},
+		{id: "no", fixed: true},
+		{id: "unspecified"}]);
+	// Update physics
+	adapter.update({nodes: {
+		yes: {}, unspecified: {physics: false}}});
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "yes"},
+		{id: "no", fixed: true},
+		{id: "unspecified", fixed: true}]);
+});
+
 // The only way to remove edges from an eCharts graph is to either do
 // a "notMerge" or a "replaceMerge", both of which require fully
 // resubmitting the edge list.

@@ -21,8 +21,9 @@ export const properties = {
 		x: {type: "number"},
 		y: {type: "number"},
 		label: {type: "string"},
+		physics: {type: "boolean", default: true},
 		color: {type: "color"},
-		shape: {type: "enum"},
+		shape: {type: "enum", default: "circle"}
 	},
 	edges: {
 		label: {type: "string"}
@@ -118,6 +119,9 @@ export function update(objects: GraphObjects) {
 				}
 				if (shape2symbol[n.shape]) {
 					cleaned.symbol = shape2symbol[n.shape];
+				}
+				if (n.physics !== undefined) {
+					cleaned.fixed = n.physics !== true;
 				}
 				return cleaned;
 			});
