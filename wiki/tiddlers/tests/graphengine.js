@@ -118,6 +118,15 @@ it('can manipulate node shapes', function() {
 		{id: "nonexistent", symbol: "arrow"}]);
 });
 
+it('can manipulate node color', function() {
+	const adapter = new $tw.test.GraphEngine({nodes: {
+		auto: {},
+		manual: {color: "#bb0000"}}});
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "auto"},
+		{id: "manual", itemStyle: {color: "#bb0000"}}]);
+});
+
 it('can manipulate node image', function() {
 	var imageTiddler = "$:/plugins/Gk0Wk/echarts/icon";
 	var parser = $tw.wiki.parseTiddler(imageTiddler);

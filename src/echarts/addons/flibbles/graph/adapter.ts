@@ -137,6 +137,9 @@ export function update(objects: GraphObjects) {
 					cleaned.name = n.label;
 					cleaned.label = {show: true, position: "bottom"};
 				}
+				if (n.color !== undefined) {
+					cleaned.itemStyle = {color: n.color};
+				}
 				return cleaned;
 			});
 		}
