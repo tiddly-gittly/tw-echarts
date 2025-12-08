@@ -41,6 +41,8 @@ it('handles zoom', function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {A: {}}});
 	// zooming, or as echarts calls it, zooming, is enabled by default
 	expect(adapter.testLast.series[0].roam).toBe(true);
+	// It must be global, or dragging and zooming is a pain.
+	expect(adapter.testLast.series[0].roamTrigger).toBe("global");
 	// disable zooming
 	adapter.update({graph: {zoom: false}});
 	expect(adapter.testLast.series[0].roam).toBe(false);
