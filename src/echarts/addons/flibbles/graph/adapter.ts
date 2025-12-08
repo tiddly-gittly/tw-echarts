@@ -133,6 +133,10 @@ export function update(objects: GraphObjects) {
 				if (n.physics !== undefined) {
 					cleaned.fixed = n.physics !== true;
 				}
+				if (n.label !== undefined) {
+					cleaned.name = n.label;
+					cleaned.label = {show: true, position: "bottom"};
+				}
 				return cleaned;
 			});
 		}

@@ -71,6 +71,24 @@ $tw.utils.each(["focus", "blur"], function(type) {
 	});
 });
 
+it('can manipulate node labels', function() {
+	const adapter = new $tw.test.GraphEngine({ nodes: {
+		match: {label: "match"},
+		copy: {label: "match"},
+		blank: {}}});
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "match", name: "match", label: {show: true, position: "bottom"}},
+		{id: "copy", name: "match", label: {show: true, position: "bottom"}},
+		{id: "blank"}]);
+	adapter.update({ nodes: {
+		match: {},
+		blank: {label: "new"}}});
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "match"},
+		{id: "copy", name: "match", label: {show: true, position: "bottom"}},
+		{id: "blank", name: "new", label: {show: true, position: "bottom"}}]);
+});
+
 it('can manipulate node shapes', function() {
 	const adapter = new $tw.test.GraphEngine({ nodes: {
 		unspecified: {},
