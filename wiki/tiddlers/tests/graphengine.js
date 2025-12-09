@@ -48,29 +48,6 @@ it('handles zoom', function() {
 	expect(adapter.testLast.series[0].roam).toBe(false);
 });
 
-// Make sure the graph can emit both focus and blur on the whole graph itself
-$tw.utils.each(["focus", "blur"], function(type) {
-	it(`handles graph ${type} event`, function() {
-		const adapter = new $tw.test.GraphEngine({graph: {[type]: true}});
-		var onevent = $tw.test.spyOnEvent(adapter, function(graphEvent, variables) {
-			expect(graphEvent.type).toBe(type);
-			expect(graphEvent.objectType).toBe("graph");
-		});
-		// The event handlers are attached to the elemetn BELOW the one
-		// we passed to eCharts. Gotta grab that one.
-		var element = adapter.echarts.eventElement;
-		// Ensure it's "focus" and "blur" enabled by the magic attribute
-		expect(element.attributes.tabindex).toBe("0");
-		element.dispatchEvent({type: type});
-		expect(onevent).toHaveBeenCalledTimes(1);
-		// Now we make sure that event is de-registered on destroy
-		adapter.destroy();
-		onevent.calls.reset();
-		element.dispatchEvent({type:type});
-		expect(onevent).not.toHaveBeenCalled();
-	});
-});
-
 it('can manipulate node labels', function() {
 	const adapter = new $tw.test.GraphEngine({ nodes: {
 		match: {label: "match"},
@@ -186,6 +163,53 @@ it('can add and remove edges', function() {
 	expect(adapter.testLast.series[0].links).toEqual([
 		{source: "A", target: "C"},
 		{source: "B", target: "C"}]);
+});
+
+/*** Events ***/
+
+// Make sure the graph can emit both focus and blur on the whole graph itself
+$tw.utils.each(["focus", "blur"], function(type) {
+	it(`handles graph ${type} event`, function() {
+		const adapter = new $tw.test.GraphEngine({graph: {[type]: true}});
+		var onevent = $tw.test.spyOnEvent(adapter, function(graphEvent, variables) {
+			expect(graphEvent.type).toBe(type);
+			expect(graphEvent.objectType).toBe("graph");
+		});
+		// The event handlers are attached to the elemetn BELOW the one
+		// we passed to eCharts. Gotta grab that one.
+		var element = adapter.echarts.eventElement;
+		// Ensure it's "focus" and "blur" enabled by the magic attribute
+		expect(element.attributes.tabindex).toBe("0");
+		element.dispatchEvent({type: type});
+		expect(onevent).toHaveBeenCalledTimes(1);
+		// Now we make sure that event is de-registered on destroy
+		adapter.destroy();
+		onevent.calls.reset();
+		element.dispatchEvent({type:type});
+		expect(onevent).not.toHaveBeenCalled();
+	});
+});
+
+it("handles node click event as 'actions'", function() {
+	const adapter = new $tw.test.GraphEngine({nodes: {A: {}, B: {}}});
+	var onevent = $tw.test.spyOnEvent(adapter, function(graphEvent, variables) {
+		expect(graphEvent.type).toBe("actions");
+		expect(graphEvent.objectType).toBe("nodes");
+		expect(graphEvent.id).toBe("A");
+	});
+	adapter.testEvent({
+		type: "dblclick",
+		componentType: "series",
+		componentSubType: "graph",
+		componentIndex: 0,
+		dataType: "node",
+		name: "A",
+		data: {id: "A"},
+		event: {
+			event: {type: "dblclick"} // fill-in for a MouseEvent
+		}
+	});
+	expect(onevent).toHaveBeenCalledTimes(1);
 });
 
 });

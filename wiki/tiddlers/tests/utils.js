@@ -30,6 +30,10 @@ test.GraphEngine = class GraphEngine extends GraphEngineModule {
 	get testLast() {
 		return this.echarts.lastOption;
 	}
+
+	testEvent(payload) {
+		this.echarts.dispatchAction(payload);
+	}
 };
 
 /* This creates an element from the fakeDom, but jazzes it up a little

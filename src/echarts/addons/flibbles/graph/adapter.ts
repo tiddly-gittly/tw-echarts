@@ -24,7 +24,8 @@ export const properties = {
 		physics: {type: "boolean", default: true},
 		image: {type: "image"},
 		color: {type: "color"},
-		shape: {type: "enum", default: "circle"}
+		shape: {type: "enum", default: "circle"},
+		actions: {type: "actions"}
 	},
 	edges: {
 		label: {type: "string"}
@@ -67,6 +68,16 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 		objects.graph.physics = true;
 	}
 	this.update(objects);
+	var self = this;
+	this.echarts.on("dblclick", function(params) {
+		console.log("Double click detected");
+		self.onevent({
+			type: "actions",
+			objectType: "nodes",
+			id: params.data.id,
+			event: params.event.event
+		});
+	});
 };
 
 export function update(objects: GraphObjects) {

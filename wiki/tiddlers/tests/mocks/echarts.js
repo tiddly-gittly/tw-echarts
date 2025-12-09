@@ -5,6 +5,8 @@ of testing.
 
 \*/
 
+var EventTarget = require("./eventtarget.js").EventTarget;
+
 exports.ECharts = {
 	init: function(element) {
 		return new MockECharts(element);
@@ -18,6 +20,7 @@ class MockECharts {
 		// events to.
 		this.eventElement = $tw.test.createElement("div");
 		this.element.appendChild(this.eventElement);
+		this.eventTarget = Object.create(EventTarget);
 	}
 
 	setOption(option, notMerge) {
@@ -33,6 +36,14 @@ class MockECharts {
 			throw new Exception("Trying to dispose of a mock echarts that was either already disposed of, or never initialized.");
 		}
 		this.element = undefined;
+	}
+
+	on(type, callback) {
+		this.eventTarget.addEventListener(type, callback);
+	}
+
+	dispatchAction(payload) {
+		this.eventTarget.dispatchEvent(payload);
 	}
 
 	isDisposed() {
