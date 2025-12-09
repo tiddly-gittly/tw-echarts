@@ -274,4 +274,46 @@ it("handles edge hover event", function() {
 	expect(onevent).toHaveBeenCalledTimes(1);
 });
 
+it("handles node blur event", function() {
+	const adapter = new $tw.test.GraphEngine({nodes: {A: {blur: true}}});
+	var onevent = $tw.test.spyOnEvent(adapter, function(graphEvent, variables) {
+		expect(graphEvent.type).toBe("blur");
+		expect(graphEvent.objectType).toBe("nodes");
+		expect(graphEvent.id).toBe("A");
+	});
+	adapter.testEvent({
+		type: "mouseout",
+		componentIndex: 0, componentType: "series", componentSubType: "graph",
+		seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
+		dataIndex: 0,      dataType: "node",        data: {id: "A"},
+		name: "",
+		event: {
+			event: {type: "mousemove"} // fill-in for a MouseEvent
+		}
+	});
+	expect(onevent).toHaveBeenCalledTimes(1);
+});
+
+it("handles edge blur event", function() {
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {}, B: {}},
+		edges: {AB: {from: "A", to: "B", blur: true}}});
+	var onevent = $tw.test.spyOnEvent(adapter, function(graphEvent, variables) {
+		expect(graphEvent.type).toBe("blur");
+		expect(graphEvent.objectType).toBe("edges");
+		expect(graphEvent.id).toBe("AB");
+	});
+	adapter.testEvent({
+		type: "mouseout",
+		componentIndex: 0, componentType: "series", componentSubType: "graph",
+		seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
+		dataIndex: 0,      dataType: "edge",        data: {id: "AB", from: "A", to: "B"},
+		name: "",
+		event: {
+			event: {type: "mousemove"} // fill-in for a MouseEvent
+		}
+	});
+	expect(onevent).toHaveBeenCalledTimes(1);
+});
+
 });

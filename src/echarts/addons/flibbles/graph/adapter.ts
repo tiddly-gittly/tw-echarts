@@ -26,12 +26,14 @@ export const properties = {
 		color: {type: "color"},
 		shape: {type: "enum", default: "circle"},
 		actions: {type: "actions"},
-		hover: {type: "actions"}
+		hover: {type: "actions"},
+		blur: {type: "actions"}
 	},
 	edges: {
 		label: {type: "string"},
 		actions: {type: "actions"},
-		hover: {type: "actions"}
+		hover: {type: "actions"},
+		blur: {type: "actions"},
 	}
 };
 
@@ -73,31 +75,28 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 	this.update(objects);
 	const self = this;
 	const dataTypes = {
-		"node": "nodes",
-		"edge": "edges"
+		node: "nodes",
+		edge: "edges"
 	};
-	this.echarts.on("dblclick", function(params) {
+	const eventTypes = {
+		dblclick: "actions",
+		mouseover: "hover",
+		mouseout: "blur",
+	};
+	function eventHandler(params) {
 		var dataType = dataTypes[params.dataType];
 		if (dataType) {
 			self.onevent({
-				type: "actions",
+				type: eventTypes[params.type],
 				objectType: dataType,
 				id: params.data.id,
 				event: params.event.event
 			});
 		}
-	});
-	this.echarts.on("mouseover", function(params) {
-		var dataType = dataTypes[params.dataType];
-		if (dataType) {
-			self.onevent({
-				type: "hover",
-				objectType: dataType,
-				id: params.data.id,
-				event: params.event.event
-			});
-		}
-	});
+	};
+	for (var event in eventTypes) {
+		this.echarts.on(event, eventHandler);
+	}
 };
 
 export function update(objects: GraphObjects) {
