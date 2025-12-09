@@ -17,6 +17,20 @@ xit('handles empty graph getting filled', function() {
 	});
 });
 
+it('preserves and puts pre-existing DOM nodes after canvas', function() {
+	const outer = $tw.test.createElement("div");
+	const inner1 = $tw.test.createElement("span");
+	const inner2 = $tw.test.createElement("span");
+	inner1.attributes.id = "inner1";
+	inner2.attributes.id = "inner2";
+	outer.appendChild(inner1);
+	outer.appendChild(inner2);
+	const adapter = new $tw.test.GraphEngine({}, {element: outer});
+	expect(outer.childNodes.length).toBe(3);
+	expect(outer.childNodes[1].attributes.id).toBe("inner1");
+	expect(outer.childNodes[2].attributes.id).toBe("inner2");
+});
+
 it('handles graph physics', function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {A: {}}});
 	// physics is enabled by default

@@ -15,6 +15,12 @@ exports.ECharts = {
 
 class MockECharts {
 	constructor(element) {
+		// Like most visualization engines, ECharts nukes any contents
+		// its passed element may have contained.
+		// Unfortunately, our fake DOM elements can't do `innerHTML = ""`
+		while (element.childNodes.length > 0) {
+			element.removeChild(element.childNodes[0]);
+		}
 		this.element = element;
 		// The eventElement is the nested element we send focus and blur
 		// events to.

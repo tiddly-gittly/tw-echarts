@@ -54,8 +54,13 @@ export const messages = Object.create(null);
 
 export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 	element.style.height = "400px";
+	const children = Array.prototype.slice.call(element.childNodes);
 	var echarts = ECharts.init(element);
 	this.echartsElement = echarts.getDom().childNodes[0];
+	// We MUST preserve any elements already attached to the passed element.
+	for (var i = 0; i < children.length; i++) {
+		element.appendChild(children[i]);
+	}
 	// We need to add this magic attribute to this internal element so it
 	// can detect focus and blur.
 	this.echartsElement.setAttribute("tabindex", "0");

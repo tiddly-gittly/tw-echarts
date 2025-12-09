@@ -20,9 +20,10 @@ test.startTestMode = function() {
  * for testing. Tests should access its internals through the getters.
  */
 test.GraphEngine = class GraphEngine extends GraphEngineModule {
-	constructor(initialObjects) {
+	constructor(initialObjects, testOptions) {
 		super();
-		this.testElement = test.createElement("div");
+		testOptions = testOptions || {};
+		this.testElement = testOptions.element || test.createElement("div");
 		var options = {window: new Mocks.Window()};
 		this.init(this.testElement, initialObjects, options);
 	}
