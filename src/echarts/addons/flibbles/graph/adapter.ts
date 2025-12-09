@@ -25,10 +25,13 @@ export const properties = {
 		image: {type: "image"},
 		color: {type: "color"},
 		shape: {type: "enum", default: "circle"},
-		actions: {type: "actions"}
+		actions: {type: "actions"},
+		hover: {type: "actions"}
 	},
 	edges: {
-		label: {type: "string"}
+		label: {type: "string"},
+		actions: {type: "actions"},
+		hover: {type: "actions"}
 	}
 };
 
@@ -68,15 +71,32 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 		objects.graph.physics = true;
 	}
 	this.update(objects);
-	var self = this;
+	const self = this;
+	const dataTypes = {
+		"node": "nodes",
+		"edge": "edges"
+	};
 	this.echarts.on("dblclick", function(params) {
-		console.log("Double click detected");
-		self.onevent({
-			type: "actions",
-			objectType: "nodes",
-			id: params.data.id,
-			event: params.event.event
-		});
+		var dataType = dataTypes[params.dataType];
+		if (dataType) {
+			self.onevent({
+				type: "actions",
+				objectType: dataType,
+				id: params.data.id,
+				event: params.event.event
+			});
+		}
+	});
+	this.echarts.on("mouseover", function(params) {
+		var dataType = dataTypes[params.dataType];
+		if (dataType) {
+			self.onevent({
+				type: "hover",
+				objectType: dataType,
+				id: params.data.id,
+				event: params.event.event
+			});
+		}
 	});
 };
 
@@ -157,7 +177,7 @@ export function update(objects: GraphObjects) {
 		if (objects.edges) {
 			var links = merge(this.links, objects.edges);
 			series.links = links.map(function(l) {
-				return {source: l.from, target: l.to};
+				return {id: l.id, source: l.from, target: l.to};
 			});
 		}
 	}

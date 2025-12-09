@@ -155,14 +155,14 @@ it('can add and remove edges', function() {
 	// Let's add an edge
 	adapter.update({edges: {BC: {from: "B", to: "C"}}});
 	expect(adapter.testLast.series[0].links).toEqual([
-		{source: "A", target: "B"},
-		{source: "A", target: "C"},
-		{source: "B", target: "C"}]);
+		{id: "AB", source: "A", target: "B"},
+		{id: "AC", source: "A", target: "C"},
+		{id: "BC", source: "B", target: "C"}]);
 	// Now let's remove an edge
 	adapter.update({edges: {AB: null}});
 	expect(adapter.testLast.series[0].links).toEqual([
-		{source: "A", target: "C"},
-		{source: "B", target: "C"}]);
+		{id: "AC", source: "A", target: "C"},
+		{id: "BC", source: "B", target: "C"}]);
 });
 
 /*** Events ***/
@@ -191,7 +191,7 @@ $tw.utils.each(["focus", "blur"], function(type) {
 });
 
 it("handles node click event as 'actions'", function() {
-	const adapter = new $tw.test.GraphEngine({nodes: {A: {}, B: {}}});
+	const adapter = new $tw.test.GraphEngine({nodes: {A: {actions: true}}});
 	var onevent = $tw.test.spyOnEvent(adapter, function(graphEvent, variables) {
 		expect(graphEvent.type).toBe("actions");
 		expect(graphEvent.objectType).toBe("nodes");
@@ -199,14 +199,76 @@ it("handles node click event as 'actions'", function() {
 	});
 	adapter.testEvent({
 		type: "dblclick",
-		componentType: "series",
-		componentSubType: "graph",
-		componentIndex: 0,
-		dataType: "node",
-		name: "A",
-		data: {id: "A"},
+		componentIndex: 0, componentType: "series", componentSubType: "graph",
+		seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
+		dataIndex: 0,      dataType: "node",        data: {id: "A"},
+		name: "",
 		event: {
 			event: {type: "dblclick"} // fill-in for a MouseEvent
+		}
+	});
+	expect(onevent).toHaveBeenCalledTimes(1);
+});
+
+it("handles edge click event as 'actions'", function() {
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {}, B: {}},
+		edges: {AB: {from: "A", to: "B", actions: true}}});
+	var onevent = $tw.test.spyOnEvent(adapter, function(graphEvent, variables) {
+		expect(graphEvent.type).toBe("actions");
+		expect(graphEvent.objectType).toBe("edges");
+		expect(graphEvent.id).toBe("AB");
+	});
+	adapter.testEvent({
+		type: "dblclick",
+		componentIndex: 0, componentType: "series", componentSubType: "graph",
+		seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
+		dataIndex: 0,      dataType: "edge",        data: {id: "AB", from: "A", to: "B"},
+		name: "",
+		event: {
+			event: {type: "dblclick"} // fill-in for a MouseEvent
+		}
+	});
+	expect(onevent).toHaveBeenCalledTimes(1);
+});
+
+it("handles node hover event", function() {
+	const adapter = new $tw.test.GraphEngine({nodes: {A: {hover: true}}});
+	var onevent = $tw.test.spyOnEvent(adapter, function(graphEvent, variables) {
+		expect(graphEvent.type).toBe("hover");
+		expect(graphEvent.objectType).toBe("nodes");
+		expect(graphEvent.id).toBe("A");
+	});
+	adapter.testEvent({
+		type: "mouseover",
+		componentIndex: 0, componentType: "series", componentSubType: "graph",
+		seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
+		dataIndex: 0,      dataType: "node",        data: {id: "A"},
+		name: "",
+		event: {
+			event: {type: "mouseover"} // fill-in for a MouseEvent
+		}
+	});
+	expect(onevent).toHaveBeenCalledTimes(1);
+});
+
+it("handles edge hover event", function() {
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {}, B: {}},
+		edges: {AB: {from: "A", to: "B", hover: true}}});
+	var onevent = $tw.test.spyOnEvent(adapter, function(graphEvent, variables) {
+		expect(graphEvent.type).toBe("hover");
+		expect(graphEvent.objectType).toBe("edges");
+		expect(graphEvent.id).toBe("AB");
+	});
+	adapter.testEvent({
+		type: "mouseover",
+		componentIndex: 0, componentType: "series", componentSubType: "graph",
+		seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
+		dataIndex: 0,      dataType: "edge",        data: {id: "AB", from: "A", to: "B"},
+		name: "",
+		event: {
+			event: {type: "mouseover"} // fill-in for a MouseEvent
 		}
 	});
 	expect(onevent).toHaveBeenCalledTimes(1);
