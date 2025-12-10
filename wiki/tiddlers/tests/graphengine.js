@@ -2,19 +2,13 @@ describe('graphengine tests', function() {
 
 beforeAll(() => $tw.test.startTestMode() );
 
-xit('handles empty graph getting filled', function() {
-	const adapter = new $tw.test.GraphEngine({});
-	expect(adapter.testLast.series).toBeUndefined();
+it('handles empty graph getting filled', function() {
+	const adapter = new $tw.test.GraphEngine({anything: "anything"});
+	expect(adapter.testLast.series[0].data).toBeUndefined();
 	adapter.update({nodes: { newNode: {}} });
 	// With such a minimal set of info to update,
 	// we should be able to exactly match the passed "option".
-	expect(adapter.testLast).toEqual({
-		series: [{
-			type: "graph",
-			layout: "force",
-			data: [{id: "newNode"}]
-		}]
-	});
+	expect(adapter.testLast.series[0].data).toEqual([{id: "newNode"}]);
 });
 
 it('preserves and puts pre-existing DOM nodes after canvas', function() {

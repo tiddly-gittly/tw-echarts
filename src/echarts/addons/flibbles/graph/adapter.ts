@@ -118,12 +118,9 @@ export function update(objects: GraphObjects) {
 		//legend: { data: ['Legend here'] },
 	};
 	const series = {};
-	let resubmitSeries = false;
 	let type = "graph";
 	if (objects.graph) {
 		series.type = "graph";
-		// Force a refresh of nodes
-		resubmitSeries = true;
 		var graph = objects.graph;
 		if (graph.nodeColor) {
 			config.color = [
@@ -155,7 +152,6 @@ export function update(objects: GraphObjects) {
 		series.roamTrigger = "global";
 	}
 	if (objects.nodes || objects.edges) {
-		resubmitSeries = true;
 		if (objects.nodes) {
 			var data = merge(this.data, objects.nodes);
 			data.sort((a,b) => a.x - b.x);
@@ -193,9 +189,7 @@ export function update(objects: GraphObjects) {
 			});
 		}
 	}
-	if (resubmitSeries) {
-		config.series = [series];
-	}
+	config.series = [series];
 	this.echarts.setOption(config, false);
 	this.config = config;
 };
