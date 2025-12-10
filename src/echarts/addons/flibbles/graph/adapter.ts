@@ -79,7 +79,6 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 		objects.graph.physics = true;
 	}
 	this.update(objects);
-	const self = this;
 	const dataTypes = {
 		node: "nodes",
 		edge: "edges"
@@ -92,7 +91,7 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 	function eventHandler(params) {
 		var dataType = dataTypes[params.dataType];
 		if (dataType) {
-			self.onevent({
+			this.onevent({
 				type: eventTypes[params.type],
 				objectType: dataType,
 				id: params.data.id,
@@ -101,16 +100,16 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 		}
 	};
 	for (var event in eventTypes) {
-		this.echarts.on(event, eventHandler);
+		this.echarts.on(event, eventHandler, this);
 	}
 	this.echarts.getZr().on("dblclick", function(event) {
 		if (!event.target) {
-			var coords = self.echarts.convertFromPixel(
+			var coords = this.echarts.convertFromPixel(
 				{seriesIndex: 0},
 				[event.offsetX, event.offsetY]);
-			self.onevent({type: "doubleclick", objectType: "graph"}, {x: coords[0], y: coords[1]});
+			this.onevent({type: "doubleclick", objectType: "graph"}, {x: coords[0], y: coords[1]});
 		}
-	});
+	}, this);
 };
 
 export function update(objects: GraphObjects) {
