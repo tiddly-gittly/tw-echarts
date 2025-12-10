@@ -26,3 +26,9 @@ exports.EventTarget.dispatchEvent = function(event) {
 		}
 	}
 };
+
+exports.EventTarget.on = function(type, method, context) {
+	this.addEventListener(type, function() {
+		method.apply(context, arguments);
+	});
+};

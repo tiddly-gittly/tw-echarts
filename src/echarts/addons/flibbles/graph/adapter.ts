@@ -14,6 +14,7 @@ export const properties = {
 	graph: {
 		physics: {type: "boolean", default: true},
 		zoom: {type: "boolean", default: true},
+		doubleclick: {type: "actions", variables: ["x", "y"]},
 		focus: {type: "actions"},
 		blur: {type: "actions"}
 	},
@@ -102,6 +103,14 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 	for (var event in eventTypes) {
 		this.echarts.on(event, eventHandler);
 	}
+	this.echarts.getZr().on("dblclick", function(event) {
+		if (!event.target) {
+			var coords = self.echarts.convertFromPixel(
+				{seriesIndex: 0},
+				[event.offsetX, event.offsetY]);
+			self.onevent({type: "doubleclick", objectType: "graph"}, {x: coords[0], y: coords[1]});
+		}
+	});
 };
 
 export function update(objects: GraphObjects) {

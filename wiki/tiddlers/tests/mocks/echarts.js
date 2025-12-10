@@ -27,6 +27,7 @@ class MockECharts {
 		this.eventElement = $tw.test.createElement("div");
 		this.element.appendChild(this.eventElement);
 		this.eventTarget = Object.create(EventTarget);
+		this.zr = Object.create(EventTarget);
 	}
 
 	setOption(option, notMerge) {
@@ -37,19 +38,27 @@ class MockECharts {
 		return this.element;
 	}
 
+	getZr() {
+		return this.zr;
+	}
+
+	convertFromPixel(finder, value) {
+		// Intended to be spied upon
+	}
+
+	on(type, callback, context) {
+		this.eventTarget.on(type, callback, context);
+	}
+
+	dispatchAction(payload) {
+		this.eventTarget.dispatchEvent(payload);
+	}
+
 	dispose() {
 		if (this.isDisposed()) {
 			throw new Exception("Trying to dispose of a mock echarts that was either already disposed of, or never initialized.");
 		}
 		this.element = undefined;
-	}
-
-	on(type, callback) {
-		this.eventTarget.addEventListener(type, callback);
-	}
-
-	dispatchAction(payload) {
-		this.eventTarget.dispatchEvent(payload);
 	}
 
 	isDisposed() {

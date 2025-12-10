@@ -211,6 +211,14 @@ it("handles node click event as 'actions'", function() {
 		expect(graphEvent.objectType).toBe("nodes");
 		expect(graphEvent.id).toBe("A");
 	});
+	// This zr event gets fired first, and our adapter needs to ignore it
+	adapter.echarts.getZr().dispatchEvent({
+		type: "dblclick", offsetX: 5, offsetY: 5,
+		target: {id: 2731},
+		event: {
+			event: {type: "dblclick"} // fill-in for a MouseEvent
+		}
+	});
 	adapter.testEvent({
 		type: "dblclick",
 		componentIndex: 0, componentType: "series", componentSubType: "graph",
@@ -233,12 +241,42 @@ it("handles edge click event as 'actions'", function() {
 		expect(graphEvent.objectType).toBe("edges");
 		expect(graphEvent.id).toBe("AB");
 	});
+	// This zr event gets fired first, and our adapter needs to ignore it
+	adapter.echarts.getZr().dispatchEvent({
+		type: "dblclick", offsetX: 5, offsetY: 5,
+		target: {id: 2731}, // The id is pretty arbitrary
+		event: {
+			event: {type: "dblclick"} // fill-in for a MouseEvent
+		}
+	});
 	adapter.testEvent({
 		type: "dblclick",
 		componentIndex: 0, componentType: "series", componentSubType: "graph",
 		seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
 		dataIndex: 0,      dataType: "edge",        data: {id: "AB", from: "A", to: "B"},
 		name: "",
+		event: {
+			event: {type: "dblclick"} // fill-in for a MouseEvent
+		}
+	});
+	expect(onevent).toHaveBeenCalledTimes(1);
+});
+
+it("handles graph double click event as 'doubleclick'", function() {
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {x:1000, y:-1000}, B: {x: 1010, y: -1010}}});
+	spyOn(adapter.echarts, "convertFromPixel").and.callFake(function(finder, value) {
+		expect(finder).toEqual({seriesIndex: 0});
+		return [value[0]+1000, value[1]-1000];
+	});
+	var onevent = $tw.test.spyOnEvent(adapter, function(graphEvent, variables) {
+		expect(graphEvent.type).toBe("doubleclick");
+		expect(graphEvent.objectType).toBe("graph");
+		expect(variables.x).toBe(1005);
+		expect(variables.y).toBe(-995);
+	});
+	adapter.echarts.getZr().dispatchEvent({
+		type: "dblclick", offsetX: 5, offsetY: 5,
 		event: {
 			event: {type: "dblclick"} // fill-in for a MouseEvent
 		}
