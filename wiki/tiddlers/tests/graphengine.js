@@ -362,4 +362,63 @@ it("handles edge blur event", function() {
 	expect(onevent).toHaveBeenCalledTimes(1);
 });
 
+it("handles node free event", function() {
+	// This event requires special handling since ECharts doesn't handle
+	// it the way we need it to be handled, which is to say as a "free" event
+	// and not a "mouse release while we just happen to be over a node" event.
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {free: true, x: 52, y: 38}}});
+	var onevent = $tw.test.spyOnEvent(adapter, function(graphEvent, variables) {
+		expect(graphEvent.type).toBe("free");
+		expect(graphEvent.objectType).toBe("nodes");
+		expect(graphEvent.id).toBe("A");
+		expect(variables.x).toBe(35);
+		expect(variables.y).toBe(47);
+	});
+	function makeEChartEvent(type, id, x, y, mouseType) {
+		return {
+			type: type,
+			componentIndex: 0, componentType: "series", componentSubType: "graph",
+			seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
+			dataIndex: 0,      dataType: "node",        data: {id: id},
+			name: "",
+			event: {
+				offsetX: x,
+				offsetY: y,
+				// fill-in for a MouseEvent
+				event: {type: mouseType || type}
+			}
+		};
+	};
+	// There's a whole chain of stuff we've got to access to learn a
+	// single node's location...
+	spyOn(adapter.echarts, "getModel")
+		.and.returnValue({ getSeriesByIndex: function(index) {
+			expect(index).toBe(0);
+			return { getGraph: () => {
+				return { getNodeById: function(id) {
+					expect(id).toBe("A");
+					return { getLayout: () => [34.6, 47.4] }
+				}}
+			}}
+		}});
+	spyOn(adapter.echarts, "convertFromPixel").and.callFake(function(finder, value) {
+		expect(finder).toEqual({seriesIndex: 0});
+		return [value[0]*2, value[1]*2];
+	});
+	// This event should cause nothing to happen, because it did not
+	// correspond to a mousedown event, so it couldn't have been a drag.
+	adapter.testEvent(makeEChartEvent("mouseup", "A", 25, 25));
+	expect(onevent).not.toHaveBeenCalled();
+	// This still won't count, because the mouse down wasn't on the right
+	// node.
+	adapter.testEvent(makeEChartEvent("mousedown", "B", 25, 25));
+	adapter.testEvent(makeEChartEvent("mouseup", "A", 35, 35));
+	expect(onevent).not.toHaveBeenCalled();
+	// Now we start with a mousedown event
+	adapter.testEvent(makeEChartEvent("mousedown", "A", 25, 20));
+	adapter.testEvent(makeEChartEvent("mouseup", "A", 50, 60));
+	expect(onevent).toHaveBeenCalledTimes(1);
+});
+
 });

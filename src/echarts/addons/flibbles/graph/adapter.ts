@@ -28,7 +28,8 @@ export const properties = {
 		shape: {type: "enum", default: "circle"},
 		actions: {type: "actions"},
 		hover: {type: "actions"},
-		blur: {type: "actions"}
+		blur: {type: "actions"},
+		free: {type: "actions", variables: ["x", "y"]}
 	},
 	edges: {
 		label: {type: "string"},
@@ -107,8 +108,29 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 			var coords = this.echarts.convertFromPixel(
 				{seriesIndex: 0},
 				[event.offsetX, event.offsetY]);
-			this.onevent({type: "doubleclick", objectType: "graph"}, {x: coords[0], y: coords[1]});
+			this.onevent(
+				{type: "doubleclick", objectType: "graph"},
+				{x: coords[0], y: coords[1]});
 		}
+	}, this);
+	this.echarts.on("mousedown", "series", function(params) {
+		this.mouseDownId = params.data.id;
+	}, this);
+	this.echarts.on("mouseup", "series", function(params) {
+		const event = params.event;
+		const id = params.data.id;
+		if (id === this.mouseDownId) {
+			var coords = this.echarts.getModel().getSeriesByIndex(0).getGraph().getNodeById(id).getLayout();
+			this.onevent({
+				type: "free",
+				objectType: "nodes",
+				id: params.data.id,
+				event: event.event},
+			{
+				x: Math.round(coords[0]),
+				y: Math.round(coords[1])});
+		}
+		this.mouseDownId = null;
 	}, this);
 };
 

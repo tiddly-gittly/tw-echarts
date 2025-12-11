@@ -42,11 +42,21 @@ class MockECharts {
 		return this.zr;
 	}
 
+	getModel() {
+		// Intended to be spied upon
+	}
+
 	convertFromPixel(finder, value) {
 		// Intended to be spied upon
 	}
 
-	on(type, callback, context) {
+	on(type, query, callback, context) {
+		if (typeof query === "function") {
+			context = callback;
+			callback = query;
+			query = "all";
+		}
+		// TODO: Currently, this does no testing on what the query arg is.
 		this.eventTarget.on(type, callback, context);
 	}
 
