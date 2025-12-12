@@ -211,7 +211,12 @@ export function update(objects: GraphObjects) {
 		if (objects.edges) {
 			var links = merge(this.links, objects.edges);
 			series.links = links.map(function(l) {
-				return {id: l.id, source: l.from, target: l.to};
+				const cleaned = {source: l.from, target: l.to};
+				if (l.label !== undefined) {
+					cleaned.id = l.label;
+					cleaned.label = {show: true};
+				}
+				return cleaned;
 			});
 		}
 	}

@@ -161,16 +161,28 @@ it('can add and remove edges', function() {
 		nodes: {A: {}, B: {}, C:{}},
 		edges: {AB: {from: "A", to: "B"}, AC: {from: "A", to: "C"}}});
 	// Let's add an edge
-	adapter.update({edges: {BC: {from: "B", to: "C"}}});
+	adapter.update({edges: {AC2: {from: "A", to: "C"}}});
 	expect(adapter.testLast.series[0].links).toEqual([
-		{id: "AB", source: "A", target: "B"},
-		{id: "AC", source: "A", target: "C"},
-		{id: "BC", source: "B", target: "C"}]);
+		{source: "A", target: "B"},
+		{source: "A", target: "C"},
+		{source: "A", target: "C"}]);
 	// Now let's remove an edge
-	adapter.update({edges: {AB: null}});
+	adapter.update({edges: {AC: null}});
 	expect(adapter.testLast.series[0].links).toEqual([
-		{id: "AC", source: "A", target: "C"},
-		{id: "BC", source: "B", target: "C"}]);
+		{source: "A", target: "B"},
+		{source: "A", target: "C"}]);
+});
+
+it('can manipulate edge labels', function() {
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {}, B: {}, C: {}},
+		edges: {AB: {from: "A", to: "B", label: "labeled"},
+			AC: {from: "A", to: "C", label: "labeled"},
+			BC: {from: "A", to: "B"}}});
+	expect(adapter.testLast.series[0].links).toEqual([
+		{source: "A", target: "B", id: "labeled", label: {show: true}},
+		{source: "A", target: "C", id: "labeled", label: {show: true}},
+		{source: "A", target: "B"}]);
 });
 
 /*** Events ***/
