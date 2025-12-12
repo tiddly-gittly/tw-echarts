@@ -114,23 +114,27 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 		}
 	}, this);
 	this.echarts.on("mousedown", "series", function(params) {
-		this.mouseDownId = params.data.id;
+		if (params.dataType === "node") {
+			this.mouseDownId = params.data.id;
+		}
 	}, this);
 	this.echarts.on("mouseup", "series", function(params) {
-		const event = params.event;
-		const id = params.data.id;
-		if (id === this.mouseDownId) {
-			var coords = this.echarts.getModel().getSeriesByIndex(0).getGraph().getNodeById(id).getLayout();
-			this.onevent({
-				type: "free",
-				objectType: "nodes",
-				id: params.data.id,
-				event: event.event},
-			{
-				x: Math.round(coords[0]),
-				y: Math.round(coords[1])});
+		if (params.dataType === "node") {
+			const event = params.event;
+			const id = params.data.id;
+			if (id === this.mouseDownId) {
+				var coords = this.echarts.getModel().getSeriesByIndex(0).getGraph().getNodeById(id).getLayout();
+				this.onevent({
+					type: "free",
+					objectType: "nodes",
+					id: params.data.id,
+					event: event.event},
+				{
+					x: Math.round(coords[0]),
+					y: Math.round(coords[1])});
+			}
+			this.mouseDownId = null;
 		}
-		this.mouseDownId = null;
 	}, this);
 };
 

@@ -421,4 +421,34 @@ it("handles node free event", function() {
 	expect(onevent).toHaveBeenCalledTimes(1);
 });
 
+it("does not support edge drag and free events", function() {
+	// But it doesn't crash either if the user tries to do it!
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {}, B: {}}, edges: {A: {from: "A", to: "B"}}});
+	var onevent = $tw.test.spyOnEvent(adapter, function() {});
+	function makeEChartEvent(type, dataType) {
+		return {
+			type: type,
+			componentIndex: 0, componentType: "series", componentSubType: "graph",
+			seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
+			dataIndex: 0,      dataType: dataType,        data: {id: "A"},
+			name: "",
+			event: {
+				offsetX: 0,
+				offsetY: 0,
+				// fill-in for a MouseEvent
+				event: {type: type}
+			}
+		};
+	};
+	// It won't do anything when mouse down on edges occurs
+	adapter.testEvent(makeEChartEvent("mousedown", "edge"));
+	expect(onevent).not.toHaveBeenCalled();
+	// It also doesn't do anything on mouseup, even if we initialize a drag
+	// with a node sharing the same id.
+	adapter.testEvent(makeEChartEvent("mousedown", "node"));
+	adapter.testEvent(makeEChartEvent("mouseup", "edge"));
+	expect(onevent).not.toHaveBeenCalled();
+});
+
 });
