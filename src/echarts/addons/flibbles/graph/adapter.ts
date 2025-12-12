@@ -2,6 +2,8 @@
 
 import * as ECharts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
 
+const Series = $tw.modules.getModulesByTypeAsHashmap("echartsseries");
+
 interface GraphObjects {
 	graph?: any;
 	nodes?: any;
@@ -39,7 +41,7 @@ export const properties = {
 	}
 };
 
-const shape2symbol = {
+export const shape2symbol = {
 	"circle": "circle",
 	"square": "rect",
 	"rounded": "roundRect",
@@ -139,88 +141,11 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 };
 
 export function update(objects: GraphObjects) {
-	let config = {
-		//title: { text: "ECharts hello world" },
-		//legend: { data: ['Legend here'] },
-	};
-	const series = {};
-	let type = "graph";
-	if (objects.graph) {
-		series.type = "graph";
-		var graph = objects.graph;
-		if (graph.nodeColor) {
-			config.color = [
-				graph.nodeColor,
-				graph.graphColor,
-				graph.fontColor
-			];
-		}
-		if (graph.type) {
-			this.type = graph.type;
-		}
-		// We need to set this manually in all cases because we
-		// use a different default from what echarts would use.
-		// Physics defaults to "on", because vis-network did.
-		series.layout = graph.physics === false? "none": "force";
-		series.force = {
-			repulsion: 60,
-			edgeLength: 2,
-			gravity: 0.1
-		};
-		if (series.layout === "force") {
-			series.draggable = true;
-		}
-		// zoom <=> roam is another option where we have a different
-		// default
-		series.roam = graph.zoom !== false;
-		// If we don't have this, then mouse events on the graph outside
-		// of a hypothetical bounding-box around the nodes won't work.
-		series.roamTrigger = "global";
-	}
-	if (objects.nodes || objects.edges) {
-		if (objects.nodes) {
-			var data = merge(this.data, objects.nodes);
-			data.sort((a,b) => a.x - b.x);
-			series.data = data.map(function(n) {
-				var cleaned = { id: n.id };
-				if (n.x !== undefined) {
-					cleaned.x = n.x;
-				}
-				if (n.y !== undefined) {
-					cleaned.y = n.y;
-				}
-				if (shape2symbol[n.shape]) {
-					cleaned.symbol = shape2symbol[n.shape];
-				}
-				if (n.image) {
-					cleaned.symbol = `image://${n.image}`;
-				}
-				if (n.physics !== undefined) {
-					cleaned.fixed = n.physics !== true;
-				}
-				if (n.label !== undefined) {
-					cleaned.name = n.label;
-					cleaned.label = {show: true, position: "bottom"};
-				}
-				if (n.color !== undefined) {
-					cleaned.itemStyle = {color: n.color};
-				}
-				return cleaned;
-			});
-		}
-		if (objects.edges) {
-			var links = merge(this.links, objects.edges);
-			series.links = links.map(function(l) {
-				const cleaned = {source: l.from, target: l.to};
-				if (l.label !== undefined) {
-					cleaned.id = l.label;
-					cleaned.label = {show: true};
-				}
-				return cleaned;
-			});
-		}
-	}
-	config.series = [series];
+	const config = { };
+	// Currently, there is only one type of series. We use it always.
+	// Ultimately, there will be other types.
+	var Graph = Series.graph;
+	config.series = [Graph.update.call(this, objects)];
 	this.echarts.setOption(config, false);
 	this.config = config;
 };
@@ -232,25 +157,6 @@ export function destroy(): void {
 		this.echarts.dispose();
 		this.echarts = undefined;
 	}
-};
-
-function merge(entries, updates) {
-	for (var id in updates) {
-		var update = updates[id];
-		if (update) {
-			update.id = id;
-			entries[id] = update;
-		} else { // Must be null, thus a deletion
-			entries[id] = undefined;
-		}
-	}
-	var output = [];
-	for (var id in entries) {
-		if (entries[id]) {
-			output.push(entries[id]);
-		}
-	}
-	return output;
 };
 
 export function handleEvent(event: Event) {
