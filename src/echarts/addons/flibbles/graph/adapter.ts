@@ -15,10 +15,10 @@ export const name = "ECharts";
 export const properties = {
 	graph: {
 		physics: {type: "boolean", default: true},
-		zoom: {type: "boolean", default: true},
+		zoom: {type: "boolean", default: true, nonECharts: true},
 		doubleclick: {type: "actions", variables: ["x", "y"]},
-		focus: {type: "actions"},
-		blur: {type: "actions"}
+		focus: {type: "actions", nonECharts: true},
+		blur: {type: "actions", nonECharts: true}
 	},
 	nodes: {
 		x: {type: "number"},
@@ -70,10 +70,13 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 	this.echartsElement.setAttribute("tabindex", "0");
 	this.echartsElement.addEventListener("focus", this);
 	this.echartsElement.addEventListener("blur", this);
+	this.echartsElement.addEventListener("wheel", this, true);
 	this.window = options.window || window;
 	this.echarts = echarts;
 	this.data = Object.create(null);
 	this.links = Object.create(null);
+	this.zoom = true;
+	this.graph = Object.create(null);
 	this.window.addEventListener("resize", function() {
 		echarts.resize();
 	});
@@ -141,28 +144,82 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 };
 
 export function update(objects: GraphObjects) {
-	const config = { };
-	// Currently, there is only one type of series. We use it always.
-	// Ultimately, there will be other types.
-	var Graph = Series.graph;
-	config.series = [Graph.update.call(this, objects)];
-	this.echarts.setOption(config, false);
-	this.config = config;
+	var updateSeries = true;
+	var graph = objects.graph;
+	if (graph) {
+		var count = 0;
+		// If there's more than 1 kind of graphObject, then we'll need
+		// to update the series
+		updateSeries = Object.keys(objects).length !== 1;
+		// First, did any graph properties we already know about change?
+		for (var key in this.graph) {
+			if (this.graph[key] !== undefined) {
+				if (graph[key] !== this.graph[key]) {
+					updateSeries = true;
+				}
+				count++;
+				this.graph[key] = undefined;
+			}
+		}
+		// Now let's insert the new properties
+		for (var key in graph) {
+			if (isSeriesProperty(key)) {
+				this.graph[key] = graph[key];
+				count--;
+			}
+		}
+		// Did we get back the same number of properties?
+		// No? Then there must be new properties. Change the series.
+		if (count !== 0) {
+			updateSeries = true;
+		}
+	}
+	if (!updateSeries) {
+		// We don't have to update the series.
+		// Just set our own variables and return.
+		this.zoom = this.graph.zoom;
+	} else {
+		const config = { };
+		if (graph && graph.nodeColor) {
+			config.color = [
+				graph.nodeColor,
+				graph.graphColor,
+				graph.fontColor
+			];
+		}
+		// Currently, there is only one type of series. We use it always.
+		// Ultimately, there will be other types.
+		config.series = [Series.graph.update.call(this, objects)];
+		this.echarts.setOption(config, false);
+		this.config = config;
+	}
+};
+
+function isSeriesProperty(name) {
+	const entry = properties.graph[name];
+	return entry !== undefined && !entry.nonECharts;
 };
 
 export function destroy(): void {
 	if (this.echarts && !this.echarts.isDisposed()) {
 		this.echartsElement.removeEventListener("focus", this);
 		this.echartsElement.removeEventListener("blur", this);
+		this.echartsElement.removeEventListener("wheel", this, true);
 		this.echarts.dispose();
 		this.echarts = undefined;
 	}
 };
 
 export function handleEvent(event: Event) {
-	this.onevent({
-		type: event.type,
-		objectType: "graph",
-		event: event
-	});
+	if (event.type === "wheel") {
+		if (!this.zoom) {
+			event.stopPropagation();
+		}
+	} else {
+		this.onevent({
+			type: event.type,
+			objectType: "graph",
+			event: event
+		});
+	}
 };

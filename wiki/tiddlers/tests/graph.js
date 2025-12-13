@@ -24,13 +24,16 @@ it('handles graph physics', function() {
 
 it('handles zoom', function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {A: {}}});
-	// zooming, or as echarts calls it, zooming, is enabled by default
+	// zooming, or as echarts calls it, zooming, is always enabled in graphs
 	expect(adapter.testLast.series[0].roam).toBe(true);
 	// It must be global, or dragging and zooming is a pain.
 	expect(adapter.testLast.series[0].roamTrigger).toBe("global");
 	// disable zooming
 	adapter.update({graph: {zoom: false}});
-	expect(adapter.testLast.series[0].roam).toBe(false);
+	// Nothing should have changed, because we handle zoom toggling at
+	// a DOM level, not at an echarts level.
+	expect(adapter.testLast.series[0].roam).toBe(true);
+	expect(adapter.testLast.series[0].roamTrigger).toBe("global");
 });
 
 it('can manipulate node labels', function() {

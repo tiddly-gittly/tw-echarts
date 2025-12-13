@@ -6,18 +6,10 @@ export function update(objects: GraphObjects) {
 	let type = "graph";
 	if (objects.graph) {
 		series.type = "graph";
-		var graph = objects.graph;
-		if (graph.nodeColor) {
-			config.color = [
-				graph.nodeColor,
-				graph.graphColor,
-				graph.fontColor
-			];
-		}
 		// We need to set this manually in all cases because we
 		// use a different default from what echarts would use.
 		// Physics defaults to "on", because vis-network did.
-		series.layout = graph.physics === false? "none": "force";
+		series.layout = objects.graph.physics === false? "none": "force";
 		series.force = {
 			repulsion: 60,
 			edgeLength: 2,
@@ -26,9 +18,10 @@ export function update(objects: GraphObjects) {
 		if (series.layout === "force") {
 			series.draggable = true;
 		}
-		// zoom <=> roam is another option where we have a different
-		// default
-		series.roam = graph.zoom !== false;
+		// The graph can always roam, at least for now.
+		// Perhaps there will be a <$plot> setting for this,
+		// but this is not controlled by <$graph>.
+		series.roam = true;
 		// If we don't have this, then mouse events on the graph outside
 		// of a hypothetical bounding-box around the nodes won't work.
 		series.roamTrigger = "global";

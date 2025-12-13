@@ -1,34 +1,43 @@
 exports.EventTarget = Object.create(null);
 
-exports.EventTarget.addEventListener = function(type, method) {
-	if (!this.eventListeners) {
-		this.eventListeners = new Map();
-	}
-	if (this.eventListeners.has(type)) {
-		throw new Exception("The Mock EventTarget class doesn't support multiple handlers on the same type yet. It'll need to be elaborated before this test can proceed.");
-	}
-	this.eventListeners.set(type, method);
+exports.EventTarget.addEventListener = function(type, method, useCapture) {
+	var set = getHandlers.call(this, type, useCapture);
+	set.add(method);
 };
 
-exports.EventTarget.removeEventListener = function(type, method) {
-	if (this.eventListeners && this.eventListeners.has(type)) {
-		this.eventListeners.delete(type);
-	}
+exports.EventTarget.removeEventListener = function(type, method, useCapture) {
+	var set = getHandlers.call(this, type, useCapture);
+	set.delete(method);
 };
 
 exports.EventTarget.dispatchEvent = function(event) {
-	if (this.eventListeners && this.eventListeners.has(event.type)) {
-		var listener = this.eventListeners.get(event.type);
+	function invoke(listener) {
 		if (typeof listener === "function") {
 			listener(event);
 		} else {
 			listener.handleEvent(event);
 		}
-	}
+	};
+	// call the capturing events, then the bubbling ones
+	getHandlers.call(this, event.type, true).forEach(invoke);
+	getHandlers.call(this, event.type, false).forEach(invoke);
 };
 
 exports.EventTarget.on = function(type, method, context) {
 	this.addEventListener(type, function() {
 		method.apply(context, arguments);
 	});
+};
+
+function getHandlers(type, useCapture) {
+	var listeners = this.eventListeners;
+	if (!listeners) {
+		listeners = this.eventListeners = new Map();
+	}
+	useCapture = useCapture || false;
+	const key = "" + useCapture + type;
+	if (!listeners.has(key)) {
+		listeners.set(key, new Set());
+	}
+	return listeners.get(key);
 };
