@@ -22,9 +22,9 @@ it('handles graph physics', function() {
 	expect(adapter.testLast.series[0].layout).toBe("force");
 });
 
-it('handles zoom', function() {
+it('handles zoom by not handling it', function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {A: {}}});
-	// zooming, or as echarts calls it, zooming, is always enabled in graphs
+	// zooming, or as echarts calls it, roaming, is always enabled in graphs
 	expect(adapter.testLast.series[0].roam).toBe(true);
 	// It must be global, or dragging and zooming is a pain.
 	expect(adapter.testLast.series[0].roamTrigger).toBe("global");

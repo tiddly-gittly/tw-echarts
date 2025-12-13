@@ -81,9 +81,6 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 		echarts.resize();
 	});
 	objects.graph = objects.graph || {};
-	if (objects.graph.physics === undefined) {
-		objects.graph.physics = true;
-	}
 	this.update(objects);
 	const dataTypes = {
 		node: "nodes",

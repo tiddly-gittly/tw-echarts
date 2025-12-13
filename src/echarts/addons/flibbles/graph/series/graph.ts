@@ -5,6 +5,9 @@ export function update(objects: GraphObjects) {
 	const self = this;
 	let type = "graph";
 	if (objects.graph) {
+		if (objects.graph.physics === undefined) {
+			objects.graph.physics = true;
+		}
 		series.type = "graph";
 		// We need to set this manually in all cases because we
 		// use a different default from what echarts would use.

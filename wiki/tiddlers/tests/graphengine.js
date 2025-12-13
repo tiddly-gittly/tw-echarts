@@ -92,6 +92,13 @@ it('handles toggling zoom without bothering echarts', function() {
 	expect(stop).not.toHaveBeenCalled();
 });
 
+it('can toggle zoom on a new instance without bothering echarts', function() {
+	const adapter = new $tw.test.GraphEngine({});
+	var setOption = spyOn(adapter.echarts, "setOption");
+	adapter.update({graph: {zoom: false}});
+	expect(setOption).not.toHaveBeenCalled();
+});
+
 it('handles updating zoom along with other graph properties', function() {
 	const adapter = new $tw.test.GraphEngine({
 		graph: {zoom: true, physics: true}});
