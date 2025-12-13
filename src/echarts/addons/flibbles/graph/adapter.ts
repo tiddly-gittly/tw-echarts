@@ -173,12 +173,10 @@ export function update(objects: GraphObjects) {
 		if (count !== 0) {
 			updateSeries = true;
 		}
+		this.zoom = graph.zoom !== false;
 	}
-	if (!updateSeries) {
-		// We don't have to update the series.
-		// Just set our own variables and return.
-		this.zoom = this.graph.zoom;
-	} else {
+	// We have changes that require updating the series.
+	if (updateSeries) {
 		const config = { };
 		if (graph && graph.nodeColor) {
 			config.color = [

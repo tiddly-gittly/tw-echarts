@@ -94,18 +94,34 @@ it('handles toggling zoom without bothering echarts', function() {
 
 it('handles updating zoom along with other graph properties', function() {
 	const adapter = new $tw.test.GraphEngine({
-		graph: {zoom: false, physics: true}});
+		graph: {zoom: true, physics: true}});
 	var setOption = spyOn(adapter.echarts, "setOption");
-	adapter.update({graph: {zoom: true, physics: false}});
+	adapter.update({graph: {zoom: false, physics: false}});
 	expect(setOption).toHaveBeenCalled();
+	// Also make sure we can't zoom now
+	var event = {
+		type: "wheel",
+		stopPropagation: function() {}};
+	var stop = spyOn(event, "stopPropagation");
+	// By default, zooming is disabled
+	adapter.echarts.eventElement.dispatchEvent(event);
+	expect(stop).toHaveBeenCalled();
 });
 
 it('handles updating zoom along with other object properties', function() {
 	const adapter = new $tw.test.GraphEngine({
-		graph: {zoom: false}});
+		graph: {zoom: true}});
 	var setOption = spyOn(adapter.echarts, "setOption");
-	adapter.update({graph: {zoom: true}, nodes: {A: {}}});
+	adapter.update({graph: {zoom: false}, nodes: {A: {}}});
 	expect(setOption).toHaveBeenCalled();
+	// Also make sure we can't zoom now
+	var event = {
+		type: "wheel",
+		stopPropagation: function() {}};
+	var stop = spyOn(event, "stopPropagation");
+	// By default, zooming is disabled
+	adapter.echarts.eventElement.dispatchEvent(event);
+	expect(stop).toHaveBeenCalled();
 });
 
 it('updates series when properties are removed', function() {
