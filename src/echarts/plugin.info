@@ -4,7 +4,7 @@
   "title": "$:/plugins/Gk0Wk/echarts",
   "plugin-type": "plugin",
   "name": "ECharts",
-  "list": "readme addons LICENSE",
+  "list": "readme addons tree LICENSE",
   "description": "ECharts for TiddlyWiki5",
   "author": "Gk0Wk",
   "source": "https://github.com/tiddly-gittly/tw-echarts/tree/master/plugins/Gk0Wk/echarts",
