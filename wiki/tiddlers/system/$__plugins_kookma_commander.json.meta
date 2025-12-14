@@ -1,12 +1,15 @@
 author: Mohammad Rahmani
-core-version: >=5.2.0
+core-version: >=5.3.5
 dependents: 
-description: Tiddler Commander
+description: Streamline tiddler management: bulk operations for titles, tags, and fields
 list: readme license history
 name: Tiddler Commander
+packaged-by: Gatha on 7th July 2025, 22:40:23
 parent-plugin: 
+plugin-priority: 
 plugin-type: plugin
 source: https://github.com/kookma/TW-Commander
+stability: STABILITY_2_STABLE
 title: $:/plugins/kookma/commander
 type: application/json
-version: 2.1.6
+version: 2.1.14
