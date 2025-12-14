@@ -5,9 +5,6 @@ export function update(objects: GraphObjects) {
 	const self = this;
 	let type = "graph";
 	if (objects.graph) {
-		if (objects.graph.physics === undefined) {
-			objects.graph.physics = true;
-		}
 		series.type = "graph";
 		// We need to set this manually in all cases because we
 		// use a different default from what echarts would use.
@@ -18,9 +15,7 @@ export function update(objects: GraphObjects) {
 			edgeLength: 2,
 			gravity: 0.1
 		};
-		if (series.layout === "force") {
-			series.draggable = true;
-		}
+		series.draggable = true;
 		// The graph can always roam, at least for now.
 		// Perhaps there will be a <$plot> setting for this,
 		// but this is not controlled by <$graph>.

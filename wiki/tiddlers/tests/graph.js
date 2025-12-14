@@ -22,6 +22,13 @@ it('handles graph physics', function() {
 	expect(adapter.testLast.series[0].layout).toBe("force");
 });
 
+it('handles no graph physics too', function() {
+	const adapter = new $tw.test.GraphEngine({graph: {physics: false}, nodes: {A: {}}});
+	expect(adapter.testLast.series[0].layout).toBe("none");
+	// The graph should be draggable even though physics is off
+	expect(adapter.testLast.series[0].draggable).toBe(true);
+});
+
 it('handles zoom by not handling it', function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {A: {}}});
 	// zooming, or as echarts calls it, roaming, is always enabled in graphs
