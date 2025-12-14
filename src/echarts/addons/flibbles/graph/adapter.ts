@@ -125,7 +125,11 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 			const event = params.event;
 			const id = params.data.id;
 			if (id === this.mouseDownId) {
-				var coords = this.echarts.getModel().getSeriesByIndex(0).getGraph().getNodeById(id).getLayout();
+				var seriesModel = this.echarts.getModel().getSeriesByIndex(0);
+				if (seriesModel.forceLayout) {
+					seriesModel.forceLayout.setFixed(params.dataIndex);
+				}
+				var coords = seriesModel.getGraph().getNodeById(id).getLayout();
 				this.onevent({
 					type: "free",
 					objectType: "nodes",
