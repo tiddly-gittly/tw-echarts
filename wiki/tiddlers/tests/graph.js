@@ -167,6 +167,28 @@ it('can manipulate edge labels', function() {
 
 /*** Events ***/
 
+class EChartsEvent {
+	constructor(type, alternates, mouseType) {
+		this.type = type;
+		this.event = {
+			event: {type: mouseType || type} // fill-in for a MouseEvent
+		}
+		for (var value in alternates) {
+			this[value] = alternates[value];
+		}
+	}
+
+	componentIndex = 0;
+	componentType = "series";
+	componentSubType = "graph";
+	seriesIndex = 0;
+	seriesType = "graph";
+	seriesName = "series\u00000";
+	dataIndex = 0;
+	dataType = "node";
+	name = "";
+}
+
 it("handles node click event as 'actions'", function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {A: {actions: true}}});
 	var onevent = $tw.test.spyOnEvent(adapter, function(graphEvent, variables) {
@@ -182,16 +204,7 @@ it("handles node click event as 'actions'", function() {
 			event: {type: "dblclick"} // fill-in for a MouseEvent
 		}
 	});
-	adapter.testEvent({
-		type: "dblclick",
-		componentIndex: 0, componentType: "series", componentSubType: "graph",
-		seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
-		dataIndex: 0,      dataType: "node",        data: {id: "A"},
-		name: "",
-		event: {
-			event: {type: "dblclick"} // fill-in for a MouseEvent
-		}
-	});
+	adapter.testEvent(new EChartsEvent("dblclick", { data: {id: "A"}}));
 	expect(onevent).toHaveBeenCalledTimes(1);
 });
 
@@ -212,16 +225,9 @@ it("handles edge click event as 'actions'", function() {
 			event: {type: "dblclick"} // fill-in for a MouseEvent
 		}
 	});
-	adapter.testEvent({
-		type: "dblclick",
-		componentIndex: 0, componentType: "series", componentSubType: "graph",
-		seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
-		dataIndex: 0,      dataType: "edge",        data: {id: "AB", from: "A", to: "B"},
-		name: "",
-		event: {
-			event: {type: "dblclick"} // fill-in for a MouseEvent
-		}
-	});
+	adapter.testEvent(new EChartsEvent("dblclick", {
+		dataType: "edge", data: {id: "AB", from: "A", to: "B"}
+	}));
 	expect(onevent).toHaveBeenCalledTimes(1);
 });
 
@@ -254,16 +260,7 @@ it("handles node hover event", function() {
 		expect(graphEvent.objectType).toBe("nodes");
 		expect(graphEvent.id).toBe("A");
 	});
-	adapter.testEvent({
-		type: "mouseover",
-		componentIndex: 0, componentType: "series", componentSubType: "graph",
-		seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
-		dataIndex: 0,      dataType: "node",        data: {id: "A"},
-		name: "",
-		event: {
-			event: {type: "mouseover"} // fill-in for a MouseEvent
-		}
-	});
+	adapter.testEvent(new EChartsEvent("mouseover", { data: {id: "A"} }));
 	expect(onevent).toHaveBeenCalledTimes(1);
 });
 
@@ -276,16 +273,10 @@ it("handles edge hover event", function() {
 		expect(graphEvent.objectType).toBe("edges");
 		expect(graphEvent.id).toBe("AB");
 	});
-	adapter.testEvent({
-		type: "mouseover",
-		componentIndex: 0, componentType: "series", componentSubType: "graph",
-		seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
-		dataIndex: 0,      dataType: "edge",        data: {id: "AB", from: "A", to: "B"},
-		name: "",
-		event: {
-			event: {type: "mouseover"} // fill-in for a MouseEvent
-		}
-	});
+	adapter.testEvent(new EChartsEvent("mouseover", {
+		dataType: "edge",
+		data: {id: "AB", from: "A", to: "B"},
+	}));
 	expect(onevent).toHaveBeenCalledTimes(1);
 });
 
@@ -296,16 +287,7 @@ it("handles node blur event", function() {
 		expect(graphEvent.objectType).toBe("nodes");
 		expect(graphEvent.id).toBe("A");
 	});
-	adapter.testEvent({
-		type: "mouseout",
-		componentIndex: 0, componentType: "series", componentSubType: "graph",
-		seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
-		dataIndex: 0,      dataType: "node",        data: {id: "A"},
-		name: "",
-		event: {
-			event: {type: "mousemove"} // fill-in for a MouseEvent
-		}
-	});
+	adapter.testEvent(new EChartsEvent("mouseout", { data: {id: "A"}}, "mousemove"));
 	expect(onevent).toHaveBeenCalledTimes(1);
 });
 
@@ -318,16 +300,9 @@ it("handles edge blur event", function() {
 		expect(graphEvent.objectType).toBe("edges");
 		expect(graphEvent.id).toBe("AB");
 	});
-	adapter.testEvent({
-		type: "mouseout",
-		componentIndex: 0, componentType: "series", componentSubType: "graph",
-		seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
-		dataIndex: 0,      dataType: "edge",        data: {id: "AB", from: "A", to: "B"},
-		name: "",
-		event: {
-			event: {type: "mousemove"} // fill-in for a MouseEvent
-		}
-	});
+	adapter.testEvent(new EChartsEvent("mouseout", {
+		dataType: "edge", data: {id: "AB", from: "A", to: "B"},
+	}, "mousemove"));
 	expect(onevent).toHaveBeenCalledTimes(1);
 });
 
@@ -345,19 +320,15 @@ it("handles node free event with physics", function() {
 		expect(variables.y).toBe(47);
 	});
 	function makeEChartEvent(type, id, x, y, mouseType) {
-		return {
-			type: type,
-			componentIndex: 0, componentType: "series", componentSubType: "graph",
-			seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
-			dataIndex: 7,      dataType: "node",        data: {id: id},
-			name: "",
+		return new EChartsEvent(type, {
+			dataIndex: 7, data: {id: id},
 			event: {
 				offsetX: x,
 				offsetY: y,
 				// fill-in for a MouseEvent
 				event: {type: mouseType || type}
 			}
-		};
+		});
 	};
 	// There's a whole chain of stuff we've got to access to learn a
 	// single node's location...
@@ -460,20 +431,16 @@ it("does not support edge drag and free events", function() {
 	const adapter = new $tw.test.GraphEngine({
 		nodes: {A: {}, B: {}}, edges: {A: {from: "A", to: "B"}}});
 	var onevent = $tw.test.spyOnEvent(adapter, function() {});
-	function makeEChartEvent(type, dataType) {
-		return {
-			type: type,
-			componentIndex: 0, componentType: "series", componentSubType: "graph",
-			seriesIndex: 0,    seriesType: "graph",     seriesName: "series\u00000",
-			dataIndex: 0,      dataType: dataType,        data: {id: "A"},
-			name: "",
+	function makeEChartEvent(type, id, x, y, mouseType) {
+		return new EChartsEvent(type, {
+			dataIndex: 7, data: {id: id},
 			event: {
-				offsetX: 0,
-				offsetY: 0,
+				offsetX: x,
+				offsetY: y,
 				// fill-in for a MouseEvent
-				event: {type: type}
+				event: {type: mouseType || type}
 			}
-		};
+		});
 	};
 	// It won't do anything when mouse down on edges occurs
 	adapter.testEvent(makeEChartEvent("mousedown", "edge"));
