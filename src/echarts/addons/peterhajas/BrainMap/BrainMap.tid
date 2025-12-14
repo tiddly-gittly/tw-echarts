@@ -2,7 +2,7 @@ title: $:/plugins/Gk0Wk/echarts/addons/BrainMap
 type: text/vnd.tiddlywiki
 caption: BrainMap
 echarts.author: peterhajas
-echarts.readme:
+echarts.readme: {{$:/plugins/Gk0Wk/echarts/addons/BrainMap-readme}}
 
 {
   "tooltip": {

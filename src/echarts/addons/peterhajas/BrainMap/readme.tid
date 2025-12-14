@@ -1,0 +1,17 @@
+title: $:/plugins/Gk0Wk/echarts/addons/BrainMap-readme
+
+Visualize plugins size:
+
+```
+<$echarts
+  $tiddler="$:/plugins/Gk0Wk/echarts/addons/BrainMap"
+  $height="500px"
+  dblclick="(params, parentWidget) => { console.log(params); parentWidget.dispatchEvent({ type: 'tm-navigate', navigateTo: params.data.name }) }"
+/>
+```
+
+<$echarts
+  $tiddler="$:/plugins/Gk0Wk/echarts/addons/BrainMap"
+  $height="500px"
+  dblclick="(params, parentWidget) => { console.log(params); parentWidget.dispatchEvent({ type: 'tm-navigate', navigateTo: params.data.name }) }"
+/>

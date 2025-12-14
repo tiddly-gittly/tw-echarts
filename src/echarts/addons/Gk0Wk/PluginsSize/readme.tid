@@ -5,3 +5,5 @@ Visualize plugins size:
 ```html
 <$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/PluginsSize" />
 ```
+
+<$echarts $tiddler="$:/plugins/Gk0Wk/echarts/addons/PluginsSize" />

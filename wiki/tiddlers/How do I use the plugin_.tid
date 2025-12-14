@@ -111,6 +111,14 @@ This variable can then be used in an addon of type TW5:
 }`
 ```
 
+!!! Bind click events
+
+{{$:/plugins/Gk0Wk/echarts/addons/BrainMap-readme}}
+
+Available mouse events and parameters can be found at [[Echarts - events.Mouse Events|https://echarts.apache.org/en/api.html#events.Mouse%20Events]].
+
+Available `$tw` APIs can be learned through the browser console (see [[TiddlyWiki Chinese Tutorial - Interactive View API|https://tw-cn.netlify.app/#Interactive%20View%20API]]), or by searching [[TW5-Typed|
+
 !! JS type tiddlers
 
 Using TW5 syntax to generate data should definitely still have limitations. If you want the maximize flexibility, it is recommended to write in ~JavaScript (of course, there is definitely a technical threshold).
