@@ -1,21 +1,35 @@
 export const name = "graph";
 import { Shape2symbol } from '../utils.js';
 
-export function init() {
+export function init(echarts): void {
 	this.data = Object.create(null);
 	this.links = Object.create(null);
+	this.backupLayout = Object.create(null);
+	this.echarts = echarts;
 };
 
-export function update(objects: GraphObjects) {
+export function update(objects: GraphObjects): void {
 	const series = {};
-	const self = this;
-	let type = "graph";
 	if (objects.graph) {
 		series.type = "graph";
 		// We need to set this manually in all cases because we
 		// use a different default from what echarts would use.
 		// Physics defaults to "on", because vis-network did.
 		series.layout = objects.graph.physics === false? "none": "force";
+		if (this.layout === "force" && series.layout === "none") {
+			// TODO: Possible problem if no nodes existed
+			// We're switching out of physics. We'll need to record
+			// the locations of all nodes so we can preserve their
+			// current locations
+			var seriesGraph = this.echarts.getModel().getSeriesByIndex(0).getGraph();
+			for (var id in this.data) {
+				const node = seriesGraph.getNodeById(id);
+				this.backupLayout[id] = node.getLayout();
+			}
+			// We'll need to resubmit the nodes with their backup locations
+			objects.nodes = objects.nodes || Object.create(null);
+		}
+		this.layout = series.layout;
 		series.force = {
 			repulsion: 60,
 			edgeLength: 2,
@@ -38,9 +52,21 @@ export function update(objects: GraphObjects) {
 				var cleaned = { id: n.id };
 				if (n.x !== undefined) {
 					cleaned.x = n.x;
+				} else if (this.layout === "none") {
+					// We need a backup location
+					var coords = this.backupLayout[n.id];
+					if (coords) {
+						cleaned.x = coords[0];
+					}
 				}
 				if (n.y !== undefined) {
 					cleaned.y = n.y;
+				} else if (this.layout === "none") {
+					// We need a backup location
+					var coords = this.backupLayout[n.id];
+					if (coords) {
+						cleaned.y = coords[1];
+					}
 				}
 				if (Shape2symbol[n.shape]) {
 					cleaned.symbol = Shape2symbol[n.shape];
@@ -59,7 +85,7 @@ export function update(objects: GraphObjects) {
 					cleaned.itemStyle = {color: n.color};
 				}
 				return cleaned;
-			});
+			}, this);
 		}
 		if (objects.edges) {
 			var links = merge(this.links, objects.edges);
@@ -76,7 +102,7 @@ export function update(objects: GraphObjects) {
 	return series;
 };
 
-function merge(entries, updates) {
+function merge(entries: object, updates: object) {
 	for (var id in updates) {
 		var update = updates[id];
 		if (update) {

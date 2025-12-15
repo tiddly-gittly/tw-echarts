@@ -28,6 +28,7 @@ class MockECharts {
 		this.element.appendChild(this.eventElement);
 		this.eventTarget = Object.create(EventTarget);
 		this.zr = Object.create(EventTarget);
+		this._model = new Model();
 	}
 
 	setOption(option, notMerge) {
@@ -43,7 +44,7 @@ class MockECharts {
 	}
 
 	getModel() {
-		// Intended to be spied upon
+		return this._model;
 	}
 
 	convertFromPixel(finder, value) {
@@ -75,3 +76,34 @@ class MockECharts {
 		return this.element === undefined;
 	}
 };
+
+class Model {
+	constructor() {
+		this.series = [];
+	}
+
+	getSeriesByIndex(index) {
+		return this.series[index] = this.series[index] || new Series();
+	}
+};
+
+class Series {
+	constructor() {
+		this._graph = {
+			nodes: Object.create(null),
+			getNodeById: function(id) {
+				return this.nodes[id] = this.nodes[id] || new Node();
+			}
+
+		}
+	}
+
+	getGraph() {
+		return this._graph;
+	}
+};
+
+class Node {
+	getLayout() {};
+	setLayout(coords) {};
+}

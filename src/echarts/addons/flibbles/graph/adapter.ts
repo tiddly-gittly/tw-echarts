@@ -6,9 +6,9 @@ import { Shape2symbol } from './utils.js';
 const Series = $tw.modules.getModulesByTypeAsHashmap("echartsseries");
 
 interface GraphObjects {
-	graph?: any;
-	nodes?: any;
-	edges?: any;
+	graph?: object;
+	nodes?: object;
+	edges?: object;
 };
 
 export const name = "ECharts";
@@ -66,7 +66,7 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 	this.zoom = true;
 	this.graph = Object.create(null);
 	var standardGraph = Object.create(Series.graph);
-	standardGraph.init();
+	standardGraph.init(this.echarts);
 	this.series = [standardGraph];
 	this.window.addEventListener("resize", function() {
 		echarts.resize();
