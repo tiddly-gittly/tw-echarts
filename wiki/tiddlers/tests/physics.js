@@ -41,7 +41,7 @@ it("can switch from physics to no physics without losing nodes", function() {
 	// won't actually show up. Which means turning off physics might make
 	// some already-placed nodes disappear, or snap back to where they
 	// were. We handle this by inserting fill-in coordinates.
-	const adapter = new $tw.test.GraphEngine({graph: {}, nodes: {A: {}, B: {}}});
+	const adapter = new $tw.test.GraphEngine({graph: {}, nodes: {A:{}, B:{}}});
 	// At this point, ECharts will simulate the nodes a bit and place them.
 	spyOn(adapter.echarts.getModel().getSeriesByIndex(0).getGraph(), "getNodeById").and.callFake(function(id) {
 		return {
@@ -54,6 +54,18 @@ it("can switch from physics to no physics without losing nodes", function() {
 	expect(adapter.testLast.series[0].data).toEqual([
 		{id: "A", x: 3, y: 4},
 		{id: "B", x: 5, y: 6}]);
+});
+
+it("can start into no-physics and initially place nodes", function() {
+	const adapter = new $tw.test.GraphEngine({
+		graph: {physics: false},
+		nodes: {A: {}, B: {}, C: {}, D: {}}});
+	const r = Math.round(Math.sqrt(2)/2*100)/100;
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "A", x: +r, y: -r},
+		{id: "B", x: -r, y: -r},
+		{id: "C", x: -r, y: +r},
+		{id: "D", x: +r, y: +r}]);
 });
 
 });

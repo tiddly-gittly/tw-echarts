@@ -28,10 +28,11 @@ class MockECharts {
 		this.element.appendChild(this.eventElement);
 		this.eventTarget = Object.create(EventTarget);
 		this.zr = Object.create(EventTarget);
-		this._model = new Model();
 	}
 
 	setOption(option, notMerge) {
+		// We don't have a model until we've set options at least once.
+		this._model = this._model || new Model();
 		this.lastOption = option;
 	}
 
