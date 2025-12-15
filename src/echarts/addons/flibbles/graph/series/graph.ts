@@ -1,4 +1,10 @@
 export const name = "graph";
+import { Shape2symbol } from '../utils.js';
+
+export function init() {
+	this.data = Object.create(null);
+	this.links = Object.create(null);
+};
 
 export function update(objects: GraphObjects) {
 	const series = {};
@@ -36,8 +42,8 @@ export function update(objects: GraphObjects) {
 				if (n.y !== undefined) {
 					cleaned.y = n.y;
 				}
-				if (self.shape2symbol[n.shape]) {
-					cleaned.symbol = self.shape2symbol[n.shape];
+				if (Shape2symbol[n.shape]) {
+					cleaned.symbol = Shape2symbol[n.shape];
 				}
 				if (n.image) {
 					cleaned.symbol = `image://${n.image}`;

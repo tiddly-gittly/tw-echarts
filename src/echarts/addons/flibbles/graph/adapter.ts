@@ -1,6 +1,7 @@
 //var ECharts = require("$:/plugins/Gk0Wk/echarts/echarts.min.js");
 
 import * as ECharts from '$:/plugins/Gk0Wk/echarts/echarts.min.js';
+import { Shape2symbol } from './utils.js';
 
 const Series = $tw.modules.getModulesByTypeAsHashmap("echartsseries");
 
@@ -41,18 +42,7 @@ export const properties = {
 	}
 };
 
-export const shape2symbol = {
-	"circle": "circle",
-	"square": "rect",
-	"rounded": "roundRect",
-	"triangle": "triangle",
-	"diamond": "diamond",
-	"pin": "pin",
-	"arrow": "arrow",
-	"no": "none"
-};
-
-properties.nodes.shape.values = Object.keys(shape2symbol);
+properties.nodes.shape.values = Object.keys(Shape2symbol);
 
 export const messages = Object.create(null);
 
@@ -73,10 +63,11 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 	this.echartsElement.addEventListener("wheel", this, true);
 	this.window = options.window || window;
 	this.echarts = echarts;
-	this.data = Object.create(null);
-	this.links = Object.create(null);
 	this.zoom = true;
 	this.graph = Object.create(null);
+	var standardGraph = Object.create(Series.graph);
+	standardGraph.init();
+	this.series = [standardGraph];
 	this.window.addEventListener("resize", function() {
 		echarts.resize();
 	});
@@ -188,7 +179,7 @@ export function update(objects: GraphObjects) {
 		}
 		// Currently, there is only one type of series. We use it always.
 		// Ultimately, there will be other types.
-		config.series = [Series.graph.update.call(this, objects)];
+		config.series = this.series.map((series) => series.update(objects));
 		this.echarts.setOption(config, false);
 		this.config = config;
 	}
