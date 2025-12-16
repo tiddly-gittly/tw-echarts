@@ -59,7 +59,7 @@ export function update(objects: GraphObjects): void {
 			}
 			return cleaned;
 		}, this);
-	if (series.layout === "none") {
+	if (this.layout === "none") {
 		// TODO: Possible problem if no nodes existed
 		// We're switching out of physics. We'll need to record
 		// the locations of all nodes so we can preserve their

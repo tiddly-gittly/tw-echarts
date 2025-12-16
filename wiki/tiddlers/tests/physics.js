@@ -66,6 +66,13 @@ it("can start into no-physics and initially place nodes", function() {
 		{id: "B", x: -r, y: -r},
 		{id: "C", x: -r, y: +r},
 		{id: "D", x: +r, y: +r}]);
+	// It can move some nodes around, and the other nodes will keep still
+	adapter.update({nodes: {B: {x: 5, y: 6}, D: {x: 7, y: 8}}});
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "A", x: +r, y: -r},
+		{id: "B", x: 5, y: 6},
+		{id: "C", x: -r, y: +r},
+		{id: "D", x: 7, y: 8}]);
 });
 
 });
