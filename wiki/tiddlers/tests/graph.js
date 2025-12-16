@@ -296,8 +296,8 @@ it("handles node free event with physics", function() {
 		expect(graphEvent.type).toBe("free");
 		expect(graphEvent.objectType).toBe("nodes");
 		expect(graphEvent.id).toBe("A");
-		expect(variables.x).toBe(35);
-		expect(variables.y).toBe(47);
+		expect(variables.x).toBe(34.69);
+		expect(variables.y).toBe(47.41);
 	});
 	function makeEChartEvent(type, id, x, y, mouseType) {
 		return new EChartsEvent(type, {
@@ -320,7 +320,7 @@ it("handles node free event with physics", function() {
 				getGraph: () => {
 					return { getNodeById: function(id) {
 						expect(id).toBe("A");
-						return { getLayout: () => [34.6, 47.4] }
+						return { getLayout: () => [34.687, 47.412] }
 					}}
 				},
 				forceLayout: {
@@ -328,10 +328,6 @@ it("handles node free event with physics", function() {
 				}
 			}
 		}});
-	spyOn(adapter.echarts, "convertFromPixel").and.callFake(function(finder, value) {
-		expect(finder).toEqual({seriesIndex: 0});
-		return [value[0]*2, value[1]*2];
-	});
 	// This event should cause nothing to happen, because it did not
 	// correspond to a mousedown event, so it couldn't have been a drag.
 	adapter.testEvent(makeEChartEvent("mouseup", "A", 25, 25));
@@ -361,8 +357,8 @@ it("handles node free event without physics", function() {
 		expect(graphEvent.type).toBe("free");
 		expect(graphEvent.objectType).toBe("nodes");
 		expect(graphEvent.id).toBe("A");
-		expect(variables.x).toBe(35);
-		expect(variables.y).toBe(47);
+		expect(variables.x).toBe(34.64);
+		expect(variables.y).toBe(47.87);
 	});
 	function makeEChartEvent(type, id, x, y, mouseType) {
 		return {
@@ -389,16 +385,12 @@ it("handles node free event without physics", function() {
 				getGraph: () => {
 					return { getNodeById: function(id) {
 						expect(id).toBe("A");
-						return { getLayout: () => [34.6, 47.4] }
+						return { getLayout: () => [34.643, 47.865] }
 					}}
 				},
 				forceLayout: null
 			}
 		}});
-	spyOn(adapter.echarts, "convertFromPixel").and.callFake(function(finder, value) {
-		expect(finder).toEqual({seriesIndex: 0});
-		return [value[0]*2, value[1]*2];
-	});
 	// Now for the mouse event
 	adapter.testEvent(makeEChartEvent("mousedown", "A", 25, 20));
 	adapter.testEvent(makeEChartEvent("mouseup", "A", 50, 60));

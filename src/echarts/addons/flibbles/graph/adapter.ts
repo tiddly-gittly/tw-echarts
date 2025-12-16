@@ -127,8 +127,8 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 					id: params.data.id,
 					event: event.event},
 				{
-					x: Math.round(coords[0]),
-					y: Math.round(coords[1])});
+					x: Math.round(coords[0]*100)/100,
+					y: Math.round(coords[1]*100)/100});
 			}
 			this.mouseDownId = null;
 		}
