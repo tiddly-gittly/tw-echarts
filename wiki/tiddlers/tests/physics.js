@@ -60,7 +60,7 @@ it("can start into no-physics and initially place nodes", function() {
 	const adapter = new $tw.test.GraphEngine({
 		graph: {physics: false},
 		nodes: {A: {}, B: {}, C: {}, D: {}}});
-	const r = Math.round(Math.sqrt(2)/2*100)/100;
+	const r = Math.round(Math.sqrt(2)/2*40*100)/100;
 	expect(adapter.testLast.series[0].data).toEqual([
 		{id: "A", x: +r, y: -r},
 		{id: "B", x: -r, y: -r},

@@ -135,11 +135,14 @@ function merge(entries: object, updates: object) : object[] {
    * Ours doesn't glitch out when count <= 1.
    * Ours can handle a mix of specified and unspecified node locations.
  * Honestly, physics and layout seem like afterthoughts in ECharts.
+ *
+ * Right now, it spreads the nodes out by 10*count, but maybe it should just
+ * be something like 100? It must be spread out some to prevent edge artifacts.
  */
 function startPosition(n, count) {
 	const segment = 2 * Math.PI / count;
 	const radian = (n + 0.5) * segment;
 	return [
-		Math.round(Math.cos(radian)*100)/100,
-		Math.round(Math.sin(radian)*100)/-100];
+		Math.round(Math.cos(radian)*1000*count)/100,
+		Math.round(Math.sin(radian)*1000*count)/-100];
 };
