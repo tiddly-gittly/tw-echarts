@@ -25,6 +25,8 @@ test.GraphEngine = class GraphEngine extends GraphEngineModule {
 		testOptions = testOptions || {};
 		this.testElement = testOptions.element || test.createElement("div");
 		var options = {window: new Mocks.Window()};
+		this.testElement.style.height = testOptions.height;
+		this.testElement.style.width = testOptions.width;
 		this.init(this.testElement, initialObjects, options);
 	}
 

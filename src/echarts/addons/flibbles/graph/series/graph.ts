@@ -64,7 +64,7 @@ export function update(objects: GraphObjects): void {
 		// We're switching out of physics. We'll need to record
 		// the locations of all nodes so we can preserve their
 		// current locations
-		populateCoordinates(data, this.echarts);
+		placeNodesForStatic.call(this, data, this.echarts);
 	}
 	if (data.length > 0) {
 		series.data = data;
@@ -87,30 +87,60 @@ function createLinks(oldLinks: object, newLinks: object) {
 	});
 }
 
-function populateCoordinates(data: object[], echarts) {
-	const model = echarts.getModel();
-	var seriesGraph
-	if (model) {
-		seriesGraph = model.getSeriesByIndex(0).getGraph();
-	} else {
-		// We don't have a model yet, so no nodes will have an actual
-		// location in that model.
-		seriesGraph = { getNodeById: () => ({getLayout: () => undefined}) };
+/**ECharts has its own way to initially place nodes in a circle, but
+ * we use our own. Why?
+   * Ours doesn't fix the nodes in place, so users can move them off the circle.
+   * Ours doesn't glitch out when count <= 1.
+   * Ours can handle a mix of specified and unspecified node locations.
+ * Honestly, physics and layout seem like afterthoughts in ECharts.
+ *
+ * Right now, it spreads the nodes out by 10*count, but maybe it should just
+ * be something like 100? It must be spread out some to prevent edge artifacts.
+ */
+function placeNodesForStatic(data: object[], echarts) {
+	if (!this.origin) {
+		const boundingBox = getBoundingBox(data);
+		this.radius = Math.min(boundingBox.width, boundingBox.height)/2;
+		if (this.radius <= 1) {
+			// Most likely, we have only 1 node.
+			this.radius = Math.min(echarts.getHeight(), echarts.getWidth())/2;
+			const r2 = this.radius * this.radius;
+			if((boundingBox.x*boundingBox.x <= r2)
+			|| (boundingBox.y*boundingBox.y <= r2)) {
+				// That singular dot is close to the origin. Let's
+				// frame around the origin to give that dot better context.
+				boundingBox.x = -boundingBox.width/2;
+				boundingBox.y = -boundingBox.height/2;
+			}
+		}
+		this.origin = [
+				boundingBox.x + boundingBox.width/2,
+				boundingBox.y + boundingBox.height/2];
 	}
 	const length = data.length;
 	for (var index = 0; index < length; index++) {
 		const node = data[index];
 		if (node.x === undefined || node.y === undefined) {
-			const modelNode = seriesGraph.getNodeById(node.id);
-			var coords = modelNode.getLayout() || startPosition(index, length);
-			//this.backupLayout[node.id] = coords;
+			const coords = startPosition(index, this.radius, this.origin, length);
 			node.x = coords[0];
 			node.y = coords[1];
 		}
 	}
 };
 
-function merge(entries: object, updates: object) : object[] {
+function startPosition(n, radius, origin, count) {
+	if (count <= 1) {
+		// Special case. Gets placed at origin.
+		return [0,0];
+	}
+	const segment = 2 * Math.PI / count;
+	const radian = (n + 0.5) * segment;
+	return [
+		Math.round(Math.cos(radian)*100*radius)/100 + origin[0],
+		Math.round(Math.sin(radian)*100*radius)/-100 + origin[1]];
+};
+
+function merge(entries, updates) {
 	for (var id in updates) {
 		var update = updates[id];
 		if (update) {
@@ -129,20 +159,42 @@ function merge(entries: object, updates: object) : object[] {
 	return output;
 };
 
-/**ECharts has its own way to initially place nodes in a circle, but
- * we use our own. Why?
-   * Ours doesn't fix the nodes in place, so users can move them off the circle.
-   * Ours doesn't glitch out when count <= 1.
-   * Ours can handle a mix of specified and unspecified node locations.
- * Honestly, physics and layout seem like afterthoughts in ECharts.
- *
- * Right now, it spreads the nodes out by 10*count, but maybe it should just
- * be something like 100? It must be spread out some to prevent edge artifacts.
- */
-function startPosition(n, count) {
-	const segment = 2 * Math.PI / count;
-	const radian = (n + 0.5) * segment;
-	return [
-		Math.round(Math.cos(radian)*1000*count)/100,
-		Math.round(Math.sin(radian)*1000*count)/-100];
+function getBoundingBox(data) {
+	const box : BoundingBox = {width: 0, height: 0};
+	for (var index = 0; index < data.length; index++) {
+		const node = data[index];
+		if (node.x !== undefined) {
+			if (box.x === undefined) {
+				box.x = node.x;
+			} else {
+				const diff = node.x - box.x;
+				if (diff < 0) {
+					box.width -= diff;
+					box.x = node.x;
+				} else if (diff > box.width) {
+					box.width = diff;
+				}
+			}
+		}
+		if (node.y !== undefined) {
+			if (box.y === undefined) {
+				box.y = node.y;
+			} else {
+				const diff = node.y - box.y;
+				if (diff < 0) {
+					box.height -= diff;
+					box.y = node.y;
+				} else if (diff > box.height) {
+					box.height = diff;
+				}
+			}
+		}
+	}
+	if (box.x === undefined) {
+		box.x = 0;
+	}
+	if (box.y === undefined) {
+		box.y = 0;
+	}
+	return box;
 };

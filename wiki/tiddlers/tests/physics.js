@@ -40,27 +40,24 @@ it("can switch from physics to no physics without losing nodes", function() {
 	// ECharts has a problem where nodes without physics or coordinates
 	// won't actually show up. Which means turning off physics might make
 	// some already-placed nodes disappear, or snap back to where they
-	// were. We handle this by inserting fill-in coordinates.
-	const adapter = new $tw.test.GraphEngine({graph: {}, nodes: {A:{}, B:{}}});
-	// At this point, ECharts will simulate the nodes a bit and place them.
-	spyOn(adapter.echarts.getModel().getSeriesByIndex(0).getGraph(), "getNodeById").and.callFake(function(id) {
-		return {
-			getLayout: () => ({A: [3,4], B: [5,6]})[id],
-			setLayout: function() {}
-		};
-	});
+	// were.
+	// We handle this by ignoring all physics set up and completely organizing
+	// all nodes. Not how vis-network does it, but it will be how echarts does.
+	const adapter = new $tw.test.GraphEngine(
+		{graph: {}, nodes: {A:{}, B:{}}},
+		{width: 86});
 	// Then we turn off physics and keep those locations.
 	adapter.update({graph: {physics: false}});
 	expect(adapter.testLast.series[0].data).toEqual([
-		{id: "A", x: 3, y: 4},
-		{id: "B", x: 5, y: 6}]);
+		{id: "A", x: 0, y: -43},
+		{id: "B", x: 0, y: 43}]);
 });
 
 it("can start into no-physics and initially place nodes", function() {
 	const adapter = new $tw.test.GraphEngine({
 		graph: {physics: false},
-		nodes: {A: {}, B: {}, C: {}, D: {}}});
-	const r = Math.round(Math.sqrt(2)/2*40*100)/100;
+		nodes: {A: {}, B: {}, C: {}, D: {}}}, {width: 38});
+	const r = Math.round(Math.sqrt(2)/2*19*100)/100;
 	expect(adapter.testLast.series[0].data).toEqual([
 		{id: "A", x: +r, y: -r},
 		{id: "B", x: -r, y: -r},
@@ -73,6 +70,37 @@ it("can start into no-physics and initially place nodes", function() {
 		{id: "B", x: 5, y: 6},
 		{id: "C", x: -r, y: +r},
 		{id: "D", x: 7, y: 8}]);
+});
+
+it("a single static non-fixed node gets placed at the origin", function() {
+	const adapter = new $tw.test.GraphEngine({
+		graph: {physics: false},
+		nodes: {A: {}}},
+		{width: 220, height: 330});
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "A", x: 0, y: 0}]);
+	// If one is added, then it starts spreading things out.
+	adapter.update({nodes: {B: {}}});
+	var r = 110;
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "A", x: 0, y: -r},
+		{id: "B", x: 0, y: +r}]);
+	// If some are placed, it does not reset the origin.
+	adapter.update({nodes: {B: {x: 14, y: 13}}});
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "A", x: 0, y: -r},
+		{id: "B", x: 14, y: 13}]);
+});
+
+it("can mix fixed and non-fixed when initializing static graphs", function() {
+	const adapter = new $tw.test.GraphEngine({
+		graph: {physics: false},
+		nodes: {A: {}, B: {x: 1500, y: -1600}}},
+			{width: 720, height: 400});
+	const r = 200;
+	expect(adapter.testLast.series[0].data).toEqual([
+		{id: "A", x: 1500, y: -1600-r},
+		{id: "B", x: 1500, y: -1600}]);
 });
 
 });
