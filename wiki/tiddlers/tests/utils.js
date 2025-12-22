@@ -25,8 +25,8 @@ test.GraphEngine = class GraphEngine extends GraphEngineModule {
 		testOptions = testOptions || {};
 		this.testElement = testOptions.element || test.createElement("div");
 		var options = {window: new Mocks.Window()};
-		this.testElement.style.height = testOptions.height;
-		this.testElement.style.width = testOptions.width;
+		this.testElement.testWidth = testOptions.width;
+		this.testElement.testHeight = testOptions.height;
 		this.init(this.testElement, initialObjects, options);
 	}
 
@@ -79,5 +79,40 @@ test.spyOnEvent = function(adapter, method) {
 		}
 	});
 	return spy;
+};
+
+/**Expensively gets a bounding box for testing.
+ * Assumes all nodes will have coordinates supplied.
+ */
+test.getBoundingBox = function(nodes) {
+	const box = {
+		left: nodes.reduce((a, b) => ({x: Math.min(a.x, b.x)})).x,
+		right: nodes.reduce((a, b) => ({x: Math.max(a.x, b.x)})).x,
+		top: nodes.reduce((a, b) => ({y: Math.min(a.y, b.y)})).y,
+		bottom: nodes.reduce((a, b) => ({y: Math.max(a.y, b.y)})).y
+	};
+	box.width = box.right - box.left;
+	box.height = box.bottom - box.top;
+	box.origin = [(box.right + box.left)/2, (box.bottom + box.top)/2];
+	return box;
+};
+
+/**Custom jasmine matchers for our project.
+ */
+test.customMatchers = {
+	toBeBetween: function(matchersUtil) {
+		return {
+			compare: function(actual, min, max) {
+				const result = {};
+				result.pass = min <= actual && actual <= max;
+				if (result.pass) {
+					result.message = `Expected ${actual} not to be between ${min} and ${max}`;
+				} else {
+					result.message = `Expected ${actual} to be between ${min} and ${max}`;
+				}
+				return result;
+			}
+		}
+	}
 };
 

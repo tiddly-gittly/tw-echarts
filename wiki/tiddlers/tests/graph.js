@@ -1,6 +1,20 @@
 describe('graph series', function() {
 
-beforeAll(() => $tw.test.startTestMode() );
+beforeAll(function() {
+	$tw.test.startTestMode();
+	jasmine.addMatchers($tw.test.customMatchers);
+});
+
+function testNodesEqualExceptCoords(adapter, expectedNodes) {
+	const data = adapter.testLast.series[0].data;
+	for (var i = 0; i < expectedNodes.length; i++) {
+		const expected = expectedNodes[i];
+		const actual = data[i];
+		expected.x = actual.x;
+		expected.y = actual.y;
+	}
+	expect(data).toEqual(expectedNodes);
+};
 
 it('handles zoom by not handling it', function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {A: {}}});
@@ -21,14 +35,14 @@ it('can manipulate node labels', function() {
 		match: {label: "match"},
 		copy: {label: "match"},
 		blank: {}}});
-	expect(adapter.testLast.series[0].data).toEqual([
+	testNodesEqualExceptCoords(adapter, [
 		{id: "match", name: "match", label: {show: true, position: "bottom"}},
 		{id: "copy", name: "match", label: {show: true, position: "bottom"}},
 		{id: "blank"}]);
 	adapter.update({ nodes: {
 		match: {},
 		blank: {label: "new"}}});
-	expect(adapter.testLast.series[0].data).toEqual([
+	testNodesEqualExceptCoords(adapter, [
 		{id: "match"},
 		{id: "copy", name: "match", label: {show: true, position: "bottom"}},
 		{id: "blank", name: "new", label: {show: true, position: "bottom"}}]);
@@ -42,7 +56,7 @@ it('can manipulate node shapes', function() {
 		rounded: {shape: "rounded"},
 		no: {shape: "no"},
 		nonexistent: {shape: "nonexistent"}}});
-	expect(adapter.testLast.series[0].data).toEqual([
+	testNodesEqualExceptCoords(adapter, [
 		{id: "unspecified"},
 		{id: "circle", symbol: "circle"},
 		{id: "square", symbol: "rect"},
@@ -54,7 +68,7 @@ it('can manipulate node shapes', function() {
 		circle: {shape: "triangle"},           // change
 		square: {shape: "notAChoice"},         // set to non-choice
 		nonexistent: {shape: "arrow"}}}); // set
-	expect(adapter.testLast.series[0].data).toEqual([
+	testNodesEqualExceptCoords(adapter, [
 		{id: "unspecified"},
 		{id: "circle", symbol: "triangle"},
 		{id: "square"},
@@ -67,7 +81,7 @@ it('can manipulate node color', function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {
 		auto: {},
 		manual: {color: "#bb0000"}}});
-	expect(adapter.testLast.series[0].data).toEqual([
+	testNodesEqualExceptCoords(adapter, [
 		{id: "auto"},
 		{id: "manual", itemStyle: {color: "#bb0000"}}]);
 });
@@ -81,7 +95,7 @@ it('can manipulate node image', function() {
 		shape: {shape: "arrow"},
 		// When mixed, image takes priority
 		mixed: {shape: "arrow", image: embeddedUrl}}});
-	expect(adapter.testLast.series[0].data).toEqual([
+	testNodesEqualExceptCoords(adapter, [
 		{id: "image", symbol: "image://" + embeddedUrl},
 		{id: "shape", symbol: "arrow"},
 		{id: "mixed", symbol: "image://" + embeddedUrl}]);
@@ -89,7 +103,7 @@ it('can manipulate node image', function() {
 	adapter.update({nodes: {
 		image: {image: embeddedUrl, shape: "triangle"},
 		mixed: {shape: "triangle"}}});
-	expect(adapter.testLast.series[0].data).toEqual([
+	testNodesEqualExceptCoords(adapter, [
 		{id: "image", symbol: "image://" + embeddedUrl},
 		{id: "shape", symbol: "arrow"},
 		{id: "mixed", symbol: "triangle"}]);
@@ -100,17 +114,23 @@ it('can manipulate node physics', function() {
 		yes: {physics: true},
 		no: {physics: false},
 		unspecified: {}}});
-	expect(adapter.testLast.series[0].data).toEqual([
-		{id: "yes", fixed: false},
-		{id: "no", fixed: true},
-		{id: "unspecified"}]);
+	var data = adapter.testLast.series[0].data;
+	expect(data.length).toBe(3);
+	expect(data[0].fixed).toBe(false);
+	expect(data[1].fixed).toBe(true);
+	expect(data[2].fixed).toBeUndefined();
 	// Update physics
 	adapter.update({nodes: {
-		yes: {}, unspecified: {physics: false}}});
-	expect(adapter.testLast.series[0].data).toEqual([
-		{id: "yes"},
-		{id: "no", fixed: true},
-		{id: "unspecified", fixed: true}]);
+		yes: {},
+		// "no" is untouched
+		unspecified: {physics: false}}});
+	data = adapter.testLast.series[0].data;
+	// Testing individually, because the x's and y's will be set
+	// to manipulate the viewport. We don't care in this test.
+	expect(data.length).toBe(3);
+	expect(data[0].fixed).toBeUndefined();
+	expect(data[1].fixed).toBe(true);
+	expect(data[2].fixed).toBe(true);
 });
 
 // The only way to remove edges from an eCharts graph is to either do

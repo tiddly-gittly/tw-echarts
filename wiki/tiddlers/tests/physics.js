@@ -9,6 +9,12 @@ describe('physics', function() {
 
 beforeAll(() => $tw.test.startTestMode() );
 
+beforeEach(function() {
+	jasmine.addMatchers($tw.test.customMatchers);
+});
+
+/*** Physics ***/
+
 it('handles graph physics', function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {A: {}}});
 	// physics is enabled by default
@@ -28,6 +34,27 @@ it('handles graph physics', function() {
 	adapter.update({graph: {physics: true}});
 	expect(adapter.testLast.series[0].layout).toBe("force");
 });
+
+it("can handle physics for one fixed node of unspecified location", function() {
+	const adapter = new $tw.test.GraphEngine({nodes: {
+		A: {},
+		B: {},
+		C: {physics: false},
+		D: {}, E: {}, F:{}}}, {width: 350, height: 750});
+	const data = adapter.testLast.series[0].data;
+	const box = $tw.test.getBoundingBox(data);
+	// This dynamic graph should be centered on the origin, and the
+	// fixed node should be there.
+	expect(box.origin).toEqual([0,0]);
+	expect(data[2].x).toBe(0);
+	expect(data[2].y).toBe(0);
+	// The spread needs to be close to the viewport dimensions so we can
+	// actually see everything.
+	expect(box.width).toBeBetween(300, 350);
+	expect(box.height).toBeBetween(300, 350);
+});
+
+/*** No physics ***/
 
 it('handles no graph physics too', function() {
 	const adapter = new $tw.test.GraphEngine({graph: {physics: false}, nodes: {A: {}}});

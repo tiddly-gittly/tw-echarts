@@ -8,7 +8,7 @@ it('handles empty graph getting filled', function() {
 	adapter.update({nodes: { newNode: {}} });
 	// With such a minimal set of info to update,
 	// we should be able to exactly match the passed "option".
-	expect(adapter.testLast.series[0].data).toEqual([{id: "newNode"}]);
+	expect(adapter.testLast.series[0].data).toEqual([{id: "newNode", x: 0, y: 0}]);
 });
 
 it('preserves and puts pre-existing DOM nodes after canvas', function() {

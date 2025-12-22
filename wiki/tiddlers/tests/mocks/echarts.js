@@ -38,8 +38,8 @@ class MockECharts {
 
 	// We'll return whatever height and width settings the initializing
 	// element had.
-	getHeight() { return parseInt(this.element.style.height); }
-	getWidth() { return parseInt(this.element.style.width); }
+	getHeight() { return this.element.testHeight || parseInt(this.element.style.height); }
+	getWidth() { return this.element.testWidth || parseInt(this.element.style.width); }
 
 	getDom() {
 		return this.element;

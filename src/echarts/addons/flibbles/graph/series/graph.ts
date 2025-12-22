@@ -59,13 +59,14 @@ export function update(objects: GraphObjects): void {
 			}
 			return cleaned;
 		}, this);
-	if (this.layout === "none") {
-		// TODO: Possible problem if no nodes existed
-		// We're switching out of physics. We'll need to record
-		// the locations of all nodes so we can preserve their
-		// current locations
-		placeNodesForStatic.call(this, data, this.echarts);
+	if (!this.boundingBox) {
+		this.boundingBox = getBoundingBox(data, this.echarts);
 	}
+	// TODO: Possible problem if no nodes existed
+	// We're switching out of physics. We'll need to record
+	// the locations of all nodes so we can preserve their
+	// current locations
+	placeNodes.call(this, data, this.echarts);
 	if (data.length > 0) {
 		series.data = data;
 	}
@@ -97,38 +98,28 @@ function createLinks(oldLinks: object, newLinks: object) {
  * Right now, it spreads the nodes out by 10*count, but maybe it should just
  * be something like 100? It must be spread out some to prevent edge artifacts.
  */
-function placeNodesForStatic(data: object[], echarts) {
-	if (!this.origin) {
-		const boundingBox = getBoundingBox(data);
-		this.radius = Math.min(boundingBox.width, boundingBox.height)/2;
-		if (this.radius <= 1) {
-			// Most likely, we have only 1 node.
-			this.radius = Math.min(echarts.getHeight(), echarts.getWidth())/2;
-			const r2 = this.radius * this.radius;
-			if((boundingBox.x*boundingBox.x <= r2)
-			|| (boundingBox.y*boundingBox.y <= r2)) {
-				// That singular dot is close to the origin. Let's
-				// frame around the origin to give that dot better context.
-				boundingBox.x = -boundingBox.width/2;
-				boundingBox.y = -boundingBox.height/2;
-			}
-		}
-		this.origin = [
-				boundingBox.x + boundingBox.width/2,
-				boundingBox.y + boundingBox.height/2];
-	}
-	const length = data.length;
-	for (var index = 0; index < length; index++) {
+function placeNodes(data, echarts) {
+	const count = data.length;
+	const radius = Math.min(this.boundingBox.width, this.boundingBox.height)/2;
+	var fixedPlaced = false;
+	for (var index = 0; index < count; index++) {
 		const node = data[index];
 		if (node.x === undefined || node.y === undefined) {
-			const coords = startPosition(index, this.radius, this.origin, length);
-			node.x = coords[0];
-			node.y = coords[1];
+			if (!fixedPlaced && node.fixed) {
+				// If there is one node indicated to be fixed in place
+				node.x = this.boundingBox.origin[0];
+				node.y = this.boundingBox.origin[1];
+				fixedPlaced = true;
+			} else {
+				const coords = startPosition(index, this.boundingBox, radius, count);
+				node.x = coords[0];
+				node.y = coords[1];
+			}
 		}
 	}
 };
 
-function startPosition(n, radius, origin, count) {
+function startPosition(n, box, radius, count) {
 	if (count <= 1) {
 		// Special case. Gets placed at origin.
 		return [0,0];
@@ -136,8 +127,8 @@ function startPosition(n, radius, origin, count) {
 	const segment = 2 * Math.PI / count;
 	const radian = (n + 0.5) * segment;
 	return [
-		Math.round(Math.cos(radian)*100*radius)/100 + origin[0],
-		Math.round(Math.sin(radian)*100*radius)/-100 + origin[1]];
+		Math.round(Math.cos(radian)*100*radius)/100 + box.origin[0],
+		Math.round(Math.sin(radian)*100*radius)/-100 + box.origin[1]];
 };
 
 function merge(entries, updates) {
@@ -159,8 +150,15 @@ function merge(entries, updates) {
 	return output;
 };
 
-function getBoundingBox(data) {
-	const box : BoundingBox = {width: 0, height: 0};
+/**This gets us an appropriate bounding box to fill out given the set of
+ * nodes that we've got.
+ * You'd think ECharts would do this for us, but it can't if static graphs
+ * don't have all nodes with specified locations, or dynamic nodes where
+ * They ALL have specified locations.
+ * ECharts really wasn't meant for free form graphs...
+ */
+function getBoundingBox(data, echarts) {
+	const box = {width: 0, height: 0};
 	for (var index = 0; index < data.length; index++) {
 		const node = data[index];
 		if (node.x !== undefined) {
@@ -196,5 +194,23 @@ function getBoundingBox(data) {
 	if (box.y === undefined) {
 		box.y = 0;
 	}
+	if (box.width <= 2 && box.height <= 2) {
+		// This box is too small to be useful.
+		// Most likely, we have only 1 node.
+		// We'll expand to fill our viewbox instead.
+		box.width = box.height = Math.min(echarts.getHeight(), echarts.getWidth());
+		const r2 = box.width * box.height;
+		if((box.x*box.x <= r2)
+		&& (box.y*box.y <= r2)) {
+			// That singular node is close to the origin. Let's
+			// frame around the origin to give that dot better context.
+			box.x = box.y = 0;
+		}
+		box.x -= box.width/2;
+		box.y -= box.height/2;
+	}
+	box.origin = [
+			box.x + box.width/2,
+			box.y + box.height/2];
 	return box;
 };
