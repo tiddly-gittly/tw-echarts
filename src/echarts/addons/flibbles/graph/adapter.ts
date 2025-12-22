@@ -96,7 +96,8 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 	for (var event in eventTypes) {
 		this.echarts.on(event, eventHandler, this);
 	}
-	this.echarts.getZr().on("dblclick", function(event) {
+	const zr = this.echarts.getZr();
+	zr.on("dblclick", function(event) {
 		if (!event.target) {
 			var coords = this.echarts.convertFromPixel(
 				{seriesIndex: 0},
@@ -111,27 +112,28 @@ export function init(element: HTMLDivElement, objects: GraphObjects, options?) {
 			this.mouseDownId = params.data.id;
 		}
 	}, this);
-	this.echarts.on("mouseup", "series", function(params) {
-		if (params.dataType === "node") {
-			const event = params.event;
-			const id = params.data.id;
-			if (id === this.mouseDownId) {
-				var seriesModel = this.echarts.getModel().getSeriesByIndex(0);
-				if (seriesModel.forceLayout) {
-					seriesModel.forceLayout.setFixed(params.dataIndex);
-				}
-				var coords = seriesModel.getGraph().getNodeById(id).getLayout();
-				this.onevent({
-					type: "free",
-					objectType: "nodes",
-					id: params.data.id,
-					event: event.event},
-				{
-					x: Math.round(coords[0]*100)/100,
-					y: Math.round(coords[1]*100)/100});
+	zr.on("dragend", function(event) {
+		// We use zr.dragend instead of the echarts mouseup because
+		// drag end more consistently works, such as when the mouse
+		// leaves the viewport before releasing.
+		const id = this.mouseDownId;
+		if (id) {
+			const seriesModel = this.echarts.getModel().getSeriesByIndex(0);
+			const node = seriesModel.getGraph().getNodeById(id);
+			if (seriesModel.forceLayout) {
+				seriesModel.forceLayout.setFixed(node.dataIndex);
 			}
-			this.mouseDownId = null;
+			const coords = node.getLayout();
+			this.onevent({
+				type: "free",
+				objectType: "nodes",
+				id: id,
+				event: event.event},
+			{
+				x: Math.round(coords[0]*100)/100,
+				y: Math.round(coords[1]*100)/100});
 		}
+		this.mouseDownId = null;
 	}, this);
 };
 

@@ -340,28 +340,32 @@ it("handles node free event with physics", function() {
 				getGraph: () => {
 					return { getNodeById: function(id) {
 						expect(id).toBe("A");
-						return { getLayout: () => [34.687, 47.412] }
+						return {
+							getLayout: () => [34.687, 47.412],
+							dataIndex: 7
+						};
 					}}
 				},
 				forceLayout: {
-					setFixed: function(nodeIndex) { lastFixedNode = nodeIndex; }
+					setFixed: function(nodeIndex) {
+						lastFixedNode = nodeIndex;
+					}
 				}
 			}
 		}});
+	const zrEvent = {
+		type: "dragend",
+		target: {id: 2731}, // The id is pretty arbitrary
+		event: { type: "mouseup" }
+	};
 	// This event should cause nothing to happen, because it did not
 	// correspond to a mousedown event, so it couldn't have been a drag.
-	adapter.testEvent(makeEChartEvent("mouseup", "A", 25, 25));
-	expect(onevent).not.toHaveBeenCalled();
-	expect(lastFixedNode).toBeUndefined();
-	// This still won't count, because the mouse down wasn't on the right
-	// node.
-	adapter.testEvent(makeEChartEvent("mousedown", "B", 25, 25));
-	adapter.testEvent(makeEChartEvent("mouseup", "A", 35, 35));
+	adapter.echarts.getZr().dispatchEvent(zrEvent);
 	expect(onevent).not.toHaveBeenCalled();
 	expect(lastFixedNode).toBeUndefined();
 	// Now we start with a mousedown event
 	adapter.testEvent(makeEChartEvent("mousedown", "A", 25, 20));
-	adapter.testEvent(makeEChartEvent("mouseup", "A", 50, 60));
+	adapter.echarts.getZr().dispatchEvent(zrEvent);
 	expect(onevent).toHaveBeenCalledTimes(1);
 	expect(lastFixedNode).toBe(7);
 });
@@ -411,9 +415,14 @@ it("handles node free event without physics", function() {
 				forceLayout: null
 			}
 		}});
+	const zrEvent = {
+		type: "dragend",
+		target: {id: 2731}, // The id is pretty arbitrary
+		event: { type: "mouseup" }
+	};
 	// Now for the mouse event
 	adapter.testEvent(makeEChartEvent("mousedown", "A", 25, 20));
-	adapter.testEvent(makeEChartEvent("mouseup", "A", 50, 60));
+	adapter.echarts.getZr().dispatchEvent(zrEvent);
 	expect(onevent).toHaveBeenCalledTimes(1);
 	expect(lastFixedNode).toBeUndefined();
 });
