@@ -10,7 +10,8 @@ export function init(echarts): void {
 
 export function update(objects: GraphObjects): void {
 	const series = {};
-	if (objects.graph) {
+	const graph = objects.graph;
+	if (graph) {
 		series.type = "graph";
 		// We need to set this manually in all cases because we
 		// use a different default from what echarts would use.
@@ -18,9 +19,10 @@ export function update(objects: GraphObjects): void {
 		series.layout = objects.graph.physics === false? "none": "force";
 		this.layout = series.layout;
 		series.force = {
-			repulsion: 60,
-			edgeLength: 2,
-			gravity: 0.1
+			repulsion: 50,
+			edgeLength: 30,
+			gravity: 0.1,
+			friction: 0.6, // 0 to 1
 		};
 		series.draggable = true;
 		// The graph can always roam, at least for now.
@@ -31,7 +33,22 @@ export function update(objects: GraphObjects): void {
 		// of a hypothetical bounding-box around the nodes won't work.
 		series.roamTrigger = "global";
 	}
-	const data = merge(this.data, objects.nodes || {})
+	const data = createData(this.data, objects.nodes || {});
+	if (!this.boundingBox) {
+		this.boundingBox = getBoundingBox(data, this.echarts);
+	}
+	placeNodes.call(this, data, this.echarts);
+	if (data.length > 0) {
+		series.data = data;
+	}
+	if (objects.edges) {
+		series.links = createLinks(this.links, objects.edges);
+	}
+	return series;
+};
+
+function createData(oldNodes, newNodes) {
+	return merge(oldNodes, newNodes || {})
 		.sort((a,b) => a.x - b.x)
 		.map(function(n) {
 			var cleaned = { id: n.id };
@@ -58,22 +75,7 @@ export function update(objects: GraphObjects): void {
 				cleaned.itemStyle = {color: n.color};
 			}
 			return cleaned;
-		}, this);
-	if (!this.boundingBox) {
-		this.boundingBox = getBoundingBox(data, this.echarts);
-	}
-	// TODO: Possible problem if no nodes existed
-	// We're switching out of physics. We'll need to record
-	// the locations of all nodes so we can preserve their
-	// current locations
-	placeNodes.call(this, data, this.echarts);
-	if (data.length > 0) {
-		series.data = data;
-	}
-	if (objects.edges) {
-		series.links = createLinks(this.links, objects.edges);
-	}
-	return series;
+		});
 };
 
 function createLinks(oldLinks: object, newLinks: object) {
