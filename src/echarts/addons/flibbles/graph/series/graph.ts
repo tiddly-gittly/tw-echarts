@@ -66,6 +66,9 @@ function createData(oldNodes, newNodes) {
 			if (n.image) {
 				cleaned.symbol = `image://${n.image}`;
 			}
+			if (n.size !== undefined) {
+				cleaned.symbolSize = n.size;
+			}
 			if (n.physics !== undefined) {
 				cleaned.fixed = n.physics !== true;
 			}

@@ -97,6 +97,17 @@ it('can manipulate node shapes', function() {
 		{id: "nonexistent", symbol: "arrow"}]);
 });
 
+it('can manipulate node size', function() {
+	const adapter = new $tw.test.GraphEngine({nodes: {
+		auto: {},
+		zero: {size: 0},
+		manual: {size: 40}}});
+	testNodesEqualExceptCoords(adapter, [
+		{id: "auto"},
+		{id: "zero", symbolSize: 0},
+		{id: "manual", symbolSize: 40}]);
+});
+
 it('can manipulate node color', function() {
 	const adapter = new $tw.test.GraphEngine({nodes: {
 		auto: {},

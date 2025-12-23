@@ -28,6 +28,7 @@ export const properties = {
 	nodes: {
 		x: {type: "number"},
 		y: {type: "number"},
+		size: {type: "number", min: 0, max: 100, default: 10},
 		label: {type: "string"},
 		physics: {type: "boolean", default: true},
 		image: {type: "image"},
