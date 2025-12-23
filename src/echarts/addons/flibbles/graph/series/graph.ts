@@ -19,10 +19,10 @@ export function update(objects: GraphObjects): void {
 		series.layout = objects.graph.physics === false? "none": "force";
 		this.layout = series.layout;
 		series.force = {
-			repulsion: 50,
-			edgeLength: 30,
-			gravity: 0.1,
-			friction: 0.6, // 0 to 1
+			repulsion: graph.repulsion ?? 50,
+			edgeLength: graph.edgeLength ?? 30,
+			gravity: graph.gravity ?? 0.1,
+			friction: graph.friction ?? 0.6
 		};
 		series.draggable = true;
 		// The graph can always roam, at least for now.
@@ -37,6 +37,8 @@ export function update(objects: GraphObjects): void {
 	if (!this.boundingBox) {
 		this.boundingBox = getBoundingBox(data, this.echarts);
 	}
+	// echarts works a lot better if we always place nodes, so any unassigned
+	// nodes get placed, regardless of physics or static.
 	placeNodes.call(this, data, this.echarts);
 	if (data.length > 0) {
 		series.data = data;

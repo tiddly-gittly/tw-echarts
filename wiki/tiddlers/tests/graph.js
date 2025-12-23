@@ -30,6 +30,26 @@ it('handles zoom by not handling it', function() {
 	expect(adapter.testLast.series[0].roamTrigger).toBe("global");
 });
 
+it('can manipulate properties of node physics', function() {
+	const adapter = new $tw.test.GraphEngine({graph: {
+		repulsion: 7,
+		edgeLength: 7,
+		gravity: 0.7,
+		friction: 0.7}});
+	var series = adapter.testLast.series[0].force;
+	expect(series.repulsion).toBe(7);
+	expect(series.edgeLength).toBe(7);
+	expect(series.gravity).toBe(0.7);
+	expect(series.friction).toBe(0.7);
+	adapter.update({graph: {}});
+	series = adapter.testLast.series[0].force;
+	// Values taken from echarts documentation
+	expect(series.repulsion).toBe(50);
+	expect(series.edgeLength).toBe(30);
+	expect(series.gravity).toBe(0.1);
+	expect(series.friction).toBe(0.6);
+});
+
 it('can manipulate node labels', function() {
 	const adapter = new $tw.test.GraphEngine({ nodes: {
 		match: {label: "match"},

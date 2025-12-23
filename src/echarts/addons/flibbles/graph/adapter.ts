@@ -16,6 +16,10 @@ export const name = "ECharts";
 export const properties = {
 	graph: {
 		physics: {type: "boolean", default: true},
+			edgeLength: {type: "number", default: 30, min: 0, max: 100, parent: "physics"},
+			friction: {type: "number", default: 0.6, min: 0, max: 1, increment: 0.01, parent: "physics"},
+			gravity: {type: "number", default: 0.1, min: 0, max: 1, increment: 0.01, parent: "physics"},
+			repulsion: {type: "number", default: 50, min: 0, max: 200, parent: "physics"},
 		zoom: {type: "boolean", default: true, nonECharts: true},
 		doubleclick: {type: "actions", variables: ["x", "y"]},
 		focus: {type: "actions", nonECharts: true},
