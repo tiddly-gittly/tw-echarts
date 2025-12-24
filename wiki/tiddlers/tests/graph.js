@@ -247,6 +247,19 @@ it('can manipulate edge arrows', function() {
 		{source: "A", target: "B", symbol: [null, "arrow"]}]);
 });
 
+it('can manipulate edge roundness', function() {
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {}, B: {}},
+		edges: {
+			curved: {from: "A", to: "B", roundness: 1},
+			none: {from: "A", to: "B"},
+			straight: {from: "A", to: "B", roundness: 0}}});
+	expect(adapter.testLast.series[0].links).toEqual([
+		{source: "A", target: "B", lineStyle: {curveness: 1}},
+		{source: "A", target: "B"},
+		{source: "A", target: "B"}]);
+});
+
 /*** Events ***/
 
 class EChartsEvent {

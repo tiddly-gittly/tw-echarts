@@ -110,6 +110,9 @@ function createLinks(oldLinks: object, newLinks: object) {
 		if (l.width !== undefined) {
 			lineStyle.width = l.width;
 		}
+		if (l.roundness) {
+			lineStyle.curveness = l.roundness;
+		}
 		// If we actually set anything in lineStyle,
 		// then we need to attach it to our line.
 		for (var anything in lineStyle) {
