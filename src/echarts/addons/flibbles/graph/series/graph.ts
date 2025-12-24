@@ -98,6 +98,9 @@ function createLinks(oldLinks: object, newLinks: object) {
 			case "to":
 				cleaned.symbol = [null, "arrow"];
 		}
+		if (l.physics === false) {
+			cleaned.ignoreForceLayout = true;
+		}
 		const lineStyle = {};
 		if (l.color !== undefined) {
 			lineStyle.color = l.color;

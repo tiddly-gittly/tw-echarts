@@ -260,6 +260,19 @@ it('can manipulate edge roundness', function() {
 		{source: "A", target: "B"}]);
 });
 
+it('can manipulate edge physics', function() {
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {}, B: {}},
+		edges: {
+			empty: {from: "A", to: "B"},
+			no: {from: "A", to: "B", physics: false},
+			yes: {from: "A", to: "B", physics: true}}});
+	expect(adapter.testLast.series[0].links).toEqual([
+		{source: "A", target: "B"},
+		{source: "A", target: "B", ignoreForceLayout: true},
+		{source: "A", target: "B"}]);
+});
+
 /*** Events ***/
 
 class EChartsEvent {
