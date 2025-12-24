@@ -206,6 +206,21 @@ it('can manipulate edge color', function() {
 		{source: "A", target: "B", lineStyle: {color: "#ff0000"}}]);
 });
 
+it('can manipulate edge arrows', function() {
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {}, B: {}},
+		edges: {
+			from: {from: "A", to: "B", arrows: "from"},
+			empty: {from: "A", to: "B"},
+			no: {from: "A", to: "B", arrows: "no"},
+			to: {from: "A", to: "B", arrows: "to"}}});
+	expect(adapter.testLast.series[0].links).toEqual([
+		{source: "A", target: "B", symbol: ["arrow", null]},
+		{source: "A", target: "B"},
+		{source: "A", target: "B"},
+		{source: "A", target: "B", symbol: [null, "arrow"]}]);
+});
+
 /*** Events ***/
 
 class EChartsEvent {

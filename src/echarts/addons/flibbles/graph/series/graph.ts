@@ -95,6 +95,13 @@ function createLinks(oldLinks: object, newLinks: object) {
 			cleaned.lineStyle = cleaned.lineStyle || {};
 			cleaned.lineStyle.color = l.color;
 		}
+		switch (l.arrows) {
+			case "from":
+				cleaned.symbol = ["arrow", null];
+				break;
+			case "to":
+				cleaned.symbol = [null, "arrow"];
+		}
 		return cleaned;
 	});
 }
