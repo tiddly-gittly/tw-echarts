@@ -164,6 +164,8 @@ it('can manipulate node physics', function() {
 	expect(data[2].fixed).toBe(true);
 });
 
+/*** Edges ***/
+
 // The only way to remove edges from an eCharts graph is to either do
 // a "notMerge" or a "replaceMerge", both of which require fully
 // resubmitting the edge list.
@@ -194,6 +196,14 @@ it('can manipulate edge labels', function() {
 		{source: "A", target: "B", id: "labeled", label: {show: true}},
 		{source: "A", target: "C", id: "labeled", label: {show: true}},
 		{source: "A", target: "B"}]);
+});
+
+it('can manipulate edge color', function() {
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {}, B: {}},
+		edges: {AB: {from: "A", to: "B", color: "#ff0000"}}});
+	expect(adapter.testLast.series[0].links).toEqual([
+		{source: "A", target: "B", lineStyle: {color: "#ff0000"}}]);
 });
 
 /*** Events ***/

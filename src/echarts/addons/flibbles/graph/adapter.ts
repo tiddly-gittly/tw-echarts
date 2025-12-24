@@ -41,6 +41,7 @@ export const properties = {
 	},
 	edges: {
 		label: {type: "string"},
+		color: {type: "color"},
 		actions: {type: "actions"},
 		hover: {type: "actions"},
 		blur: {type: "actions"},

@@ -91,6 +91,10 @@ function createLinks(oldLinks: object, newLinks: object) {
 			cleaned.id = l.label;
 			cleaned.label = {show: true};
 		}
+		if (l.color !== undefined) {
+			cleaned.lineStyle = cleaned.lineStyle || {};
+			cleaned.lineStyle.color = l.color;
+		}
 		return cleaned;
 	});
 }

@@ -65,7 +65,7 @@ test.spyOnEvent = function(adapter, method) {
 		}
 		// Make sure the specific action is listed
 		var property = category[graphEvent.type];
-		expect(property).not.toBeUndefined(`ECharts does not define action property '${graphEvent.type}'`);
+		expect(property).toBeDefined(`ECharts does not define action property '${graphEvent.type}'`);
 		// Compare listed variables with actually passed variables
 		var expectedVars = property.variables || [];
 		var actualVars = Object.keys(variables || {});
