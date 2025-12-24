@@ -40,6 +40,8 @@ export const properties = {
 		free: {type: "actions", variables: ["x", "y"]}
 	},
 	edges: {
+		to: {type: "string", hidden: true},
+		from: {type: "string", hidden: true},
 		arrows: {type: "enum", default: "no", values: ["no", "to", "from"]},
 		label: {type: "string"},
 		color: {type: "color"},

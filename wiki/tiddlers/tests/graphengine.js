@@ -3,8 +3,8 @@ describe('graphengine module', function() {
 beforeAll(() => $tw.test.startTestMode() );
 
 it('handles empty graph getting filled', function() {
-	const adapter = new $tw.test.GraphEngine({anything: "anything"});
-	expect(adapter.testLast.series[0].data).toBeUndefined();
+	const adapter = new $tw.test.GraphEngine({});
+	expect(adapter.testLast).toBeUndefined();
 	adapter.update({nodes: { newNode: {}} });
 	// With such a minimal set of info to update,
 	// we should be able to exactly match the passed "option".

@@ -22,6 +22,7 @@ test.startTestMode = function() {
 test.GraphEngine = class GraphEngine extends GraphEngineModule {
 	constructor(initialObjects, testOptions) {
 		super();
+		validateObjects(initialObjects);
 		testOptions = testOptions || {};
 		this.testElement = testOptions.element || test.createElement("div");
 		var options = {window: new Mocks.Window()};
@@ -36,6 +37,30 @@ test.GraphEngine = class GraphEngine extends GraphEngineModule {
 
 	testEvent(payload) {
 		this.echarts.dispatchAction(payload);
+	}
+};
+
+/**Tests to make sure the a given set of objects corresponds to what
+ * ECharts adapter describes in its properties.
+ */
+function validateObjects(objects) {
+	const properties = GraphEngineModule.prototype.properties;
+	for (var type in objects) {
+		expect(Object.keys(properties)).toContain(type);
+		const rules = properties[type];
+
+		function validate(object) {
+			for (var entry in object) {
+				expect(Object.keys(rules)).toContain(entry);
+			}
+		}
+		const set = objects[type];
+		if (type === "graph") {
+			validate(set);
+		} else {
+			Object.values(set).forEach(validate);
+		}
+
 	}
 };
 
