@@ -206,6 +206,32 @@ it('can manipulate edge color', function() {
 		{source: "A", target: "B", lineStyle: {color: "#ff0000"}}]);
 });
 
+it('can manipulate edge width', function() {
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {}, B: {}},
+		edges: {
+			empty: {from: "A", to: "B"},
+			set: {from: "A", to: "B", width: 4}}});
+	expect(adapter.testLast.series[0].links).toEqual([
+		{source: "A", target: "B"},
+		{source: "A", target: "B", lineStyle: {width: 4}}]);
+});
+
+it('can manipulate edge stroke', function() {
+	const adapter = new $tw.test.GraphEngine({
+		nodes: {A: {}, B: {}},
+		edges: {
+			dashed: {from: "A", to: "B", stroke: "dashed"},
+			dotted: {from: "A", to: "B", stroke: "dotted"},
+			empty: {from: "A", to: "B"},
+			solid: {from: "A", to: "B", stroke: "solid"}}});
+	expect(adapter.testLast.series[0].links).toEqual([
+		{source: "A", target: "B", lineStyle: {type: "dashed"}},
+		{source: "A", target: "B", lineStyle: {type: "dotted"}},
+		{source: "A", target: "B"},
+		{source: "A", target: "B"}]);
+});
+
 it('can manipulate edge arrows', function() {
 	const adapter = new $tw.test.GraphEngine({
 		nodes: {A: {}, B: {}},

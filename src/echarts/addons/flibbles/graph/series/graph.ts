@@ -91,16 +91,30 @@ function createLinks(oldLinks: object, newLinks: object) {
 			cleaned.id = l.label;
 			cleaned.label = {show: true};
 		}
-		if (l.color !== undefined) {
-			cleaned.lineStyle = cleaned.lineStyle || {};
-			cleaned.lineStyle.color = l.color;
-		}
 		switch (l.arrows) {
 			case "from":
 				cleaned.symbol = ["arrow", null];
 				break;
 			case "to":
 				cleaned.symbol = [null, "arrow"];
+		}
+		const lineStyle = {};
+		if (l.color !== undefined) {
+			lineStyle.color = l.color;
+		}
+		switch (l.stroke) {
+			case "dashed":
+			case "dotted": // dotted is a little hard to see at width 1.
+				lineStyle.type = l.stroke;
+		}
+		if (l.width !== undefined) {
+			lineStyle.width = l.width;
+		}
+		// If we actually set anything in lineStyle,
+		// then we need to attach it to our line.
+		for (var anything in lineStyle) {
+			cleaned.lineStyle = lineStyle;
+			break;
 		}
 		return cleaned;
 	});

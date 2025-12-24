@@ -45,6 +45,8 @@ export const properties = {
 		arrows: {type: "enum", default: "no", values: ["no", "to", "from"]},
 		label: {type: "string"},
 		color: {type: "color"},
+		stroke: {type: "enum", default: "solid", values: ["solid", "dashed", "dotted"]},
+		width: {type: "number", default: 1, min: 0, max: 100},
 		actions: {type: "actions"},
 		hover: {type: "actions"},
 		blur: {type: "actions"},
