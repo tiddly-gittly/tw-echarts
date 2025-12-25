@@ -129,6 +129,11 @@ test.customMatchers = {
 		return {
 			compare: function(actual, min, max) {
 				const result = {};
+				if (min > max) {
+					var tmp = max;
+					max = min;
+					min = tmp;
+				}
 				result.pass = min <= actual && actual <= max;
 				if (result.pass) {
 					result.message = `Expected ${actual} not to be between ${min} and ${max}`;

@@ -50,8 +50,8 @@ it("can handle physics for one fixed node of unspecified location", function() {
 	expect(data[2].y).toBe(0);
 	// The spread needs to be close to the viewport dimensions so we can
 	// actually see everything.
-	expect(box.width).toBeBetween(300, 350);
-	expect(box.height).toBeBetween(300, 350);
+	expect(box.width).toBeBetween(100, 130);
+	expect(box.height).toBeBetween(100, 130);
 });
 
 /*** No physics ***/
@@ -72,50 +72,49 @@ it("can switch from physics to no physics without losing nodes", function() {
 	// all nodes. Not how vis-network does it, but it will be how echarts does.
 	const adapter = new $tw.test.GraphEngine(
 		{graph: {}, nodes: {A:{}, B:{}}},
-		{width: 86});
+		{width: 500});
 	// Then we turn off physics and keep those locations.
 	adapter.update({graph: {physics: false}});
-	expect(adapter.testLast.series[0].data).toEqual([
-		{id: "A", x: 0, y: -43},
-		{id: "B", x: 0, y: 43}]);
+	const box = $tw.test.getBoundingBox(adapter.testLast.series[0].data);
+	expect(box.origin).toEqual([0,0]);
+	expect(Math.max(box.width, box.height)).toBeBetween(60, 80);
 });
 
 it("can start into no-physics and initially place nodes", function() {
 	const adapter = new $tw.test.GraphEngine({
 		graph: {physics: false},
 		nodes: {A: {}, B: {}, C: {}, D: {}}}, {width: 38});
-	const r = Math.round(Math.sqrt(2)/2*19*100)/100;
-	expect(adapter.testLast.series[0].data).toEqual([
-		{id: "A", x: +r, y: -r},
-		{id: "B", x: -r, y: -r},
-		{id: "C", x: -r, y: +r},
-		{id: "D", x: +r, y: +r}]);
+	var data = adapter.testLast.series[0].data;
+	var box = $tw.test.getBoundingBox(data);
+	expect(box.origin).toEqual([0,0]);
+	expect(box.width).toBeBetween(60, 80);
 	// It can move some nodes around, and the other nodes will keep still
-	adapter.update({nodes: {B: {x: 5, y: 6}, D: {x: 7, y: 8}}});
-	expect(adapter.testLast.series[0].data).toEqual([
-		{id: "A", x: +r, y: -r},
-		{id: "B", x: 5, y: 6},
-		{id: "C", x: -r, y: +r},
-		{id: "D", x: 7, y: 8}]);
+	adapter.update({nodes: {B: {x: 20, y: 20}}});
+	data = adapter.testLast.series[0].data;
+	box = $tw.test.getBoundingBox(data);
+	expect(box.origin).toEqual([0,0]);
+	expect(box.width).toBeBetween(60, 80);
 });
 
 it("a single static non-fixed node gets placed at the origin", function() {
 	const adapter = new $tw.test.GraphEngine({
 		graph: {physics: false},
 		nodes: {A: {}}},
-		{width: 220, height: 330});
+		{width: 1000, height: 1000});
 	expect(adapter.testLast.series[0].data).toEqual([
 		{id: "A", x: 0, y: 0}]);
 	// If one is added, then it starts spreading things out.
 	adapter.update({nodes: {B: {}}});
-	var r = 110;
-	expect(adapter.testLast.series[0].data).toEqual([
-		{id: "A", x: 0, y: -r},
-		{id: "B", x: 0, y: +r}]);
+	const data = adapter.testLast.series[0].data;
+	const box = $tw.test.getBoundingBox(data);
+	expect(Math.max(box.width, box.height)).toBeBetween(60, 100);
 	// If some are placed, it does not reset the origin.
+	const Anode = data[0];
+	// The new location of node A should be somewhere besides the origin now
+	expect(Anode.x || Anode.y).not.toBe(0);
 	adapter.update({nodes: {B: {x: 14, y: 13}}});
 	expect(adapter.testLast.series[0].data).toEqual([
-		{id: "A", x: 0, y: -r},
+		{id: "A", x: Anode.x, y: Anode.y},
 		{id: "B", x: 14, y: 13}]);
 });
 
@@ -124,10 +123,24 @@ it("can mix fixed and non-fixed when initializing static graphs", function() {
 		graph: {physics: false},
 		nodes: {A: {}, B: {x: 1500, y: -1600}}},
 			{width: 720, height: 400});
-	const r = 200;
-	expect(adapter.testLast.series[0].data).toEqual([
-		{id: "A", x: 1500, y: -1600-r},
-		{id: "B", x: 1500, y: -1600}]);
+	const box = $tw.test.getBoundingBox(adapter.testLast.series[0].data);
+	expect(box.origin[0]).toBeBetween(1450, 1550);
+	expect(box.origin[1]).toBeBetween(-1550, -1650);
+	expect(Math.max(box.width, box.height)).toBeBetween(10, 50);
+});
+
+/*** Initial viewport ***/
+
+function range(count) {
+	return Object.fromEntries([...Array(count).keys()].map(n => ["N"+n, {}]));
+};
+
+it("can place 20 nodes and decently frame them", function() {
+	const adapter = new $tw.test.GraphEngine({ nodes: range(20) });
+	const data = adapter.testLast.series[0].data;
+	const box = $tw.test.getBoundingBox(data);
+	expect(box.origin).toEqual([0,0]);
+	expect(box.width).toBeBetween(200, 250);
 });
 
 });

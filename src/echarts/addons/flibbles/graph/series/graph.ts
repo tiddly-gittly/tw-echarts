@@ -138,7 +138,7 @@ function createLinks(oldLinks: object, newLinks: object) {
  */
 function placeNodes(data, echarts) {
 	const count = data.length;
-	const radius = Math.min(this.boundingBox.width, this.boundingBox.height)/2;
+	const radius = Math.sqrt(count) * 25;
 	var fixedPlaced = false;
 	for (var index = 0; index < count; index++) {
 		const node = data[index];
@@ -236,7 +236,7 @@ function getBoundingBox(data, echarts) {
 		// This box is too small to be useful.
 		// Most likely, we have only 1 node.
 		// We'll expand to fill our viewbox instead.
-		box.width = box.height = Math.min(echarts.getHeight(), echarts.getWidth());
+		box.width = box.height = Math.sqrt(data.length) * 25;
 		const r2 = box.width * box.height;
 		if((box.x*box.x <= r2)
 		&& (box.y*box.y <= r2)) {
