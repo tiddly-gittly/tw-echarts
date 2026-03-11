@@ -13,10 +13,11 @@ export function update(objects: GraphObjects): void {
 	const graph = objects.graph;
 	if (graph) {
 		series.type = "graph";
-		// We need to set this manually in all cases because we
-		// use a different default from what echarts would use.
-		// Physics defaults to "on", because vis-network did.
-		series.layout = objects.graph.physics === false? "none": "force";
+		// This is a big difference from how vis-network works.
+		// We default to physics being OFF, because in echarts,
+		// physics, or force, is really just an afterthought.
+		// It's not done well, and echarts looks much nicer without it.
+		series.layout = objects.graph.physics? "force": "none";
 		this.layout = series.layout;
 		series.force = {
 			repulsion: graph.repulsion ?? 50,
