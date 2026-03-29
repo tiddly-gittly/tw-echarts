@@ -39,6 +39,12 @@ export function init(
   element.classList.add('tw5-graph-echarts');
   this.chartInstance = Echarts.init(element);
   setupEChartsEvents.call(this);
+  // 包装 onevent 以 log
+  const originOnevent = this.onevent;
+  this.onevent = function(event, variables) {
+    console.log('[ECharts] onevent', event, variables);
+    if (originOnevent) originOnevent(event, variables);
+  };
   render.call(this, objects);
 }
 

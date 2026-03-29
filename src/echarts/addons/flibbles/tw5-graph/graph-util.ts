@@ -170,9 +170,10 @@ export function buildNodesData(
   return Object.entries(nodes).map(([id, node], i) => {
     const n = node as NodeObject;
     const { x, y } = handleXY(n, id, i, layoutType, nodes, chartInstance);
-    const item: EChartOption.SeriesGraph.DataObject & { draggable?: boolean } = {
-  // 确保始终有 name，优先 label，否则回退到 id，避免边无法匹配
-  name: handleName(n) ?? id,
+    const item: EChartOption.SeriesGraph.DataObject & { draggable?: boolean; id: string } = {
+      // 确保始终有 name，优先 label，否则回退到 id，避免边无法匹配
+      name: handleName(n) ?? id,
+      id, // 补充 id 字段，便于事件 params.data.id 能正确获取
       x,
       y,
       value: handleValue(n),

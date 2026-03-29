@@ -40,7 +40,61 @@ export function setupEChartsEvents(this: EChartsEngineInstance): void {
     return;
   }
 
+    // 记录上次节点坐标，便于判断哪些节点被拖动
+    let lastNodePositions: Record<string, {x: number, y: number}> = {};
+    function isGraphNode(obj: any): obj is { id: string; x: number; y: number } {
+      return obj && typeof obj === 'object' && typeof obj.id === 'string' && typeof obj.x === 'number' && typeof obj.y === 'number';
+    }
+    function updateLastNodePositions() {
+      if (!chartInstance) return;
+      const option = chartInstance.getOption && chartInstance.getOption();
+      const series = option && Array.isArray(option.series) ? option.series[0] : undefined;
+      if (series && Array.isArray(series.data)) {
+        lastNodePositions = {};
+        for (const n of series.data) {
+          if (isGraphNode(n)) {
+            lastNodePositions[n.id] = { x: n.x, y: n.y };
+          }
+        }
+      }
+    }
+    updateLastNodePositions();
+
   // click 事件
+  // 节点拖动后同步 x/y（仅 layout: 'none' 有效）
+  chartInstance.on('graphRoam', (params: any) => {
+    // 只处理节点拖动，不处理缩放/平移
+    if (params && params.isNodeDragging) {
+      if (!chartInstance) return;
+      const option = chartInstance.getOption && chartInstance.getOption();
+      const series = option && Array.isArray(option.series) ? option.series[0] : undefined;
+      if (series && Array.isArray(series.data)) {
+        for (const n of series.data) {
+          if (isGraphNode(n)) {
+            const prev = lastNodePositions[n.id];
+            if (!prev || prev.x !== n.x || prev.y !== n.y) {
+              // 节点坐标发生变化，分发 drag/free 事件
+              this.onevent?.(
+                {
+                  type: 'free',
+                  objectType: 'nodes',
+                  id: n.id,
+                  event: params.event,
+                },
+                {
+                  x: n.x,
+                  y: n.y,
+                  xView: params.event?.offsetX ?? 0,
+                  yView: params.event?.offsetY ?? 0,
+                },
+              );
+            }
+          }
+        }
+        updateLastNodePositions();
+      }
+    }
+  });
   chartInstance.on('click', (params: any) => {
     this.onevent?.(
       {
@@ -85,6 +139,7 @@ export function setupEChartsEvents(this: EChartsEngineInstance): void {
         yView: params.event?.offsetY ?? 0,
       };
     }
+    console.log('[ECharts] dblclick event', { params, objectType, id, variables });
     this.onevent?.(
       { type: 'doubleclick', objectType, id, event: params.event },
       variables,
@@ -119,8 +174,40 @@ export function setupEChartsEvents(this: EChartsEngineInstance): void {
 
   // 拖拽
   if ((chartInstance as any).getZr) {
+    function round(number: number) { return Math.round(number * 10) / 10; }
+    function makeNodeVariables(params: any): GraphEventVariables {
+      // default fallbacks
+      let xView = params.event?.offsetX ?? 0;
+      let yView = params.event?.offsetY ?? 0;
+      let x = xView;
+      let y = yView;
+      try {
+        if (!chartInstance) {
+          return { x, y, xView, yView };
+        }
+        const option = chartInstance.getOption && chartInstance.getOption();
+        const series = option && Array.isArray(option.series) ? option.series[0] : undefined;
+        if (series && Array.isArray(series.data)) {
+          const found = series.data.find((d: any) => d && d.id === params.target.id);
+          const node: any = found as any;
+          if (node && typeof node === 'object' && typeof node.x === 'number' && typeof node.y === 'number') {
+            x = round(node.x);
+            y = round(node.y);
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+      return { x, y, xView, yView };
+    }
+
     (chartInstance as any).getZr().on('mousedown', (params: any) => {
       if (params.target) {
+        let variables: GraphEventVariables = params as GraphEventVariables;
+        // if it's a node, provide x/y like vis-network
+        if (params.target.dataType === 'node' || params.target.dataType === 'nodes') {
+          variables = makeNodeVariables(params);
+        }
         this.onevent?.(
           {
             type: 'drag',
@@ -128,12 +215,16 @@ export function setupEChartsEvents(this: EChartsEngineInstance): void {
             id: params.target.id,
             event: params.event,
           },
-          params as GraphEventVariables,
+          variables,
         );
       }
     });
     (chartInstance as any).getZr().on('mouseup', (params: any) => {
       if (params.target) {
+        let variables: GraphEventVariables = params as GraphEventVariables;
+        if (params.target.dataType === 'node' || params.target.dataType === 'nodes') {
+          variables = makeNodeVariables(params);
+        }
         this.onevent?.(
           {
             type: 'free',
@@ -141,7 +232,7 @@ export function setupEChartsEvents(this: EChartsEngineInstance): void {
             id: params.target.id,
             event: params.event,
           },
-          params as GraphEventVariables,
+          variables,
         );
       }
     });

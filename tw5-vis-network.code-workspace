@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"name": "tw5-vis-network",
+			"path": "../tw5-vis-network"
+		},
+		{
+			"name": "tw5-graph",
+			"path": "../tw5-graph"
+		},
+		{
+			"name": "tw-echarts",
+			"path": "."
+		}
+	],
+	"settings": {
+		"eslint.workingDirectories": [
+			{ "directory": "./", "changeProcessCWD": true }
+		],
+		"typescript.tsdk": "./node_modules/typescript/lib"
+	}
+}
