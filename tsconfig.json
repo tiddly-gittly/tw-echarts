@@ -3,10 +3,19 @@
   "compilerOptions": {
     "declaration": false,
     "jsx": "preserve",
-    "baseUrl": "./",
-    "types": ["node", "tw5-typed"],
-    "lib": ["DOM", "ESNext"]
+    "types": [
+      "node",
+      "tw5-typed"
+    ],
+    "lib": [
+      "DOM",
+      "ESNext"
+    ]
   },
-  "include": ["src"],
-  "exclude": ["./**/*.js"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "./**/*.js"
+  ]
 }
