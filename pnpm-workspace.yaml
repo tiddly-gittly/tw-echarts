@@ -6,5 +6,4 @@ onlyBuiltDependencies:
   - dprint
   - esbuild
   - svelte-preprocess
-  - unrs-resolver
 
